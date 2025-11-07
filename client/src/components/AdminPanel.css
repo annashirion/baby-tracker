@@ -1,0 +1,58 @@
+.admin-panel {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.users-list {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.user-card {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.user-info p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.user-info strong {
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  .user-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
