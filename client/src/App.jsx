@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
+import BabyProfiles from './components/BabyProfiles'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
@@ -100,21 +101,27 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1>Welcome to Baby Tracker, {user.name}!</h1>
-      {user.picture && (
-        <img 
-          src={user.picture} 
-          alt={user.name} 
-          style={{ borderRadius: '50%', width: '80px', height: '80px', margin: '20px 0' }}
-        />
-      )}
-      <p>Email: {user.email}</p>
-      <p>You are logged in successfully.</p>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-        <button onClick={() => setShowAdmin(true)}>View Database</button>
-        <button onClick={() => setUser(null)}>Logout</button>
+      <div style={{ padding: '1rem', borderBottom: '1px solid #ddd', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {user.picture && (
+            <img 
+              src={user.picture} 
+              alt={user.name} 
+              style={{ borderRadius: '50%', width: '50px', height: '50px' }}
+            />
+          )}
+          <div>
+            <h2 style={{ margin: 0 }}>Welcome, {user.name}!</h2>
+            <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{user.email}</p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button onClick={() => setShowAdmin(true)}>View Database</button>
+          <button onClick={() => setUser(null)}>Logout</button>
+        </div>
       </div>
+      {error && <p style={{ color: 'red', padding: '0 1rem' }}>{error}</p>}
+      <BabyProfiles userId={user.id} />
     </div>
   )
 }

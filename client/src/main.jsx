@@ -11,9 +11,9 @@ if (!GOOGLE_CLIENT_ID) {
 }
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <App />
     </GoogleOAuthProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )
