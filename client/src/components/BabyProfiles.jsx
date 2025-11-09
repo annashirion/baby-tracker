@@ -3,7 +3,7 @@ import './BabyProfiles.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-function BabyProfiles({ userId }) {
+function BabyProfiles({ userId, onViewUsers }) {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -306,6 +306,17 @@ function BabyProfiles({ userId }) {
                   <code className="join-code">{profile.joinCode}</code>
                 </div>
               </div>
+              {profile.role === 'admin' && onViewUsers && (
+                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}>
+                  <button 
+                    onClick={() => onViewUsers(profile.id, profile.name)}
+                    className="btn btn-primary"
+                    style={{ width: '100%' }}
+                  >
+                    View Users
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

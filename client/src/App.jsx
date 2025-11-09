@@ -10,7 +10,7 @@ function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [showAdmin, setShowAdmin] = useState(false)
+  const [selectedProfile, setSelectedProfile] = useState(null)
 
   const handleLoginSuccess = async (tokenResponse) => {
     try {
@@ -85,16 +85,31 @@ function App() {
     return <Login onSuccess={handleLoginSuccess} onError={handleLoginError} />
   }
 
-  if (showAdmin) {
+  const handleViewUsers = (babyProfileId, profileName) => {
+    setSelectedProfile({ id: babyProfileId, name: profileName })
+  }
+
+  const handleCloseUsers = () => {
+    setSelectedProfile(null)
+  }
+
+  if (selectedProfile) {
     return (
       <div>
         <div style={{ padding: '1rem', textAlign: 'center', borderBottom: '1px solid #ddd' }}>
-          <button onClick={() => setShowAdmin(false)} style={{ marginRight: '1rem' }}>
-            ← Back to Home
+          <button onClick={handleCloseUsers} style={{ marginRight: '1rem' }}>
+            ← Back to Profiles
           </button>
           <button onClick={() => setUser(null)}>Logout</button>
         </div>
-        <AdminPanel />
+        <div style={{ padding: '1rem' }}>
+          <h2 style={{ marginBottom: '1rem' }}>Users for: {selectedProfile.name}</h2>
+          <AdminPanel 
+            userId={user.id} 
+            babyProfileId={selectedProfile.id}
+            onClose={handleCloseUsers}
+          />
+        </div>
       </div>
     )
   }
@@ -116,12 +131,11 @@ function App() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button onClick={() => setShowAdmin(true)}>View Database</button>
           <button onClick={() => setUser(null)}>Logout</button>
         </div>
       </div>
       {error && <p style={{ color: 'red', padding: '0 1rem' }}>{error}</p>}
-      <BabyProfiles userId={user.id} />
+      <BabyProfiles userId={user.id} onViewUsers={handleViewUsers} />
     </div>
   )
 }

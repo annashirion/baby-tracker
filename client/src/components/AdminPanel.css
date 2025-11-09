@@ -19,6 +19,7 @@
   background: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
+  position: relative;
 }
 
 .user-avatar {
@@ -46,6 +47,38 @@
 
 .user-info strong {
   color: #333;
+}
+
+.delete-user-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc3545;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+  border-radius: 4px;
+}
+
+.delete-user-btn:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.1);
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.delete-user-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.delete-user-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 @media (max-width: 600px) {
