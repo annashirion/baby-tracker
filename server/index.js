@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import babyProfileRoutes from './routes/baby-profiles.js';
+import { EMOJIS } from './constants/emojis.js';
 
 dotenv.config();
 
@@ -38,6 +39,14 @@ app.get('/api/health', (req, res) => {
     status: 'ok', 
     message: 'Server is running',
     mongodb: mongoStatus
+  });
+});
+
+// Get available emojis (no auth required, public endpoint)
+app.get('/api/emojis', (req, res) => {
+  res.json({
+    success: true,
+    emojis: EMOJIS
   });
 });
 

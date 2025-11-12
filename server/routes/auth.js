@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js';
+import { getRandomEmoji } from '../constants/emojis.js';
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.post('/google', async (req, res) => {
     }
 
     const googleUser = await response.json();
-    const { id: googleId, email, name, picture, given_name, family_name } = googleUser;
+    const { id: googleId, email, name, given_name, family_name } = googleUser;
 
     if (!googleId || !email) {
       throw new Error('Invalid user data from Google: missing id or email');
@@ -36,20 +37,22 @@ router.post('/google', async (req, res) => {
     let user = await User.findOne({ googleId });
 
     if (user) {
-      // Update existing user
+      // Update existing user (keep existing emoji if they have one, otherwise generate new)
       user.email = email;
       user.name = name;
-      user.picture = picture;
+      if (!user.emoji) {
+        user.emoji = getRandomEmoji();
+      }
       user.givenName = given_name;
       user.familyName = family_name;
       await user.save();
     } else {
-      // Create new user
+      // Create new user with random emoji
       user = await User.create({
         googleId,
         email,
         name,
-        picture,
+        emoji: getRandomEmoji(),
         givenName: given_name,
         familyName: family_name,
       });
@@ -61,7 +64,7 @@ router.post('/google', async (req, res) => {
         id: user._id,
         email: user.email,
         name: user.name,
-        picture: user.picture,
+        emoji: user.emoji,
         googleId: user.googleId,
       },
     });

@@ -15,8 +15,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  picture: {
+  emoji: {
     type: String,
+    default: null,
   },
   givenName: {
     type: String,

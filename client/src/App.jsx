@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
+import EmojiPicker from './components/EmojiPicker'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
@@ -93,6 +94,10 @@ function App() {
     setSelectedProfile(null)
   }
 
+  const handleEmojiChange = (newEmoji) => {
+    setUser(prevUser => ({ ...prevUser, emoji: newEmoji }))
+  }
+
   if (selectedProfile) {
     return (
       <div>
@@ -118,13 +123,12 @@ function App() {
     <div className="app-container">
       <div style={{ padding: '1rem', borderBottom: '1px solid #ddd', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {user.picture && (
-            <img 
-              src={user.picture} 
-              alt={user.name} 
-              style={{ borderRadius: '50%', width: '50px', height: '50px' }}
-            />
-          )}
+          <EmojiPicker
+            currentEmoji={user.emoji}
+            onEmojiChange={handleEmojiChange}
+            userId={user.id}
+            size="medium"
+          />
           <div>
             <h2 style={{ margin: 0 }}>Welcome, {user.name}!</h2>
             <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{user.email}</p>

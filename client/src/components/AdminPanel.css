@@ -22,14 +22,6 @@
   position: relative;
 }
 
-.user-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
 .user-info {
   flex: 1;
 }
