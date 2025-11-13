@@ -54,9 +54,38 @@
   transition: all 0.2s;
   text-align: left;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.last-action-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  opacity: 0.9;
+  width: 100%;
+  justify-content: end;
+}
+
+.action-emoji {
+  font-size: 1rem;
+}
+
+.action-details {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .action-button:hover {
@@ -71,8 +100,6 @@
 .action-button-diaper {
   background-color: #ffc107;
   color: #333;
-  display: flex;
-  gap: 0.5rem;
 }
 
 .action-button-diaper:hover {
@@ -82,8 +109,6 @@
 .action-button-feed {
   background-color: #28a745;
   color: white;
-  display: flex;
-  gap: 0.5rem;
 }
 
 .action-button-feed:hover {
@@ -93,8 +118,6 @@
 .action-button-sleep {
   background-color: #17a2b8;
   color: white;
-  display: flex;
-  gap: 0.5rem;
 }
 
 .action-button-sleep:hover {
@@ -104,8 +127,6 @@
 .action-button-other {
   background-color: #6f42c1;
   color: white;
-  display: flex;
-  gap: 0.5rem;
 }
 
 .action-button-other:hover {

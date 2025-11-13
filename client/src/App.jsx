@@ -128,7 +128,12 @@ function App() {
             <button onClick={() => setUser(null)}>Logout</button>
           </div>
         </div>
-        <BabyProfileView profile={openProfile} onClose={handleCloseProfile} />
+        <BabyProfileView 
+          profile={openProfile} 
+          onClose={handleCloseProfile}
+          userId={user.id}
+          userEmoji={user.emoji}
+        />
       </div>
     )
   }
