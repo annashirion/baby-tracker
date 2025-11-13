@@ -54,7 +54,6 @@
   transition: all 0.2s;
   text-align: left;
   display: flex;
-  flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -67,15 +66,22 @@
   width: 100%;
 }
 
+.action-button-sleep {
+  .action-button-main {
+    width: fit-content;
+    gap: 0.25rem;
+  }
+}
+
 .last-action-info {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
   font-size: 0.9rem;
   font-weight: 400;
   opacity: 0.9;
   width: 100%;
-  justify-content: end;
 }
 
 .action-emoji {
@@ -86,6 +92,12 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+.sleep-duration {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-left: auto;
 }
 
 .action-button:hover {

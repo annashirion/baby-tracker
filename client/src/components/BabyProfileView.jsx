@@ -2,16 +2,20 @@ import { useState, useEffect } from 'react';
 import './BabyProfileView.css';
 import DiaperAction from './DiaperAction';
 import OtherAction from './OtherAction';
+import SleepAction from './SleepAction';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
   const [showOtherAction, setShowOtherAction] = useState(false);
+  const [showSleepAction, setShowSleepAction] = useState(false);
   const [lastDiaperAction, setLastDiaperAction] = useState(null);
   const [lastOtherAction, setLastOtherAction] = useState(null);
+  const [lastSleepAction, setLastSleepAction] = useState(null);
   const [loadingAction, setLoadingAction] = useState(true);
   const [timeKey, setTimeKey] = useState(0); // Force re-render for time updates
+  const [timerKey, setTimerKey] = useState(0); // Force re-render for timer updates
 
   useEffect(() => {
     fetchLastActions();
@@ -19,14 +23,25 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
 
   // Update time display every minute
   useEffect(() => {
-    if (lastDiaperAction || lastOtherAction) {
+    if (lastDiaperAction || lastOtherAction || lastSleepAction) {
       const interval = setInterval(() => {
         setTimeKey(prev => prev + 1);
       }, 60000); // Update every minute
 
       return () => clearInterval(interval);
     }
-  }, [lastDiaperAction, lastOtherAction]);
+  }, [lastDiaperAction, lastOtherAction, lastSleepAction]);
+
+  // Update timer every second when sleep is in progress
+  useEffect(() => {
+    if (lastSleepAction && !lastSleepAction.details?.endTime) {
+      const interval = setInterval(() => {
+        setTimerKey(prev => prev + 1);
+      }, 1000); // Update every second
+
+      return () => clearInterval(interval);
+    }
+  }, [lastSleepAction]);
 
   const fetchLastActions = async () => {
     try {
@@ -49,6 +64,13 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
         } else {
           setLastOtherAction(null);
         }
+        // Find the most recent sleep action
+        const sleepActions = data.actions.filter(action => action.actionType === 'sleep');
+        if (sleepActions.length > 0) {
+          setLastSleepAction(sleepActions[0]);
+        } else {
+          setLastSleepAction(null);
+        }
       }
     } catch (err) {
       console.error('Error fetching last actions:', err);
@@ -64,12 +86,12 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     const diffMins = Math.floor(diffMs / 60000);
     
     if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1 minute ago';
-    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffMins === 1) return '1 min ago';
+    if (diffMins < 60) return `${diffMins} mins ago`;
     
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours === 1) return '1 hour ago';
-    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffHours === 1) return '1 h ago';
+    if (diffHours < 24) return `${diffHours} h ago`;
     
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays === 1) return '1 day ago';
@@ -89,11 +111,49 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     }
   };
 
+  const formatDuration = (startTime, endTime = null, showSeconds = false) => {
+    const start = new Date(startTime);
+    const end = endTime ? new Date(endTime) : new Date();
+    const diffMs = end - start;
+    const diffMins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMins / 60);
+    const minutes = diffMins % 60;
+    const seconds = Math.floor((diffMs % 60000) / 1000);
+
+    // Pad with leading zeros
+    const pad = (num) => String(num).padStart(2, '0');
+
+    if (showSeconds) {
+      // For live timer, always show seconds
+      if (hours > 0) {
+        return `${hours}:${pad(minutes)}:${pad(seconds)}`;
+      }
+      return `${pad(minutes)}:${pad(seconds)}`;
+    } else {
+      // For completed sessions, don't show seconds
+      if (hours > 0) {
+        return `${hours}:${pad(minutes)}`;
+      }
+      return `${pad(minutes)}`;
+    }
+  };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
   const handleAction = (actionType) => {
     if (actionType === 'diaper') {
       setShowDiaperAction(true);
     } else if (actionType === 'other') {
       setShowOtherAction(true);
+    } else if (actionType === 'sleep') {
+      setShowSleepAction(true);
     } else {
       console.log(`Action: ${actionType} for profile: ${profile.name}`);
       // TODO: Implement API call to track this action
@@ -130,6 +190,21 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           }}
         />
       )}
+      {showSleepAction && (
+        <SleepAction
+          profile={profile}
+          userId={userId}
+          userEmoji={userEmoji}
+          lastSleepAction={lastSleepAction}
+          onClose={() => setShowSleepAction(false)}
+          onSuccess={(action) => {
+            console.log('Sleep action saved:', action);
+            setShowSleepAction(false);
+            // Refresh the last actions
+            fetchLastActions();
+          }}
+        />
+      )}
       <div className="baby-profile-view">
         <div className="baby-profile-view-header">
           <button onClick={onClose} className="btn btn-back">
@@ -144,13 +219,13 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
             onClick={() => handleAction('diaper')}
           >
             <div className="action-button-main">
-              <span>🍼</span> <span>Diaper</span>
+              <span>💩</span> <span>Diaper</span>
               {!loadingAction && lastDiaperAction && (
               <div className="last-action-info">
-                <span className="action-details">
+                <div className="action-details">
                   {getDiaperTypeLabel(lastDiaperAction.details?.type)} • {formatTimeAgo(lastDiaperAction.createdAt)}
-                </span>
-                {lastDiaperAction.userEmoji && <span className="action-emoji">{lastDiaperAction.userEmoji}</span>}
+                  {lastDiaperAction.userEmoji && <span className="action-emoji">{lastDiaperAction.userEmoji}</span>}
+                </div>
               </div>
             )}
             </div>
@@ -161,7 +236,40 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>😴</span> <span>Sleep</span>
+              {!loadingAction && lastSleepAction && (
+                <span className="sleep-duration">
+                  {lastSleepAction.details?.endTime 
+                    ? formatDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)
+                    : formatDuration(lastSleepAction.details?.startTime, null, true)
+                  }
+                </span>
+              )}
             </div>
+            {!loadingAction && lastSleepAction && (
+              <div className="last-action-info">
+                {lastSleepAction.details?.endTime ? (
+                  // Sleep is complete - show both fall asleep and woke up info
+                  <>
+                    <div className="action-details">
+                      fall asleep • {formatTimeAgo(lastSleepAction.createdAt)}
+                      {lastSleepAction.userEmoji && <span className="action-emoji">{lastSleepAction.userEmoji}</span>}
+                    </div>
+                    <div className="action-details">
+                      woke up • {formatTimeAgo(lastSleepAction.details.endTime)}
+                      {lastSleepAction.details?.endUserEmoji && <span className="action-emoji">{lastSleepAction.details.endUserEmoji}</span>}
+                    </div>
+                  </>
+                ) : (
+                  // Sleep is in progress - show "fall asleep" and time
+                  <>
+                    <div className="action-details">
+                      fall asleep • {formatTimeAgo(lastSleepAction.createdAt)}
+                      {lastSleepAction.userEmoji && <span className="action-emoji">{lastSleepAction.userEmoji}</span>}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </button>
           <button 
             className="action-button action-button-feed"
@@ -179,10 +287,10 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               <span>📝</span> <span>Other</span>
               {!loadingAction && lastOtherAction && (
                 <div className="last-action-info">
-                  <span className="action-details">
+                  <div className="action-details">
                     {lastOtherAction.details?.title} • {formatTimeAgo(lastOtherAction.createdAt)}
-                  </span>
-                  {lastOtherAction.userEmoji && <span className="action-emoji">{lastOtherAction.userEmoji}</span>}
+                    {lastOtherAction.userEmoji && <span className="action-emoji">{lastOtherAction.userEmoji}</span>}
+                  </div>
                 </div>
               )}
             </div>

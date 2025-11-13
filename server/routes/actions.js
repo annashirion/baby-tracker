@@ -72,5 +72,43 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Update an action
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { details } = req.body;
+
+    const action = await Action.findByIdAndUpdate(
+      id,
+      { 
+        details: details || {},
+        $set: { updatedAt: new Date() }
+      },
+      { new: true }
+    );
+
+    if (!action) {
+      return res.status(404).json({ error: 'Action not found' });
+    }
+
+    res.json({
+      success: true,
+      action: {
+        id: action._id,
+        babyProfileId: action.babyProfileId,
+        userId: action.userId,
+        actionType: action.actionType,
+        details: action.details,
+        userEmoji: action.userEmoji,
+        createdAt: action.createdAt,
+        updatedAt: action.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating action:', error);
+    res.status(500).json({ error: 'Failed to update action', message: error.message });
+  }
+});
+
 export default router;
 
