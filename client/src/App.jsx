@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
+import BabyProfileView from './components/BabyProfileView'
 import EmojiPicker from './components/EmojiPicker'
 import './App.css'
 
@@ -12,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [selectedProfile, setSelectedProfile] = useState(null)
+  const [openProfile, setOpenProfile] = useState(null)
 
   const handleLoginSuccess = async (tokenResponse) => {
     try {
@@ -94,8 +96,41 @@ function App() {
     setSelectedProfile(null)
   }
 
+  const handleOpenProfile = (profile) => {
+    setOpenProfile(profile)
+  }
+
+  const handleCloseProfile = () => {
+    setOpenProfile(null)
+  }
+
   const handleEmojiChange = (newEmoji) => {
     setUser(prevUser => ({ ...prevUser, emoji: newEmoji }))
+  }
+
+  if (openProfile) {
+    return (
+      <div className="app-container">
+        <div style={{ padding: '1rem', borderBottom: '1px solid #ddd', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <EmojiPicker
+              currentEmoji={user.emoji}
+              onEmojiChange={handleEmojiChange}
+              userId={user.id}
+              size="medium"
+            />
+            <div>
+              <h2 style={{ margin: 0 }}>Welcome, {user.name}!</h2>
+              <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{user.email}</p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button onClick={() => setUser(null)}>Logout</button>
+          </div>
+        </div>
+        <BabyProfileView profile={openProfile} onClose={handleCloseProfile} />
+      </div>
+    )
   }
 
   if (selectedProfile) {
@@ -139,7 +174,7 @@ function App() {
         </div>
       </div>
       {error && <p style={{ color: 'red', padding: '0 1rem' }}>{error}</p>}
-      <BabyProfiles userId={user.id} onViewUsers={handleViewUsers} />
+      <BabyProfiles userId={user.id} onViewUsers={handleViewUsers} onOpenProfile={handleOpenProfile} />
     </div>
   )
 }
