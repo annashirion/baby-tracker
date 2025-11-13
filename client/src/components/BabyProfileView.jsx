@@ -1,31 +1,34 @@
 import { useState, useEffect } from 'react';
 import './BabyProfileView.css';
 import DiaperAction from './DiaperAction';
+import OtherAction from './OtherAction';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
+  const [showOtherAction, setShowOtherAction] = useState(false);
   const [lastDiaperAction, setLastDiaperAction] = useState(null);
+  const [lastOtherAction, setLastOtherAction] = useState(null);
   const [loadingAction, setLoadingAction] = useState(true);
   const [timeKey, setTimeKey] = useState(0); // Force re-render for time updates
 
   useEffect(() => {
-    fetchLastDiaperAction();
+    fetchLastActions();
   }, [profile.id]);
 
   // Update time display every minute
   useEffect(() => {
-    if (lastDiaperAction) {
+    if (lastDiaperAction || lastOtherAction) {
       const interval = setInterval(() => {
         setTimeKey(prev => prev + 1);
       }, 60000); // Update every minute
 
       return () => clearInterval(interval);
     }
-  }, [lastDiaperAction]);
+  }, [lastDiaperAction, lastOtherAction]);
 
-  const fetchLastDiaperAction = async () => {
+  const fetchLastActions = async () => {
     try {
       setLoadingAction(true);
       const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
@@ -39,9 +42,16 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
         } else {
           setLastDiaperAction(null);
         }
+        // Find the most recent other action
+        const otherActions = data.actions.filter(action => action.actionType === 'other');
+        if (otherActions.length > 0) {
+          setLastOtherAction(otherActions[0]);
+        } else {
+          setLastOtherAction(null);
+        }
       }
     } catch (err) {
-      console.error('Error fetching last diaper action:', err);
+      console.error('Error fetching last actions:', err);
     } finally {
       setLoadingAction(false);
     }
@@ -82,6 +92,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const handleAction = (actionType) => {
     if (actionType === 'diaper') {
       setShowDiaperAction(true);
+    } else if (actionType === 'other') {
+      setShowOtherAction(true);
     } else {
       console.log(`Action: ${actionType} for profile: ${profile.name}`);
       // TODO: Implement API call to track this action
@@ -99,8 +111,22 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           onSuccess={(action) => {
             console.log('Diaper action saved:', action);
             setShowDiaperAction(false);
-            // Refresh the last diaper action
-            fetchLastDiaperAction();
+            // Refresh the last actions
+            fetchLastActions();
+          }}
+        />
+      )}
+      {showOtherAction && (
+        <OtherAction
+          profile={profile}
+          userId={userId}
+          userEmoji={userEmoji}
+          onClose={() => setShowOtherAction(false)}
+          onSuccess={(action) => {
+            console.log('Other action saved:', action);
+            setShowOtherAction(false);
+            // Refresh the last actions
+            fetchLastActions();
           }}
         />
       )}
@@ -151,6 +177,14 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>📝</span> <span>Other</span>
+              {!loadingAction && lastOtherAction && (
+                <div className="last-action-info">
+                  <span className="action-details">
+                    {lastOtherAction.details?.title} • {formatTimeAgo(lastOtherAction.createdAt)}
+                  </span>
+                  {lastOtherAction.userEmoji && <span className="action-emoji">{lastOtherAction.userEmoji}</span>}
+                </div>
+              )}
             </div>
           </button>
         </div>
