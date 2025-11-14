@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
-import './SleepAction.css';
+import './FeedAction.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleepAction }) {
+function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAction }) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [ml, setMl] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [isStarting, setIsStarting] = useState(false);
 
   useEffect(() => {
-    // Check if there's an ongoing sleep (no end time)
-    if (lastSleepAction && !lastSleepAction.details?.endTime) {
-      // We're ending a sleep session
+    // Check if there's an ongoing feed (no end time)
+    if (lastFeedAction && !lastFeedAction.details?.endTime) {
+      // We're ending a feed session
       setIsStarting(false);
       const now = new Date();
       const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
@@ -21,15 +22,16 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
         .slice(0, 16);
       setEndTime(localDateTime);
       // Set start time from the last action
-      if (lastSleepAction.details?.startTime) {
-        const startDate = new Date(lastSleepAction.details.startTime);
+      if (lastFeedAction.details?.startTime) {
+        const startDate = new Date(lastFeedAction.details.startTime);
         const localStartDateTime = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000)
           .toISOString()
           .slice(0, 16);
         setStartTime(localStartDateTime);
       }
+      setMl('');
     } else {
-      // We're starting a new sleep session
+      // We're starting a new feed session
       setIsStarting(true);
       const now = new Date();
       const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
@@ -37,8 +39,9 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
         .slice(0, 16);
       setStartTime(localDateTime);
       setEndTime('');
+      setMl('');
     }
-  }, [lastSleepAction]);
+  }, [lastFeedAction]);
 
   const handleStart = async () => {
     if (!startTime) {
@@ -58,7 +61,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
         body: JSON.stringify({
           babyProfileId: profile.id,
           userId: userId,
-          actionType: 'sleep',
+          actionType: 'feed',
           details: {
             startTime: new Date(startTime).toISOString(),
             endTime: null,
@@ -68,7 +71,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to save sleep action (${response.status})`;
+        let errorMessage = `Failed to save feed action (${response.status})`;
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorData.message || errorMessage;
@@ -86,8 +89,8 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       
       onClose();
     } catch (err) {
-      console.error('Error saving sleep action:', err);
-      setError(err.message || 'Failed to save sleep action');
+      console.error('Error saving feed action:', err);
+      setError(err.message || 'Failed to save feed action');
     } finally {
       setSaving(false);
     }
@@ -107,30 +110,43 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       return;
     }
 
+    // Validate ml if provided
+    if (ml && (isNaN(ml) || parseFloat(ml) < 0)) {
+      setError('ML must be a positive number');
+      return;
+    }
+
     try {
       setSaving(true);
       setError(null);
 
-      // If there's an ongoing sleep, we need to update it instead of creating a new one
-      if (lastSleepAction && !lastSleepAction.details?.endTime) {
+      const details = {
+        startTime: new Date(startTime).toISOString(),
+        endTime: new Date(endTime).toISOString(),
+        endUserId: userId,
+        endUserEmoji: userEmoji || null,
+      };
+
+      // Add ml to details if provided
+      if (ml && ml.trim() !== '') {
+        details.ml = parseFloat(ml);
+      }
+
+      // If there's an ongoing feed, we need to update it instead of creating a new one
+      if (lastFeedAction && !lastFeedAction.details?.endTime) {
         // Update existing action
-        const response = await fetch(`${API_URL}/actions/${lastSleepAction.id}`, {
+        const response = await fetch(`${API_URL}/actions/${lastFeedAction.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            details: {
-              startTime: new Date(startTime).toISOString(),
-              endTime: new Date(endTime).toISOString(),
-              endUserId: userId,
-              endUserEmoji: userEmoji || null,
-            },
+            details: details,
           }),
         });
 
         if (!response.ok) {
-          let errorMessage = `Failed to update sleep action (${response.status})`;
+          let errorMessage = `Failed to update feed action (${response.status})`;
           try {
             const errorData = await response.json();
             errorMessage = errorData.error || errorData.message || errorMessage;
@@ -155,19 +171,14 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
           body: JSON.stringify({
             babyProfileId: profile.id,
             userId: userId,
-            actionType: 'sleep',
-            details: {
-              startTime: new Date(startTime).toISOString(),
-              endTime: new Date(endTime).toISOString(),
-              endUserId: userId,
-              endUserEmoji: userEmoji || null,
-            },
+            actionType: 'feed',
+            details: details,
             userEmoji: userEmoji || null,
           }),
         });
 
         if (!response.ok) {
-          let errorMessage = `Failed to save sleep action (${response.status})`;
+          let errorMessage = `Failed to save feed action (${response.status})`;
           try {
             const errorData = await response.json();
             errorMessage = errorData.error || errorData.message || errorMessage;
@@ -186,16 +197,16 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       
       onClose();
     } catch (err) {
-      console.error('Error saving sleep action:', err);
-      setError(err.message || 'Failed to save sleep action');
+      console.error('Error saving feed action:', err);
+      setError(err.message || 'Failed to save feed action');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancelSleep = async () => {
-    if (!lastSleepAction || !lastSleepAction.id) {
-      setError('No ongoing sleep to cancel');
+  const handleCancelFeed = async () => {
+    if (!lastFeedAction || !lastFeedAction.id) {
+      setError('No ongoing feed to cancel');
       return;
     }
 
@@ -203,12 +214,12 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       setSaving(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/actions/${lastSleepAction.id}`, {
+      const response = await fetch(`${API_URL}/actions/${lastFeedAction.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to cancel sleep action (${response.status})`;
+        let errorMessage = `Failed to cancel feed action (${response.status})`;
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorData.message || errorMessage;
@@ -225,22 +236,22 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       
       onClose();
     } catch (err) {
-      console.error('Error canceling sleep action:', err);
-      setError(err.message || 'Failed to cancel sleep action');
+      console.error('Error canceling feed action:', err);
+      setError(err.message || 'Failed to cancel feed action');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="sleep-action-overlay" onClick={onClose}>
-      <div className="sleep-action-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="sleep-action-header">
-          <h3>{isStarting ? 'Start Sleep' : 'End Sleep'}</h3>
+    <div className="feed-action-overlay" onClick={onClose}>
+      <div className="feed-action-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="feed-action-header">
+          <h3>{isStarting ? 'Start Feed' : 'End Feed'}</h3>
           <button className="close-button" onClick={onClose}>×</button>
         </div>
         
-        <div className="sleep-action-content">
+        <div className="feed-action-content">
           <div className="time-section">
             <label htmlFor="startTime">Start Time:</label>
             <input
@@ -252,15 +263,29 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
           </div>
 
           {!isStarting && (
-            <div className="time-section">
-              <label htmlFor="endTime">End Time:</label>
-              <input
-                type="datetime-local"
-                id="endTime"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </div>
+            <>
+              <div className="time-section">
+                <label htmlFor="endTime">End Time:</label>
+                <input
+                  type="datetime-local"
+                  id="endTime"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </div>
+              <div className="time-section">
+                <label htmlFor="ml">ML (optional):</label>
+                <input
+                  type="number"
+                  id="ml"
+                  value={ml}
+                  onChange={(e) => setMl(e.target.value)}
+                  placeholder="Enter amount in ml"
+                  min="0"
+                  step="1"
+                />
+              </div>
+            </>
           )}
 
           {error && (
@@ -269,7 +294,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
             </div>
           )}
 
-          <div className="sleep-action-buttons">
+          <div className="feed-action-buttons">
             <button
               className="btn btn-cancel"
               onClick={onClose}
@@ -283,14 +308,14 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                 onClick={handleStart}
                 disabled={saving || !startTime}
               >
-                Start Sleep
+                Start Feed
               </button>
             ) : (
               <>
-                {lastSleepAction && !lastSleepAction.details?.endTime && (
+                {lastFeedAction && !lastFeedAction.details?.endTime && (
                   <button
-                    className="btn btn-cancel-sleep"
-                    onClick={handleCancelSleep}
+                    className="btn btn-cancel-feed"
+                    onClick={handleCancelFeed}
                     disabled={saving}
                   >
                     Reset
@@ -301,7 +326,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                   onClick={handleEnd}
                   disabled={saving || !startTime || !endTime}
                 >
-                  End Sleep
+                  End Feed
                 </button>
               </>
             )}
@@ -312,5 +337,5 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
   );
 }
 
-export default SleepAction;
+export default FeedAction;
 

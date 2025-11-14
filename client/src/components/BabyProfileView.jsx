@@ -3,6 +3,7 @@ import './BabyProfileView.css';
 import DiaperAction from './DiaperAction';
 import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
+import FeedAction from './FeedAction';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -10,9 +11,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
   const [showOtherAction, setShowOtherAction] = useState(false);
   const [showSleepAction, setShowSleepAction] = useState(false);
+  const [showFeedAction, setShowFeedAction] = useState(false);
   const [lastDiaperAction, setLastDiaperAction] = useState(null);
   const [lastOtherAction, setLastOtherAction] = useState(null);
   const [lastSleepAction, setLastSleepAction] = useState(null);
+  const [lastFeedAction, setLastFeedAction] = useState(null);
   const [loadingAction, setLoadingAction] = useState(true);
   const [timeKey, setTimeKey] = useState(0); // Force re-render for time updates
   const [timerKey, setTimerKey] = useState(0); // Force re-render for timer updates
@@ -23,25 +26,26 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
 
   // Update time display every minute
   useEffect(() => {
-    if (lastDiaperAction || lastOtherAction || lastSleepAction) {
+    if (lastDiaperAction || lastOtherAction || lastSleepAction || lastFeedAction) {
       const interval = setInterval(() => {
         setTimeKey(prev => prev + 1);
       }, 60000); // Update every minute
 
       return () => clearInterval(interval);
     }
-  }, [lastDiaperAction, lastOtherAction, lastSleepAction]);
+  }, [lastDiaperAction, lastOtherAction, lastSleepAction, lastFeedAction]);
 
-  // Update timer every second when sleep is in progress
+  // Update timer every second when sleep or feed is in progress
   useEffect(() => {
-    if (lastSleepAction && !lastSleepAction.details?.endTime) {
+    if ((lastSleepAction && !lastSleepAction.details?.endTime) || 
+        (lastFeedAction && !lastFeedAction.details?.endTime)) {
       const interval = setInterval(() => {
         setTimerKey(prev => prev + 1);
       }, 1000); // Update every second
 
       return () => clearInterval(interval);
     }
-  }, [lastSleepAction]);
+  }, [lastSleepAction, lastFeedAction]);
 
   const fetchLastActions = async () => {
     try {
@@ -70,6 +74,13 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           setLastSleepAction(sleepActions[0]);
         } else {
           setLastSleepAction(null);
+        }
+        // Find the most recent feed action
+        const feedActions = data.actions.filter(action => action.actionType === 'feed');
+        if (feedActions.length > 0) {
+          setLastFeedAction(feedActions[0]);
+        } else {
+          setLastFeedAction(null);
         }
       }
     } catch (err) {
@@ -156,6 +167,18 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       : `Slept for ${minutes} mins • `;
   };
 
+  const formatFeedDuration = (startTime, endTime) => {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const diffMs = end - start;
+    const diffMins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMins / 60);
+    const minutes = diffMins % 60;
+    return hours > 0 
+      ? `${hours} h ${minutes} mins • `
+      : `${minutes} mins • `;
+  };
+
   const handleAction = (actionType) => {
     if (actionType === 'diaper') {
       setShowDiaperAction(true);
@@ -163,6 +186,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       setShowOtherAction(true);
     } else if (actionType === 'sleep') {
       setShowSleepAction(true);
+    } else if (actionType === 'feed') {
+      setShowFeedAction(true);
     } else {
       console.log(`Action: ${actionType} for profile: ${profile.name}`);
       // TODO: Implement API call to track this action
@@ -209,6 +234,21 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           onSuccess={(action) => {
             console.log('Sleep action saved:', action);
             setShowSleepAction(false);
+            // Refresh the last actions
+            fetchLastActions();
+          }}
+        />
+      )}
+      {showFeedAction && (
+        <FeedAction
+          profile={profile}
+          userId={userId}
+          userEmoji={userEmoji}
+          lastFeedAction={lastFeedAction}
+          onClose={() => setShowFeedAction(false)}
+          onSuccess={(action) => {
+            console.log('Feed action saved:', action);
+            setShowFeedAction(false);
             // Refresh the last actions
             fetchLastActions();
           }}
@@ -277,6 +317,33 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>🍼</span> <span>Feed</span>
+              {!loadingAction && lastFeedAction && (
+                <div className="last-action-info">
+                  {lastFeedAction.details?.endTime ? (
+                    <div className="action-details">
+                      {lastFeedAction.details?.ml 
+                        ? `${lastFeedAction.details.ml} ml • ${formatFeedDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
+                        : formatFeedDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
+                      }
+                      {formatTimeAgo(lastFeedAction.details.endTime)}
+                      {lastFeedAction.details?.endUserEmoji && <span className="action-emoji"> • {lastFeedAction.details.endUserEmoji}</span>}
+                    </div>
+                  ) : (
+                    // Feed is in progress - show "feeding" and time
+                    <div className="action-details">
+                      Feeding • {(
+                        <span className="sleep-duration">
+                          {lastFeedAction.details?.endTime 
+                            ? formatDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
+                            : formatDuration(lastFeedAction.details?.startTime, null, true)
+                          }
+                        </span>
+                      )}
+                      {lastFeedAction.userEmoji && <span className="action-emoji"> • {lastFeedAction.userEmoji}</span>}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </button>
           <button 
