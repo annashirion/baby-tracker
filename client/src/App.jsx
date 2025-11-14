@@ -79,7 +79,7 @@ function App() {
   if (loading) {
     return (
       <div className="app-container">
-        <div className="loading">Saving user to database...</div>
+        <div className="loading">Just a sec...</div>
       </div>
     )
   }

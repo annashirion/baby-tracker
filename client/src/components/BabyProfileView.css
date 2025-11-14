@@ -68,20 +68,20 @@
 
 .action-button-sleep {
   .action-button-main {
-    width: fit-content;
-    gap: 0.25rem;
+    width: 100%;
+    gap: 0.5rem;
   }
 }
 
 .last-action-info {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
   gap: 0.25rem;
   font-size: 0.9rem;
   font-weight: 400;
   opacity: 0.9;
-  width: 100%;
+  margin-left: auto;
 }
 
 .action-emoji {
@@ -95,9 +95,8 @@
 }
 
 .sleep-duration {
-  font-size: 1.25rem;
   font-weight: 600;
-  margin-left: auto;
+  width: 55px;
 }
 
 .action-button:hover {

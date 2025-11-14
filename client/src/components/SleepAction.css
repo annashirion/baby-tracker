@@ -138,6 +138,15 @@
   background-color: #545b62;
 }
 
+.btn-cancel-sleep {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-cancel-sleep:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
 .btn-start,
 .btn-end {
   background-color: #17a2b8;

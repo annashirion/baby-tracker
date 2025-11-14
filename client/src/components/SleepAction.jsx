@@ -193,6 +193,45 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
     }
   };
 
+  const handleCancelSleep = async () => {
+    if (!lastSleepAction || !lastSleepAction.id) {
+      setError('No ongoing sleep to cancel');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError(null);
+
+      const response = await fetch(`${API_URL}/actions/${lastSleepAction.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to cancel sleep action (${response.status})`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error, use the default message
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Call onSuccess with null to indicate the action was deleted
+      if (onSuccess) {
+        onSuccess(null);
+      }
+      
+      onClose();
+    } catch (err) {
+      console.error('Error canceling sleep action:', err);
+      setError(err.message || 'Failed to cancel sleep action');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="sleep-action-overlay" onClick={onClose}>
       <div className="sleep-action-modal" onClick={(e) => e.stopPropagation()}>
@@ -247,13 +286,24 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                 {saving ? 'Saving...' : 'Start Sleep'}
               </button>
             ) : (
-              <button
-                className="btn btn-end"
-                onClick={handleEnd}
-                disabled={saving || !startTime || !endTime}
-              >
-                {saving ? 'Saving...' : 'End Sleep'}
-              </button>
+              <>
+                {lastSleepAction && !lastSleepAction.details?.endTime && (
+                  <button
+                    className="btn btn-cancel-sleep"
+                    onClick={handleCancelSleep}
+                    disabled={saving}
+                  >
+                    {saving ? 'Canceling...' : 'Cancel Sleep'}
+                  </button>
+                )}
+                <button
+                  className="btn btn-end"
+                  onClick={handleEnd}
+                  disabled={saving || !startTime || !endTime}
+                >
+                  {saving ? 'Saving...' : 'End Sleep'}
+                </button>
+              </>
             )}
           </div>
         </div>

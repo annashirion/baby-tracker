@@ -110,5 +110,26 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Delete an action
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const action = await Action.findByIdAndDelete(id);
+
+    if (!action) {
+      return res.status(404).json({ error: 'Action not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Action deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting action:', error);
+    res.status(500).json({ error: 'Failed to delete action', message: error.message });
+  }
+});
+
 export default router;
 
