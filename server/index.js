@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import babyProfileRoutes from './routes/baby-profiles.js';
+import actionRoutes from './routes/actions.js';
+import { EMOJIS } from './constants/emojis.js';
 
 dotenv.config();
 
@@ -30,6 +32,7 @@ mongoose.connect(MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/baby-profiles', babyProfileRoutes);
+app.use('/api/actions', actionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -38,6 +41,14 @@ app.get('/api/health', (req, res) => {
     status: 'ok', 
     message: 'Server is running',
     mongodb: mongoStatus
+  });
+});
+
+// Get available emojis (no auth required, public endpoint)
+app.get('/api/emojis', (req, res) => {
+  res.json({
+    success: true,
+    emojis: EMOJIS
   });
 });
 

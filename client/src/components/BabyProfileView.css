@@ -1,0 +1,162 @@
+.baby-profile-view {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.baby-profile-view-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.baby-profile-view-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 2rem;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.btn-back:hover {
+  background-color: #545b62;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.action-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.action-button {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.action-button-sleep {
+  .action-button-main {
+    width: 100%;
+    gap: 0.5rem;
+  }
+}
+
+.last-action-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  opacity: 0.9;
+  margin-left: auto;
+}
+
+.action-emoji {
+  font-size: 1rem;
+}
+
+.action-details {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sleep-duration {
+  font-weight: 600;
+  width: 55px;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+.action-button-diaper {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.action-button-diaper:hover {
+  background-color: #ffb300;
+}
+
+.action-button-feed {
+  background-color: #28a745;
+  color: white;
+}
+
+.action-button-feed:hover {
+  background-color: #218838;
+}
+
+.action-button-sleep {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.action-button-sleep:hover {
+  background-color: #138496;
+}
+
+.action-button-other {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.action-button-other:hover {
+  background-color: #5a32a3;
+}
+
+@media (max-width: 768px) {
+  .baby-profile-view {
+    padding: 1rem;
+  }
+
+  .baby-profile-view-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-button {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+  }
+}
+

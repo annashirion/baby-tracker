@@ -73,7 +73,7 @@ router.get('/', async (req, res) => {
         googleId: role.userId.googleId,
         email: role.userId.email,
         name: role.userId.name,
-        picture: role.userId.picture,
+        emoji: role.userId.emoji,
         givenName: role.userId.givenName,
         familyName: role.userId.familyName,
         role: role.role,
@@ -269,7 +269,7 @@ router.get('/:id', async (req, res) => {
         googleId: user.googleId,
         email: user.email,
         name: user.name,
-        picture: user.picture,
+        emoji: user.emoji,
         givenName: user.givenName,
         familyName: user.familyName,
         createdAt: user.createdAt,
@@ -279,6 +279,43 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user', message: error.message });
+  }
+});
+
+// Update user emoji
+router.put('/:id/emoji', async (req, res) => {
+  try {
+    const { emoji } = req.body;
+    const { id } = req.params;
+
+    if (!emoji) {
+      return res.status(400).json({ error: 'Emoji is required' });
+    }
+
+    // Validate emoji (basic check - should be a single emoji character)
+    if (emoji.length === 0 || emoji.length > 10) {
+      return res.status(400).json({ error: 'Invalid emoji format' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.emoji = emoji;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Emoji updated successfully',
+      user: {
+        id: user._id,
+        emoji: user.emoji,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating emoji:', error);
+    res.status(500).json({ error: 'Failed to update emoji', message: error.message });
   }
 });
 

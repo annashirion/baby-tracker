@@ -48,7 +48,6 @@ describe('Auth Routes', () => {
         id: 'google123',
         email: 'test@example.com',
         name: 'Test User',
-        picture: 'https://example.com/pic.jpg',
         given_name: 'Test',
         family_name: 'User',
       };
@@ -68,11 +67,13 @@ describe('Auth Routes', () => {
       expect(response.body.user.email).toBe('test@example.com');
       expect(response.body.user.name).toBe('Test User');
       expect(response.body.user.googleId).toBe('google123');
+      expect(response.body.user.emoji).toBeTruthy(); // Should have a random emoji
 
       // Verify user was created in database
       const user = await User.findOne({ googleId: 'google123' });
       expect(user).toBeTruthy();
       expect(user.email).toBe('test@example.com');
+      expect(user.emoji).toBeTruthy(); // Should have a random emoji
     });
 
     it('should update existing user when mocked Google response is provided', async () => {
@@ -87,7 +88,6 @@ describe('Auth Routes', () => {
         id: 'google123',
         email: 'new@example.com',
         name: 'New Name',
-        picture: 'https://example.com/newpic.jpg',
         given_name: 'New',
         family_name: 'Name',
       };
@@ -111,6 +111,10 @@ describe('Auth Routes', () => {
       const updatedUser = await User.findById(existingUser._id);
       expect(updatedUser.email).toBe('new@example.com');
       expect(updatedUser.name).toBe('New Name');
+      // Existing user should get an emoji if they didn't have one
+      if (!existingUser.emoji) {
+        expect(updatedUser.emoji).toBeTruthy();
+      }
     });
 
     it('should return 401 if mocked Google API returns error', async () => {

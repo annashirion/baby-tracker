@@ -3,7 +3,7 @@ import './BabyProfiles.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-function BabyProfiles({ userId, onViewUsers }) {
+function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -282,7 +282,12 @@ function BabyProfiles({ userId, onViewUsers }) {
       ) : (
         <div className="profiles-grid">
           {profiles.map((profile) => (
-            <div key={profile.id} className="profile-card">
+            <div 
+              key={profile.id} 
+              className="profile-card"
+              onClick={() => onOpenProfile && onOpenProfile(profile)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="profile-header">
                 <h3>{profile.name}</h3>
                 <span 
@@ -307,7 +312,10 @@ function BabyProfiles({ userId, onViewUsers }) {
                 </div>
               </div>
               {profile.role === 'admin' && onViewUsers && (
-                <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}>
+                <div 
+                  style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button 
                     onClick={() => onViewUsers(profile.id, profile.name)}
                     className="btn btn-primary"

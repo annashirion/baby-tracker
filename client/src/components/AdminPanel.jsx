@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import EmojiPicker from './EmojiPicker';
 import './AdminPanel.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -135,6 +136,7 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
     }
   };
 
+
   if (loading) {
     return <div className="admin-panel">Loading users...</div>;
   }
@@ -201,13 +203,12 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
                   )}
                 </button>
               )}
-              {user.picture && (
-                <img
-                  src={user.picture}
-                  alt={user.name}
-                  className="user-avatar"
-                />
-              )}
+              <EmojiPicker
+                currentEmoji={user.emoji}
+                onEmojiChange={() => {}}
+                size="large"
+                readOnly={true}
+              />
               <div className="user-info" style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
                   <h3 style={{ margin: 0 }}>{user.name}</h3>
