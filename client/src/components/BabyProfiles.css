@@ -105,6 +105,7 @@
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
+  background-color: white;
 }
 
 .form-group input:focus,

@@ -93,26 +93,49 @@
   flex: 1;
   min-width: 100px;
   padding: 1rem;
-  border: 2px solid #ddd;
+  border: 2px solid #e4ba3f;
   border-radius: 8px;
-  background: white;
+  background: #fffbf0;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   color: #333;
+  outline: none;
+}
+
+.diaper-type-btn:focus {
+  outline: none;
+  border-color: #e4ba3f;
+  box-shadow: 0 0 0 3px rgba(228, 186, 63, 0.2);
 }
 
 .diaper-type-btn:hover {
   border-color: #e4ba3f;
-  background-color: #fffbf0;
+  background-color: #ffeaa7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(228, 186, 63, 0.2);
 }
 
 .diaper-type-btn.active {
-  border-color: #e4ba3f;
+  border-color: #e4ba3f !important;
   background-color: #e4ba3f;
   color: #333;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(228, 186, 63, 0.3);
+  transform: scale(1.02);
+  outline: none;
+}
+
+.diaper-type-btn.active:focus {
+  outline: none;
+  border-color: #e4ba3f !important;
+  box-shadow: 0 0 0 3px rgba(228, 186, 63, 0.3), 0 2px 8px rgba(228, 186, 63, 0.3);
+}
+
+.diaper-type-btn.active:hover {
+  background-color: #ffb300;
+  border-color: #ffb300;
 }
 
 .comments-section {
@@ -127,21 +150,41 @@
   font-size: 1rem;
 }
 
-.comments-section textarea {
+.diaper-action-content .comments-section textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
 }
 
-.comments-section textarea:focus {
-  outline: none;
-  border-color: #e4ba3f;
-  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+.diaper-action-content .comments-section textarea::selection {
+  background-color: #e4ba3f;
+  color: #333;
+}
+
+.diaper-action-content .comments-section textarea::-moz-selection {
+  background-color: #e4ba3f;
+  color: #333;
+}
+
+.diaper-action-content .comments-section textarea:focus,
+.diaper-action-content .comments-section textarea:focus-visible {
+  outline: none !important;
+  border-color: #e4ba3f !important;
+  box-shadow: 0 0 0 4px rgba(228, 186, 63, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.diaper-action-content .comments-section textarea:hover {
+  border-color: #e4ba3f !important;
+  background-color: white;
 }
 
 .error-message {
@@ -157,7 +200,7 @@
 .diaper-action-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: space-around;
 }
 
 .diaper-action-buttons .btn {
@@ -184,12 +227,12 @@
   background-color: #545b62;
 }
 
-.btn-save {
+.diaper-action-buttons .btn-save {
   background-color: #e4ba3f;
   color: #333;
 }
 
-.btn-save:hover:not(:disabled) {
+.diaper-action-buttons .btn-save:hover:not(:disabled) {
   background-color: #ffb300;
 }
 

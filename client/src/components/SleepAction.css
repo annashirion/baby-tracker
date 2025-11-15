@@ -83,19 +83,46 @@
   font-size: 1rem;
 }
 
-.time-section input {
+.sleep-action-content .time-section input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
   box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.time-section input:focus {
-  outline: none;
+.sleep-action-content .time-section input:hover {
   border-color: #17a2b8;
-  box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+  background-color: white;
+}
+
+.sleep-action-content .time-section input:focus,
+.sleep-action-content .time-section input:focus-visible {
+  outline: none !important;
+  border-color: #17a2b8 !important;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(23, 162, 184, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.sleep-action-content .time-section input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(0.3);
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.sleep-action-content .time-section input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(23, 162, 184, 0.1);
 }
 
 .error-message {
@@ -147,14 +174,14 @@
   background-color: #c82333;
 }
 
-.btn-start,
-.btn-end {
+.sleep-action-buttons .btn-start,
+.sleep-action-buttons .btn-end {
   background-color: #17a2b8;
   color: white;
 }
 
-.btn-start:hover:not(:disabled),
-.btn-end:hover:not(:disabled) {
+.sleep-action-buttons .btn-start:hover:not(:disabled),
+.sleep-action-buttons .btn-end:hover:not(:disabled) {
   background-color: #138496;
 }
 

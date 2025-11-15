@@ -83,19 +83,31 @@
   font-size: 1rem;
 }
 
+
 .title-section input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
   box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.title-section input:hover {
+  border-color: #6f42c1;
+  background-color: white;
 }
 
 .title-section input:focus {
   outline: none;
   border-color: #6f42c1;
-  box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
+  transform: translateY(-1px);
 }
 
 .comments-section {
@@ -112,19 +124,29 @@
 
 .comments-section textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.comments-section textarea:hover {
+  border-color: #6f42c1;
+  background-color: white;
 }
 
 .comments-section textarea:focus {
   outline: none;
   border-color: #6f42c1;
-  box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
+  transform: translateY(-1px);
 }
 
 .error-message {
@@ -140,7 +162,7 @@
 .other-action-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: space-around;
 }
 
 .other-action-buttons .btn {
