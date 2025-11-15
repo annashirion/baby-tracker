@@ -1,0 +1,77 @@
+.time-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.time-input:hover {
+  background-color: white;
+}
+
+.time-input:focus,
+.time-input:focus-visible {
+  outline: none !important;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.time-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: invert(0.3);
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.time-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.time-input--sleep:hover {
+  border-color: #17a2b8;
+}
+
+.time-input--sleep:focus,
+.time-input--sleep:focus-visible {
+  border-color: #17a2b8 !important;
+  box-shadow: 0 0 0 4px rgba(23, 162, 184, 0.15) !important;
+}
+
+.time-input--sleep::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(23, 162, 184, 0.1);
+}
+
+.time-input--feed:hover {
+  border-color: #4c975e;
+}
+
+.time-input--feed:focus,
+.time-input--feed:focus-visible {
+  border-color: #4c975e !important;
+  box-shadow: 0 0 0 4px rgba(76, 151, 94, 0.15) !important;
+}
+
+.time-input--feed::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(76, 151, 94, 0.1);
+}
+
+.time-input--number:hover {
+  border-color: #4c975e;
+}
+
+.time-input--number:focus,
+.time-input--number:focus-visible {
+  border-color: #4c975e !important;
+  box-shadow: 0 0 0 4px rgba(76, 151, 94, 0.15) !important;
+}

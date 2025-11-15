@@ -21,7 +21,7 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
     try {
       setLoading(true);
       setError(null);
-      console.log('[CLIENT DEBUG] Fetching users for:', { userId, babyProfileId });
+      console.log('[CLIENT DEBUG] Fetching users for:', userId, babyProfileId);
       const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -204,9 +204,6 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
                       <option value="editor" className="role-option-editor">editor</option>
                       <option value="viewer" className="role-option-viewer">viewer</option>
                     </select>
-                  )}
-                  {updatingRoles[user.id] && (
-                    <span className="updating-text">Updating...</span>
                   )}
                 </div>
                 <p><strong>Email:</strong> {user.email}</p>
