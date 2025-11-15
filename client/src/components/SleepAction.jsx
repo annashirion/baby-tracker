@@ -18,14 +18,14 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       const now = new Date();
       const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
         .toISOString()
-        .slice(0, 16);
+        .slice(0, 19);
       setEndTime(localDateTime);
       // Set start time from the last action
       if (lastSleepAction.details?.startTime) {
         const startDate = new Date(lastSleepAction.details.startTime);
         const localStartDateTime = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000)
           .toISOString()
-          .slice(0, 16);
+          .slice(0, 19);
         setStartTime(localStartDateTime);
       }
     } else {
@@ -34,7 +34,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
       const now = new Date();
       const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
         .toISOString()
-        .slice(0, 16);
+        .slice(0, 19);
       setStartTime(localDateTime);
       setEndTime('');
     }
@@ -270,13 +270,6 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
           )}
 
           <div className="sleep-action-buttons">
-            <button
-              className="btn btn-cancel"
-              onClick={onClose}
-              disabled={saving}
-            >
-              Cancel
-            </button>
             {isStarting ? (
               <button
                 className="btn btn-start"

@@ -111,7 +111,7 @@
 .feed-action-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: space-around;
 }
 
 .feed-action-buttons .btn {

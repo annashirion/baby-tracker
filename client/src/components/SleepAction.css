@@ -111,7 +111,7 @@
 .sleep-action-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: space-around;
 }
 
 .sleep-action-buttons .btn {
