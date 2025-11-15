@@ -8,7 +8,6 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 3rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #ddd;
 }
@@ -109,16 +108,16 @@
 }
 
 .action-button-diaper {
-  background-color: #ffc107;
+  background-color: #e4ba3f;
   color: #333;
 }
 
 .action-button-diaper:hover {
-  background-color: #ffb300;
+  background-color: #cea442;
 }
 
 .action-button-feed {
-  background-color: #28a745;
+  background-color: #4c975e;
   color: white;
 }
 

@@ -1,7 +1,5 @@
 .admin-panel {
   max-width: 900px;
-  margin: 2rem auto;
-  padding: 2rem;
 }
 
 .users-list {
@@ -26,10 +24,6 @@
   flex: 1;
 }
 
-.user-info h3 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-}
 
 .user-info p {
   margin: 0.25rem 0;
@@ -52,7 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #dc3545;
+  color: #b9434e;
   opacity: 0.7;
   transition: opacity 0.2s, transform 0.2s;
   border-radius: 4px;
@@ -71,6 +65,99 @@
 
 .delete-user-btn:active:not(:disabled) {
   transform: scale(0.95);
+}
+
+.user-info-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 95%;
+}
+
+.user-info-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.role-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+  color: white;
+}
+
+.role-badge-admin {
+  background-color: #b9434e;
+}
+
+.role-badge-editor {
+  background-color: #e4ba3f;
+}
+
+.role-badge-viewer {
+  background-color: #4c975e;
+}
+
+.role-badge-default {
+  background-color: #6c757d;
+}
+
+.role-select {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: bold;
+  color: white;
+}
+
+.role-select:disabled {
+  cursor: wait;
+}
+
+.role-select-admin {
+  background-color: #b9434e;
+}
+
+.role-select-editor {
+  background-color: #e4ba3f;
+}
+
+.role-select-viewer {
+  background-color: #4c975e;
+}
+
+.role-option-admin {
+  background-color: #b9434e;
+  color: white;
+}
+
+.role-option-editor {
+  background-color: #e4ba3f;
+  color: white;
+}
+
+.role-option-viewer {
+  background-color: #4c975e;
+  color: white;
+}
+
+.updating-text {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.admin-panel-error {
+  color: red;
+}
+
+.refresh-button {
+  margin-top: 20px;
 }
 
 @media (max-width: 600px) {

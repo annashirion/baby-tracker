@@ -79,7 +79,7 @@ function App() {
   if (loading) {
     return (
       <div className="app-container">
-        <div className="loading">Just a sec...</div>
+        <div className="loading">Just a second...</div>
       </div>
     )
   }
@@ -111,23 +111,6 @@ function App() {
   if (openProfile) {
     return (
       <div className="app-container">
-        <div style={{ padding: '1rem', borderBottom: '1px solid #ddd', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <EmojiPicker
-              currentEmoji={user.emoji}
-              onEmojiChange={handleEmojiChange}
-              userId={user.id}
-              size="medium"
-            />
-            <div>
-              <h2 style={{ margin: 0 }}>Welcome, {user.name}!</h2>
-              <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{user.email}</p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button onClick={() => setUser(null)}>Logout</button>
-          </div>
-        </div>
         <BabyProfileView 
           profile={openProfile} 
           onClose={handleCloseProfile}
@@ -140,29 +123,28 @@ function App() {
 
   if (selectedProfile) {
     return (
-      <div>
-        <div style={{ padding: '1rem', textAlign: 'center', borderBottom: '1px solid #ddd' }}>
-          <button onClick={handleCloseUsers} style={{ marginRight: '1rem' }}>
-            ← Back to Profiles
+      <>
+        <div className="users-view-header">
+          <button onClick={handleCloseUsers} className="btn btn-back">
+            ←
           </button>
-          <button onClick={() => setUser(null)}>Logout</button>
+          <h2>{selectedProfile.name}</h2>
         </div>
-        <div style={{ padding: '1rem' }}>
-          <h2 style={{ marginBottom: '1rem' }}>Users for: {selectedProfile.name}</h2>
+        <div className="users-view-content">
           <AdminPanel 
             userId={user.id} 
             babyProfileId={selectedProfile.id}
             onClose={handleCloseUsers}
           />
         </div>
-      </div>
+      </>
     )
   }
 
   return (
     <div className="app-container">
-      <div style={{ padding: '1rem', borderBottom: '1px solid #ddd', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div className="app-header">
+        <div className="app-header-user">
           <EmojiPicker
             currentEmoji={user.emoji}
             onEmojiChange={handleEmojiChange}
@@ -170,15 +152,15 @@ function App() {
             size="medium"
           />
           <div>
-            <h2 style={{ margin: 0 }}>Welcome, {user.name}!</h2>
-            <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{user.email}</p>
+            <h2 className="app-header-title">Welcome, {user.name}!</h2>
+            <p className="app-header-email">{user.email}</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div className="app-header-actions">
           <button onClick={() => setUser(null)}>Logout</button>
         </div>
       </div>
-      {error && <p style={{ color: 'red', padding: '0 1rem' }}>{error}</p>}
+      {error && <p className="app-error">{error}</p>}
       <BabyProfiles userId={user.id} onViewUsers={handleViewUsers} onOpenProfile={handleOpenProfile} />
     </div>
   )

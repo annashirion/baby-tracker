@@ -104,13 +104,13 @@
 }
 
 .diaper-type-btn:hover {
-  border-color: #ffc107;
+  border-color: #e4ba3f;
   background-color: #fffbf0;
 }
 
 .diaper-type-btn.active {
-  border-color: #ffc107;
-  background-color: #ffc107;
+  border-color: #e4ba3f;
+  background-color: #e4ba3f;
   color: #333;
   font-weight: 600;
 }
@@ -140,7 +140,7 @@
 
 .comments-section textarea:focus {
   outline: none;
-  border-color: #ffc107;
+  border-color: #e4ba3f;
   box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
 }
 
@@ -185,7 +185,7 @@
 }
 
 .btn-save {
-  background-color: #ffc107;
+  background-color: #e4ba3f;
   color: #333;
 }
 

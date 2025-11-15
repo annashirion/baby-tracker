@@ -94,7 +94,7 @@
 
 .time-section input:focus {
   outline: none;
-  border-color: #28a745;
+  border-color: #4c975e;
   box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
 }
 
@@ -139,7 +139,7 @@
 }
 
 .btn-cancel-feed {
-  background-color: #dc3545;
+  background-color: #b9434e;
   color: white;
 }
 
@@ -149,7 +149,7 @@
 
 .btn-start,
 .btn-end {
-  background-color: #28a745;
+  background-color: #4c975e;
   color: white;
 }
 

@@ -256,13 +256,12 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       )}
       <div className="baby-profile-view">
         <div className="baby-profile-view-header">
-          <button onClick={onClose} className="btn btn-back">
-            ← Back to Profiles
+          <button onClick={onClose} className="users-view-back-button">
+            ←
           </button>
-          <h2>{profile.name}</h2>
         </div>
-        
         <div className="action-buttons-container">
+          <h2>{profile.name}</h2>
           <button 
             className="action-button action-button-diaper"
             onClick={() => handleAction('diaper')}

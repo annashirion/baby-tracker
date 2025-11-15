@@ -151,18 +151,6 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     }
   };
 
-  const getRoleBadgeColor = (role) => {
-    switch (role) {
-      case 'admin':
-        return '#dc3545';
-      case 'editor':
-        return '#ffc107';
-      case 'viewer':
-        return '#28a745';
-      default:
-        return '#6c757d';
-    }
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Not set';
@@ -177,7 +165,6 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   return (
     <div className="baby-profiles-container">
       <div className="baby-profiles-header">
-        <h2>Baby Profiles</h2>
         <div className="baby-profiles-actions">
           <button 
             onClick={() => {
@@ -264,7 +251,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                 required
                 placeholder="Enter 6-character join code"
                 maxLength="6"
-                style={{ textTransform: 'uppercase', letterSpacing: '0.5em', fontSize: '1.2em', textAlign: 'center' }}
+                className="join-code-input"
               />
               <small>Enter the 6-character code shared by the profile owner</small>
             </div>
@@ -284,15 +271,13 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
           {profiles.map((profile) => (
             <div 
               key={profile.id} 
-              className="profile-card"
+              className="profile-card profile-card-clickable"
               onClick={() => onOpenProfile && onOpenProfile(profile)}
-              style={{ cursor: 'pointer' }}
             >
               <div className="profile-header">
                 <h3>{profile.name}</h3>
                 <span 
-                  className="role-badge"
-                  style={{ backgroundColor: getRoleBadgeColor(profile.role) }}
+                  className={`role-badge role-badge-${profile.role || 'default'}`}
                 >
                   {profile.role}
                 </span>
@@ -313,13 +298,12 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
               </div>
               {profile.role === 'admin' && onViewUsers && (
                 <div 
-                  style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #ddd' }}
+                  className="profile-card-actions"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button 
                     onClick={() => onViewUsers(profile.id, profile.name)}
                     className="btn btn-primary"
-                    style={{ width: '100%' }}
                   >
                     View Users
                   </button>
