@@ -97,16 +97,13 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     const diffMins = Math.floor(diffMs / 60000);
     
     if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1 min ago';
-    if (diffMins < 60) return `${diffMins} mins ago`;
+    if (diffMins < 60) return `${diffMins}m ago`;
     
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours === 1) return '1 h ago';
-    if (diffHours < 24) return `${diffHours} h ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
     
     const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return '1 day ago';
-    return `${diffDays} days ago`;
+    return `${diffDays}d ago`;
   };
 
   const getDiaperTypeLabel = (type) => {
@@ -163,8 +160,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     const hours = Math.floor(diffMins / 60);
     const minutes = diffMins % 60;
     return hours > 0 
-      ? `Slept for ${hours} h ${minutes} mins • `
-      : `Slept for ${minutes} mins • `;
+      ? `${hours}h ${minutes}m • `
+      : `${minutes}m • `;
   };
 
   const formatFeedDuration = (startTime, endTime) => {
@@ -175,8 +172,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     const hours = Math.floor(diffMins / 60);
     const minutes = diffMins % 60;
     return hours > 0 
-      ? `${hours} h ${minutes} mins • `
-      : `${minutes} mins • `;
+      ? `${hours}h ${minutes}m • `
+      : `${minutes}m • `;
   };
 
   const handleAction = (actionType) => {
@@ -258,6 +255,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
         <div className="baby-profile-view-header">
           <button onClick={onClose} className="users-view-back-button">
             ←
+          </button>
+          <button className="reports-icon-button btn btn-secondary" title="Reports">
+            📊
           </button>
         </div>
         <div className="action-buttons-container">
