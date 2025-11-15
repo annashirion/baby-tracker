@@ -53,3 +53,48 @@
   color: #666;
   margin-top: 2rem;
 }
+
+.app-header {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-header-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.app-header-title {
+  margin: 0;
+}
+
+.app-header-email {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.app-error {
+  color: red;
+  padding: 0 1rem;
+}
+
+.users-view-back-button {
+  margin-right: 1rem;
+}
+
+.users-view-content {
+  padding: 1rem;
+}

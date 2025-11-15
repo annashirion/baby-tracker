@@ -2,6 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  color: #333;
 }
 
 .baby-profiles-header {
@@ -20,7 +21,8 @@
 
 .baby-profiles-actions {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .btn {
@@ -44,21 +46,21 @@
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: #537492;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #3a8bd3;
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background-color: #875f7f;
   color: white;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #545b62;
+  background-color: #925385;
 }
 
 .error-message {
@@ -70,50 +72,57 @@
   border: 1px solid #f5c6cb;
 }
 
-.form-card {
+.baby-profiles-container .form-card {
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #333;
 }
 
-.form-card h3 {
+.baby-profiles-container .form-card h3 {
   margin-top: 0;
   margin-bottom: 1.5rem;
   color: #333;
 }
 
-.form-group {
+.baby-profiles-container .form-group {
   margin-bottom: 1.5rem;
 }
 
-.form-group label {
+.baby-profiles-container .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #555;
 }
 
-.form-group input,
-.form-group select {
+.baby-profiles-container .form-card .form-group label {
+  color: #555;
+}
+
+.baby-profiles-container .form-group input,
+.baby-profiles-container .form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
+  background-color: white;
+  color: #333;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.baby-profiles-container .form-group input:focus,
+.baby-profiles-container .form-group select:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
-.form-group small {
+.baby-profiles-container .form-group small {
   display: block;
   margin-top: 0.5rem;
   color: #6c757d;
@@ -141,6 +150,7 @@
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
+  color: #333;
 }
 
 .profile-card:hover {
@@ -199,6 +209,43 @@
   letter-spacing: 0.1em;
   margin-left: 0.5rem;
   color: #007bff;
+}
+
+.join-code-input {
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.profile-card-clickable {
+  cursor: pointer;
+}
+
+.role-badge-admin {
+  background-color: #b9434e;
+}
+
+.role-badge-editor {
+  background-color: #e4ba3f;
+}
+
+.role-badge-viewer {
+  background-color: #4c975e;
+}
+
+.role-badge-default {
+  background-color: #6c757d;
+}
+
+.profile-card-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.profile-card-actions button {
+  width: 100%;
 }
 
 @media (max-width: 768px) {

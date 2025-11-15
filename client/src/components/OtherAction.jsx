@@ -103,13 +103,6 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
 
           <div className="other-action-buttons">
             <button
-              className="btn btn-cancel"
-              onClick={onClose}
-              disabled={saving}
-            >
-              Cancel
-            </button>
-            <button
               className="btn btn-save"
               onClick={handleSave}
               disabled={saving || !title.trim()}

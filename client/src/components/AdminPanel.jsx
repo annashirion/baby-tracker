@@ -21,7 +21,7 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
     try {
       setLoading(true);
       setError(null);
-      console.log('[CLIENT DEBUG] Fetching users for:', { userId, babyProfileId });
+      console.log('[CLIENT DEBUG] Fetching users for:', userId, babyProfileId);
       const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -144,38 +144,15 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
   if (error) {
     return (
       <div className="admin-panel">
-        <p style={{ color: 'red' }}>Error: {error}</p>
+        <p className="admin-panel-error">Error: {error}</p>
         <button onClick={fetchUsers}>Retry</button>
       </div>
     );
   }
 
-  const getRoleBadgeColor = (role) => {
-    switch (role) {
-      case 'admin':
-        return '#dc3545';
-      case 'editor':
-        return '#ffc107';
-      case 'viewer':
-        return '#28a745';
-      default:
-        return '#6c757d';
-    }
-  };
 
   return (
     <div className="admin-panel">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Profile Users ({users.length})</h2>
-        {onClose && (
-          <button onClick={onClose} style={{ padding: '0.5rem 1rem' }}>
-            Close
-          </button>
-        )}
-      </div>
-      <button onClick={fetchUsers} style={{ marginBottom: '20px' }}>
-        Refresh
-      </button>
       {users.length === 0 ? (
         <p>No users have joined this baby profile yet.</p>
       ) : (
@@ -209,20 +186,11 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
                 size="large"
                 readOnly={true}
               />
-              <div className="user-info" style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                  <h3 style={{ margin: 0 }}>{user.name}</h3>
+              <div className="user-info">
+                <div className="user-info-header">
+                  <h3>{user.name}</h3>
                   {user.id === userId ? (
-                    <span 
-                      style={{ 
-                        backgroundColor: getRoleBadgeColor(user.role),
-                        color: 'white',
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        fontSize: '0.85em',
-                        fontWeight: 'bold'
-                      }}
-                    >
+                    <span className={`role-badge role-badge-${user.role || 'default'}`}>
                       {user.role} (You)
                     </span>
                   ) : (
@@ -230,24 +198,12 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
                       value={user.role}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       disabled={updatingRoles[user.id]}
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        border: 'none',
-                        backgroundColor: getRoleBadgeColor(user.role),
-                        cursor: updatingRoles[user.id] ? 'wait' : 'pointer',
-                        fontSize: '0.85em',
-                        fontWeight: 'bold',
-                        color: 'white',
-                      }}
+                      className={`role-select role-select-${user.role || 'default'}`}
                     >
-                      <option value="admin" style={{ backgroundColor: '#dc3545', color: 'white' }}>admin</option>
-                      <option value="editor" style={{ backgroundColor: '#ffc107', color: 'white' }}>editor</option>
-                      <option value="viewer" style={{ backgroundColor: '#28a745', color: 'white' }}>viewer</option>
+                      <option value="admin" className="role-option-admin">admin</option>
+                      <option value="editor" className="role-option-editor">editor</option>
+                      <option value="viewer" className="role-option-viewer">viewer</option>
                     </select>
-                  )}
-                  {updatingRoles[user.id] && (
-                    <span style={{ fontSize: '0.85em', color: '#666' }}>Updating...</span>
                   )}
                 </div>
                 <p><strong>Email:</strong> {user.email}</p>
@@ -258,6 +214,9 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
           ))}
         </div>
       )}
+      <button onClick={fetchUsers} className="refresh-button">
+        Refresh
+      </button>
     </div>
   );
 }
