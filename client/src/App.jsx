@@ -8,6 +8,7 @@ import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 const USER_STORAGE_KEY = 'babyTracker_user'
+const OPEN_PROFILE_STORAGE_KEY = 'babyTracker_openProfile'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -16,19 +17,44 @@ function App() {
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [openProfile, setOpenProfile] = useState(null)
 
-  // Load user from localStorage on mount
+  // Load user and restore profile from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem(USER_STORAGE_KEY)
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser)
-        setUser(parsedUser)
-      } catch (err) {
-        console.error('Error parsing stored user:', err)
-        localStorage.removeItem(USER_STORAGE_KEY)
+    const initializeApp = async () => {
+      const storedUser = localStorage.getItem(USER_STORAGE_KEY)
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser)
+          setUser(parsedUser)
+          
+          // Check if there's a stored profile to restore
+          const storedProfileId = localStorage.getItem(OPEN_PROFILE_STORAGE_KEY)
+          if (storedProfileId) {
+            try {
+              const response = await fetch(`${API_URL}/baby-profiles?userId=${parsedUser.id}`)
+              if (response.ok) {
+                const data = await response.json()
+                const profile = data.profiles?.find(p => p.id === storedProfileId)
+                if (profile) {
+                  setOpenProfile(profile)
+                } else {
+                  // Profile not found, clear stored ID
+                  localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
+                }
+              }
+            } catch (err) {
+              console.error('Error restoring open profile:', err)
+              localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing stored user:', err)
+          localStorage.removeItem(USER_STORAGE_KEY)
+        }
       }
+      setLoading(false)
     }
-    setLoading(false)
+    
+    initializeApp()
   }, [])
 
   // Save user to localStorage whenever it changes
@@ -37,6 +63,7 @@ function App() {
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
     } else {
       localStorage.removeItem(USER_STORAGE_KEY)
+      localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
     }
   }, [user])
 
@@ -123,10 +150,12 @@ function App() {
 
   const handleOpenProfile = (profile) => {
     setOpenProfile(profile)
+    localStorage.setItem(OPEN_PROFILE_STORAGE_KEY, profile.id)
   }
 
   const handleCloseProfile = () => {
     setOpenProfile(null)
+    localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
   }
 
   const handleEmojiChange = (newEmoji) => {
@@ -187,7 +216,9 @@ function App() {
         <div className="app-header-actions">
           <button onClick={() => {
             setUser(null)
+            setOpenProfile(null)
             localStorage.removeItem(USER_STORAGE_KEY)
+            localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
           }}>Logout</button>
         </div>
       </div>
