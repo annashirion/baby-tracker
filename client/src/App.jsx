@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
@@ -7,13 +7,38 @@ import EmojiPicker from './components/EmojiPicker'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+const USER_STORAGE_KEY = 'babyTracker_user'
 
 function App() {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) // Start with loading true to check localStorage
   const [error, setError] = useState(null)
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [openProfile, setOpenProfile] = useState(null)
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem(USER_STORAGE_KEY)
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+      } catch (err) {
+        console.error('Error parsing stored user:', err)
+        localStorage.removeItem(USER_STORAGE_KEY)
+      }
+    }
+    setLoading(false)
+  }, [])
+
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
+    } else {
+      localStorage.removeItem(USER_STORAGE_KEY)
+    }
+  }, [user])
 
   const handleLoginSuccess = async (tokenResponse) => {
     try {
@@ -105,7 +130,10 @@ function App() {
   }
 
   const handleEmojiChange = (newEmoji) => {
-    setUser(prevUser => ({ ...prevUser, emoji: newEmoji }))
+    setUser(prevUser => {
+      const updatedUser = { ...prevUser, emoji: newEmoji }
+      return updatedUser
+    })
   }
 
   if (openProfile) {
@@ -157,7 +185,10 @@ function App() {
           </div>
         </div>
         <div className="app-header-actions">
-          <button onClick={() => setUser(null)}>Logout</button>
+          <button onClick={() => {
+            setUser(null)
+            localStorage.removeItem(USER_STORAGE_KEY)
+          }}>Logout</button>
         </div>
       </div>
       {error && <p className="app-error">{error}</p>}
