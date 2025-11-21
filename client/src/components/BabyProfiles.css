@@ -82,6 +82,41 @@
   color: #333;
 }
 
+.baby-profiles-container .form-card-inline {
+  padding: 0;
+  margin: 0;
+}
+
+.delete-confirmation-card {
+  padding: 0;
+  text-align: center;
+}
+
+.delete-confirmation-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #b9434e;
+}
+
+.delete-confirmation-card p {
+  margin: 0.75rem 0;
+  color: #555;
+}
+
+.delete-warning {
+  color: #b9434e;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.delete-confirm-btn {
+  background-color: #b9434e;
+}
+
+.delete-confirm-btn:hover:not(:disabled) {
+  background-color: #a03a44;
+}
+
 .baby-profiles-container .form-card h3 {
   margin-top: 0;
   margin-bottom: 1.5rem;
@@ -129,6 +164,12 @@
   font-size: 0.875rem;
 }
 
+.baby-profiles-container .form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
 .empty-state {
   text-align: center;
   padding: 3rem;
@@ -151,6 +192,8 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
   color: #333;
+  position: relative;
+  width: 360px;
 }
 
 .profile-card:hover {
@@ -165,6 +208,12 @@
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;
+}
+
+.profile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .profile-header h3 {
@@ -247,6 +296,55 @@
 
 .role-badge-default {
   background-color: #6c757d;
+}
+
+.profile-card-edit-buttons {
+  display: flex;
+}
+
+.edit-profile-btn,
+.delete-profile-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  opacity: 0.7;
+}
+
+.edit-profile-btn {
+  color: #537492;
+}
+
+.edit-profile-btn:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.1);
+  background: rgba(83, 116, 146, 0.1);
+}
+
+.delete-profile-btn {
+  color: #b9434e;
+}
+
+.delete-profile-btn:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.1);
+  background: rgba(185, 67, 78, 0.1);
+}
+
+.edit-profile-btn:disabled,
+.delete-profile-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.edit-profile-btn:active:not(:disabled),
+.delete-profile-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .profile-card-actions {

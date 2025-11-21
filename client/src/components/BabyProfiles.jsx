@@ -11,12 +11,19 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   const [showJoinForm, setShowJoinForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [editingProfileId, setEditingProfileId] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState({});
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState(null);
 
   // Form states
   const [createForm, setCreateForm] = useState({
     name: '',
     birthDate: '',
-    gender: '',
+  });
+  const [editForm, setEditForm] = useState({
+    name: '',
+    birthDate: '',
   });
   const [joinCode, setJoinCode] = useState('');
   const [copiedCodeId, setCopiedCodeId] = useState(null);
@@ -85,7 +92,6 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
           userId,
           name: createForm.name,
           birthDate: createForm.birthDate || null,
-          gender: createForm.gender || null,
         }),
       });
 
@@ -102,7 +108,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
 
       const data = await parseJSONResponse(response);
       setProfiles([...profiles, data.profile]);
-      setCreateForm({ name: '', birthDate: '', gender: '' });
+      setCreateForm({ name: '', birthDate: '' });
       setShowCreateForm(false);
     } catch (err) {
       console.error('Error creating profile:', err);
@@ -153,10 +159,52 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   };
 
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Not set';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const calculateAge = (birthDateString) => {
+    if (!birthDateString) return null;
+    
+    const birthDate = new Date(birthDateString);
+    const today = new Date();
+    
+    // Set time to midnight for accurate day calculation
+    birthDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+    let days = today.getDate() - birthDate.getDate();
+    
+    // Adjust for negative days
+    if (days < 0) {
+      months--;
+      const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      days += lastMonth.getDate();
+    }
+    
+    // Adjust for negative months
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    return { years, months, days };
+  };
+
+  const formatAge = (birthDateString) => {
+    const age = calculateAge(birthDateString);
+    if (!age) return 'Not set';
+    
+    const parts = [];
+    if (age.years > 0) {
+      parts.push(`${age.years} ${age.years === 1 ? 'year' : 'years'}`);
+    }
+    if (age.months > 0) {
+      parts.push(`${age.months} ${age.months === 1 ? 'month' : 'months'}`);
+    }
+    if (age.days > 0 || parts.length === 0) {
+      parts.push(`${age.days} ${age.days === 1 ? 'day' : 'days'}`);
+    }
+    
+    return parts.join(', ');
   };
 
   const handleCopyJoinCode = async (code, profileId) => {
@@ -166,6 +214,113 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setTimeout(() => setCopiedCodeId(null), 2000);
     } catch (err) {
       console.error('Failed to copy join code:', err);
+    }
+  };
+
+  const handleEditProfile = (profile) => {
+    setEditForm({
+      name: profile.name,
+      birthDate: profile.birthDate ? new Date(profile.birthDate).toISOString().split('T')[0] : '',
+    });
+    setEditingProfileId(profile.id);
+    setShowCreateForm(false);
+    setShowJoinForm(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProfileId(null);
+    setEditForm({ name: '', birthDate: '' });
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    if (!editingProfileId) return;
+
+    try {
+      setUpdating(true);
+      setError(null);
+
+      const response = await fetch(`${API_URL}/baby-profiles/${editingProfileId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          name: editForm.name,
+          birthDate: editForm.birthDate || null,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to update baby profile (${response.status})`;
+        try {
+          const errorData = await parseJSONResponse(response);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error, use the default message
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await parseJSONResponse(response);
+      setProfiles(profiles.map(p => p.id === editingProfileId ? data.profile : p));
+      setEditingProfileId(null);
+      setEditForm({ name: '', birthDate: '' });
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setError(err.message || 'Failed to update baby profile');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDeleteClick = (profileId) => {
+    setConfirmingDeleteId(profileId);
+    setEditingProfileId(null);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmingDeleteId(null);
+  };
+
+  const handleConfirmDelete = async (profileId) => {
+    try {
+      setDeleting(prev => ({ ...prev, [profileId]: true }));
+      setError(null);
+
+      const response = await fetch(`${API_URL}/baby-profiles/${profileId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to delete baby profile (${response.status})`;
+        try {
+          const errorData = await parseJSONResponse(response);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error, use the default message
+        }
+        throw new Error(errorMessage);
+      }
+
+      setProfiles(profiles.filter(p => p.id !== profileId));
+      setConfirmingDeleteId(null);
+    } catch (err) {
+      console.error('Error deleting profile:', err);
+      setError(err.message || 'Failed to delete baby profile');
+    } finally {
+      setDeleting(prev => {
+        const updated = { ...prev };
+        delete updated[profileId];
+        return updated;
+      });
     }
   };
 
@@ -228,19 +383,6 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                 onChange={(e) => setCreateForm({ ...createForm, birthDate: e.target.value })}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="gender">Gender</label>
-              <select
-                id="gender"
-                value={createForm.gender}
-                onChange={(e) => setCreateForm({ ...createForm, gender: e.target.value })}
-              >
-                <option value="">Not specified</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
             <button type="submit" className="btn btn-primary" disabled={creating}>
               {creating ? 'Creating...' : 'Create Profile'}
             </button>
@@ -280,56 +422,151 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       ) : (
         <div className="profiles-grid">
           {profiles.map((profile) => (
-            <div 
-              key={profile.id} 
-              className="profile-card profile-card-clickable"
-              onClick={() => onOpenProfile && onOpenProfile(profile)}
-            >
-              <div className="profile-header">
-                <h3>{profile.name}</h3>
-                <span 
-                  className={`role-badge role-badge-${profile.role || 'default'}`}
-                >
-                  {profile.role}
-                </span>
-              </div>
-              <div className="profile-details">
-                <div className="profile-detail">
-                  <strong>Birth Date:</strong> {formatDate(profile.birthDate)}
+            editingProfileId === profile.id ? (
+              <div key={profile.id} className="profile-card">
+                <div className="form-card-inline">
+                  <h3>Edit Baby Profile</h3>
+                  <form onSubmit={handleUpdateProfile}>
+                    <div className="form-group">
+                      <label htmlFor="editName">Baby Name *</label>
+                      <input
+                        type="text"
+                        id="editName"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        required
+                        placeholder="Enter baby's name"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="editBirthDate">Birth Date</label>
+                      <input
+                        type="date"
+                        id="editBirthDate"
+                        value={editForm.birthDate}
+                        onChange={(e) => setEditForm({ ...editForm, birthDate: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-actions">
+                      <button type="button" className="btn btn-secondary" onClick={handleCancelEdit} disabled={updating}>
+                        Cancel
+                      </button>
+                      <button type="submit" className="btn btn-primary" disabled={updating}>
+                        {updating ? 'Updating...' : 'Update Profile'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
-                {profile.gender && (
+              </div>
+            ) : confirmingDeleteId === profile.id ? (
+              <div key={profile.id} className="profile-card">
+                <div className="delete-confirmation-card">
+                  <h3>Delete Profile?</h3>
+                  <p>Are you sure you want to delete <strong>{profile.name}</strong>?</p>
+                  <p className="delete-warning">This action cannot be undone and will remove all associated data.</p>
+                  <div className="form-actions">
+                  <button 
+                      type="button" 
+                      className="btn btn-secondary" 
+                      onClick={handleCancelDelete}
+                      disabled={deleting[profile.id]}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="button" 
+                      className="btn btn-primary delete-confirm-btn" 
+                      onClick={() => handleConfirmDelete(profile.id)}
+                      disabled={deleting[profile.id]}
+                    >
+                      {deleting[profile.id] ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div 
+                key={profile.id} 
+                className="profile-card profile-card-clickable"
+                onClick={() => onOpenProfile && onOpenProfile(profile)}
+              >
+                <div className="profile-header">
+                  <div className="profile-header-left">
+                  {profile.role === 'admin' && (
+                      <div className="profile-card-edit-buttons" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleDeleteClick(profile.id)}
+                          className="delete-profile-btn"
+                          title="Delete profile"
+                          disabled={editingProfileId === profile.id || deleting[profile.id] || confirmingDeleteId === profile.id}
+                        >
+                          {deleting[profile.id] ? (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="31.416" strokeDashoffset="31.416">
+                                <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
+                                <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
+                              </circle>
+                            </svg>
+                          ) : (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleEditProfile(profile)}
+                          className="edit-profile-btn"
+                          title="Edit profile"
+                          disabled={editingProfileId === profile.id || deleting[profile.id] || confirmingDeleteId === profile.id}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                    <h3>{profile.name}</h3>
+                  </div>
+                  <span 
+                    className={`role-badge role-badge-${profile.role || 'default'}`}
+                  >
+                    {profile.role}
+                  </span>
+                </div>
+                <div className="profile-details">
                   <div className="profile-detail">
-                    <strong>Gender:</strong> {profile.gender}
+                    <strong>Age:</strong> {formatAge(profile.birthDate)}
+                  </div>
+                  <div className="profile-detail">
+                    <strong>Join Code:</strong> 
+                    <code 
+                      className="join-code"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyJoinCode(profile.joinCode, profile.id);
+                      }}
+                      title="Click to copy"
+                    >
+                      {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
+                    </code>
+                  </div>
+                </div>
+                {profile.role === 'admin' && onViewUsers && (
+                  <div 
+                    className="profile-card-actions"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button 
+                      onClick={() => onViewUsers(profile.id, profile.name)}
+                      className="btn btn-primary"
+                    >
+                      View Users
+                    </button>
                   </div>
                 )}
-                <div className="profile-detail">
-                  <strong>Join Code:</strong> 
-                  <code 
-                    className="join-code"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyJoinCode(profile.joinCode, profile.id);
-                    }}
-                    title="Click to copy"
-                  >
-                    {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
-                  </code>
-                </div>
               </div>
-              {profile.role === 'admin' && onViewUsers && (
-                <div 
-                  className="profile-card-actions"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button 
-                    onClick={() => onViewUsers(profile.id, profile.name)}
-                    className="btn btn-primary"
-                  >
-                    View Users
-                  </button>
-                </div>
-              )}
-            </div>
+            )
           ))}
         </div>
       )}

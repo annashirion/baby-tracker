@@ -28,7 +28,6 @@ router.get('/', async (req, res) => {
         id: role.babyProfileId._id,
         name: role.babyProfileId.name,
         birthDate: role.babyProfileId.birthDate,
-        gender: role.babyProfileId.gender,
         joinCode: role.babyProfileId.joinCode,
         role: role.role,
         createdAt: role.babyProfileId.createdAt,
@@ -48,7 +47,7 @@ router.get('/', async (req, res) => {
 // Create a new baby profile
 router.post('/', async (req, res) => {
   try {
-    const { userId, name, birthDate, gender } = req.body;
+    const { userId, name, birthDate } = req.body;
 
     if (!userId || !name) {
       return res.status(400).json({ error: 'userId and name are required' });
@@ -58,7 +57,6 @@ router.post('/', async (req, res) => {
     const babyProfile = await BabyProfile.create({
       name,
       birthDate: birthDate ? new Date(birthDate) : null,
-      gender: gender || null,
     });
 
     // Create the user-baby-role relationship (user becomes admin)
@@ -74,7 +72,6 @@ router.post('/', async (req, res) => {
         id: babyProfile._id,
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
-        gender: babyProfile.gender,
         joinCode: babyProfile.joinCode,
         role: 'admin',
         createdAt: babyProfile.createdAt,
@@ -84,6 +81,106 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Error creating baby profile:', error);
     res.status(500).json({ error: 'Failed to create baby profile', message: error.message });
+  }
+});
+
+// Update a baby profile (admin only)
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, name, birthDate } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Check if user is admin for this profile
+    const userRole = await UserBabyRole.findOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    if (!userRole) {
+      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can update baby profiles' });
+    }
+
+    // Update the baby profile
+    const babyProfile = await BabyProfile.findByIdAndUpdate(
+      id,
+      {
+        name,
+        birthDate: birthDate ? new Date(birthDate) : null,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!babyProfile) {
+      return res.status(404).json({ error: 'Baby profile not found' });
+    }
+
+    res.json({
+      success: true,
+      profile: {
+        id: babyProfile._id,
+        name: babyProfile.name,
+        birthDate: babyProfile.birthDate,
+        joinCode: babyProfile.joinCode,
+        role: userRole.role,
+        createdAt: babyProfile.createdAt,
+        updatedAt: babyProfile.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating baby profile:', error);
+    res.status(500).json({ error: 'Failed to update baby profile', message: error.message });
+  }
+});
+
+// Delete a baby profile (admin only)
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Check if user is admin for this profile
+    const userRole = await UserBabyRole.findOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    if (!userRole) {
+      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can delete baby profiles' });
+    }
+
+    // Delete all user-baby-role relationships for this profile
+    await UserBabyRole.deleteMany({ babyProfileId: id });
+
+    // Delete the baby profile
+    const babyProfile = await BabyProfile.findByIdAndDelete(id);
+
+    if (!babyProfile) {
+      return res.status(404).json({ error: 'Baby profile not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Baby profile deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting baby profile:', error);
+    res.status(500).json({ error: 'Failed to delete baby profile', message: error.message });
   }
 });
 
@@ -133,7 +230,6 @@ router.post('/join', async (req, res) => {
         id: babyProfile._id,
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
-        gender: babyProfile.gender,
         joinCode: babyProfile.joinCode,
         role: 'viewer',
         createdAt: babyProfile.createdAt,
