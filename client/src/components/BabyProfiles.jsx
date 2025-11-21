@@ -19,6 +19,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     gender: '',
   });
   const [joinCode, setJoinCode] = useState('');
+  const [copiedCodeId, setCopiedCodeId] = useState(null);
 
   useEffect(() => {
     if (userId) {
@@ -158,6 +159,16 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  const handleCopyJoinCode = async (code, profileId) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeId(profileId);
+      setTimeout(() => setCopiedCodeId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy join code:', err);
+    }
+  };
+
   if (loading) {
     return <div className="baby-profiles-container">Loading baby profiles...</div>;
   }
@@ -293,7 +304,16 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                 )}
                 <div className="profile-detail">
                   <strong>Join Code:</strong> 
-                  <code className="join-code">{profile.joinCode}</code>
+                  <code 
+                    className="join-code"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyJoinCode(profile.joinCode, profile.id);
+                    }}
+                    title="Click to copy"
+                  >
+                    {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
+                  </code>
                 </div>
               </div>
               {profile.role === 'admin' && onViewUsers && (

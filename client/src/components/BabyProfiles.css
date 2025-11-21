@@ -208,7 +208,18 @@
   font-weight: bold;
   letter-spacing: 0.1em;
   margin-left: 0.5rem;
-  color: #007bff;
+  color: #d449a3;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  width: 70px;
+}
+
+.join-code:hover {
+  background: #d449a3;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
 .join-code-input {
