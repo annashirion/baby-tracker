@@ -5,8 +5,7 @@ import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
 import Reports from './Reports';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { API_URL } from '../constants/constants';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);

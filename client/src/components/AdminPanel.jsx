@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import EmojiPicker from './EmojiPicker';
+import { API_URL } from '../constants/constants';
 import './AdminPanel.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
   const [users, setUsers] = useState([]);
