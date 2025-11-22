@@ -592,6 +592,226 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
+  describe('POST /api/baby-profiles/:id/leave', () => {
+    it('should return 400 if userId is missing', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+      });
+
+      const response = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('userId is required');
+    });
+
+    it('should return 404 if user does not have access to profile', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+      });
+
+      const response = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({
+          userId: testUser1._id.toString(),
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('Baby profile not found or you do not have access');
+    });
+
+    it('should return 403 if user is admin', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+      });
+
+      await UserBabyRole.create({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+        role: 'admin',
+      });
+
+      const response = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({
+          userId: testUser1._id.toString(),
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Admins cannot leave a profile. Please delete the profile instead.');
+    });
+
+    it('should successfully leave profile for viewer', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+        joinCode: 'ABC123',
+      });
+
+      await UserBabyRole.create({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+        role: 'viewer',
+      });
+
+      const response = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({
+          userId: testUser1._id.toString(),
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Successfully left baby profile');
+
+      // Verify role was deleted
+      const role = await UserBabyRole.findOne({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+      });
+      expect(role).toBeNull();
+
+      // Verify profile still exists
+      const existingProfile = await BabyProfile.findById(profile._id);
+      expect(existingProfile).toBeTruthy();
+    });
+
+    it('should successfully leave profile for editor', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+        joinCode: 'ABC123',
+      });
+
+      await UserBabyRole.create({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+        role: 'editor',
+      });
+
+      const response = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({
+          userId: testUser1._id.toString(),
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      // Verify role was deleted
+      const role = await UserBabyRole.findOne({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+      });
+      expect(role).toBeNull();
+    });
+
+    it('should allow user to join again after leaving', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+        joinCode: 'ABC123',
+      });
+
+      // User joins as viewer
+      await UserBabyRole.create({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+        role: 'viewer',
+      });
+
+      // Verify user has access
+      let role = await UserBabyRole.findOne({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+      });
+      expect(role).toBeTruthy();
+      expect(role.role).toBe('viewer');
+
+      // User leaves
+      const leaveResponse = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({
+          userId: testUser1._id.toString(),
+        });
+
+      expect(leaveResponse.status).toBe(200);
+      expect(leaveResponse.body.success).toBe(true);
+
+      // Verify role was deleted
+      role = await UserBabyRole.findOne({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+      });
+      expect(role).toBeNull();
+
+      // User joins again using join code
+      const joinResponse = await request(app)
+        .post('/api/baby-profiles/join')
+        .send({
+          userId: testUser1._id.toString(),
+          joinCode: 'ABC123',
+        });
+
+      expect(joinResponse.status).toBe(200);
+      expect(joinResponse.body.success).toBe(true);
+      expect(joinResponse.body.profile.name).toBe('Baby 1');
+      expect(joinResponse.body.profile.role).toBe('viewer');
+
+      // Verify role was created again
+      role = await UserBabyRole.findOne({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+      });
+      expect(role).toBeTruthy();
+      expect(role.role).toBe('viewer');
+    });
+
+    it('should not affect other users when one user leaves', async () => {
+      const profile = await BabyProfile.create({
+        name: 'Baby 1',
+        joinCode: 'ABC123',
+      });
+
+      // User 1 is admin
+      await UserBabyRole.create({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+        role: 'admin',
+      });
+
+      // User 2 is viewer
+      await UserBabyRole.create({
+        userId: testUser2._id,
+        babyProfileId: profile._id,
+        role: 'viewer',
+      });
+
+      // User 2 leaves
+      const response = await request(app)
+        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .send({
+          userId: testUser2._id.toString(),
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      // Verify User 2's role was deleted
+      const user2Role = await UserBabyRole.findOne({
+        userId: testUser2._id,
+        babyProfileId: profile._id,
+      });
+      expect(user2Role).toBeNull();
+
+      // Verify User 1's role still exists
+      const user1Role = await UserBabyRole.findOne({
+        userId: testUser1._id,
+        babyProfileId: profile._id,
+      });
+      expect(user1Role).toBeTruthy();
+      expect(user1Role.role).toBe('admin');
+    });
+  });
+
   describe('Additional edge cases', () => {
     describe('POST /api/baby-profiles', () => {
       it('should handle invalid birthDate format gracefully', async () => {
