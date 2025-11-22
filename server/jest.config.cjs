@@ -12,6 +12,5 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   verbose: true,
-  // Jest will use jest-circus by default
 };
 
