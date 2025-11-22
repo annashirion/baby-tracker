@@ -5,36 +5,53 @@
 }
 
 .baby-profile-view-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #ddd;
+  margin-bottom: 2rem;
 }
 
 .baby-profile-view-header h2 {
   margin: 0;
-  color: #333;
+  color: #875f7f;
   font-size: 2rem;
+  text-align: center;
+  grid-column: 2;
 }
 
-.btn-back {
-  padding: 0.5rem 1rem;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+.btn.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background-color: transparent;
+  color: #537492;
+  border: 2px solid #ddd;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s;
-  font-weight: 500;
+  flex-shrink: 0;
 }
 
-.btn-back:hover {
-  background-color: #545b62;
+.btn.back-button:hover {
+  background-color: #875f7f;
+  border-color: #875f7f;
+  color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn.back-button:active {
+  transform: translateY(0);
+}
+
+.btn.back-button svg {
+  display: block;
 }
 
 .reports-icon-button {
