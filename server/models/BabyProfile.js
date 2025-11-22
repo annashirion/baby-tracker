@@ -8,11 +8,6 @@ const babyProfileSchema = new mongoose.Schema({
   birthDate: {
     type: Date,
   },
-  gender: {
-    type: String,
-    enum: ['male', 'female', 'other', null],
-    default: null,
-  },
   joinCode: {
     type: String,
     unique: true,

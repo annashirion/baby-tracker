@@ -4,6 +4,10 @@ import UserBabyRole from '../models/UserBabyRole.js';
 
 const router = express.Router();
 
+// Rate limiting for failed join attempts: track last failed attempt per user
+const failedJoinAttempts = new Map(); // userId -> timestamp of last failed attempt
+const RATE_LIMIT_WAIT_MS = 3000; // 3 seconds
+
 // Test route to verify router is working
 router.get('/test', (req, res) => {
   res.json({ message: 'Baby profiles router is working!' });
@@ -28,11 +32,11 @@ router.get('/', async (req, res) => {
         id: role.babyProfileId._id,
         name: role.babyProfileId.name,
         birthDate: role.babyProfileId.birthDate,
-        gender: role.babyProfileId.gender,
         joinCode: role.babyProfileId.joinCode,
         role: role.role,
         createdAt: role.babyProfileId.createdAt,
         updatedAt: role.babyProfileId.updatedAt,
+        joinedAt: role.createdAt, // When the user joined/created this profile
       }));
 
     res.json({
@@ -48,7 +52,7 @@ router.get('/', async (req, res) => {
 // Create a new baby profile
 router.post('/', async (req, res) => {
   try {
-    const { userId, name, birthDate, gender } = req.body;
+    const { userId, name, birthDate } = req.body;
 
     if (!userId || !name) {
       return res.status(400).json({ error: 'userId and name are required' });
@@ -58,11 +62,10 @@ router.post('/', async (req, res) => {
     const babyProfile = await BabyProfile.create({
       name,
       birthDate: birthDate ? new Date(birthDate) : null,
-      gender: gender || null,
     });
 
     // Create the user-baby-role relationship (user becomes admin)
-    await UserBabyRole.create({
+    const userRole = await UserBabyRole.create({
       userId,
       babyProfileId: babyProfile._id,
       role: 'admin',
@@ -74,16 +77,116 @@ router.post('/', async (req, res) => {
         id: babyProfile._id,
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
-        gender: babyProfile.gender,
         joinCode: babyProfile.joinCode,
         role: 'admin',
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
+        joinedAt: userRole.createdAt, // When the user joined/created this profile
       },
     });
   } catch (error) {
     console.error('Error creating baby profile:', error);
     res.status(500).json({ error: 'Failed to create baby profile', message: error.message });
+  }
+});
+
+// Update a baby profile (admin only)
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, name, birthDate } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Check if user is admin for this profile
+    const userRole = await UserBabyRole.findOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    if (!userRole) {
+      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can update baby profiles' });
+    }
+
+    // Update the baby profile
+    const babyProfile = await BabyProfile.findByIdAndUpdate(
+      id,
+      {
+        name,
+        birthDate: birthDate ? new Date(birthDate) : null,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!babyProfile) {
+      return res.status(404).json({ error: 'Baby profile not found' });
+    }
+
+    res.json({
+      success: true,
+      profile: {
+        id: babyProfile._id,
+        name: babyProfile.name,
+        birthDate: babyProfile.birthDate,
+        joinCode: babyProfile.joinCode,
+        role: userRole.role,
+        createdAt: babyProfile.createdAt,
+        updatedAt: babyProfile.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating baby profile:', error);
+    res.status(500).json({ error: 'Failed to update baby profile', message: error.message });
+  }
+});
+
+// Delete a baby profile (admin only)
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Check if user is admin for this profile
+    const userRole = await UserBabyRole.findOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    if (!userRole) {
+      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can delete baby profiles' });
+    }
+
+    // Delete all user-baby-role relationships for this profile
+    await UserBabyRole.deleteMany({ babyProfileId: id });
+
+    // Delete the baby profile
+    const babyProfile = await BabyProfile.findByIdAndDelete(id);
+
+    if (!babyProfile) {
+      return res.status(404).json({ error: 'Baby profile not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Baby profile deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting baby profile:', error);
+    res.status(500).json({ error: 'Failed to delete baby profile', message: error.message });
   }
 });
 
@@ -96,16 +199,36 @@ router.post('/join', async (req, res) => {
       return res.status(400).json({ error: 'userId and joinCode are required' });
     }
 
+    // Normalize userId to string for consistent Map key usage
+    const userIdStr = String(userId);
+
+    // Check rate limit: if user had a failed attempt within last 3 seconds, block them
+    const lastFailedAttempt = failedJoinAttempts.get(userIdStr);
+    if (lastFailedAttempt && (Date.now() - lastFailedAttempt) < RATE_LIMIT_WAIT_MS) {
+      console.log(`[RATE LIMIT] User ${userIdStr} must wait before trying again`);
+      return res.status(429).json({ 
+        error: 'Please wait before trying again',
+        message: 'You must wait 3 seconds before attempting to join again',
+      });
+    }
+    // Clear old failed attempts
+    if (lastFailedAttempt && (Date.now() - lastFailedAttempt) >= RATE_LIMIT_WAIT_MS) {
+      failedJoinAttempts.delete(userIdStr);
+    }
+
     // Find the baby profile by join code
     const babyProfile = await BabyProfile.findOne({ joinCode: joinCode.toUpperCase() });
 
     if (!babyProfile) {
+      // Record failed attempt timestamp
+      failedJoinAttempts.set(userIdStr, Date.now());
+      console.log(`[RATE LIMIT] Recorded failed join attempt for user ${userIdStr}, joinCode: ${joinCode.toUpperCase()}`);
       return res.status(404).json({ error: 'Baby profile not found with this join code' });
     }
 
     // Check if user already has a role for this profile
     const existingRole = await UserBabyRole.findOne({
-      userId,
+      userId: userIdStr,
       babyProfileId: babyProfile._id,
     });
 
@@ -122,10 +245,16 @@ router.post('/join', async (req, res) => {
 
     // Create the user-baby-role relationship (user becomes viewer by default)
     const userRole = await UserBabyRole.create({
-      userId,
+      userId: userIdStr,
       babyProfileId: babyProfile._id,
       role: 'viewer',
     });
+
+    // Clear any previous failed attempts on successful join
+    if (failedJoinAttempts.has(userIdStr)) {
+      failedJoinAttempts.delete(userIdStr);
+      console.log(`[RATE LIMIT] Cleared rate limit for user ${userIdStr} after successful join`);
+    }
 
     res.json({
       success: true,
@@ -133,11 +262,11 @@ router.post('/join', async (req, res) => {
         id: babyProfile._id,
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
-        gender: babyProfile.gender,
         joinCode: babyProfile.joinCode,
         role: 'viewer',
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
+        joinedAt: userRole.createdAt, // When the user joined/created this profile
       },
     });
   } catch (error) {
@@ -149,6 +278,47 @@ router.post('/join', async (req, res) => {
     }
 
     res.status(500).json({ error: 'Failed to join baby profile', message: error.message });
+  }
+});
+
+// Leave a baby profile (remove user's access)
+router.post('/:id/leave', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Check if user has a role for this profile
+    const userRole = await UserBabyRole.findOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    if (!userRole) {
+      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    // Prevent admins from leaving (they should delete the profile instead)
+    if (userRole.role === 'admin') {
+      return res.status(403).json({ error: 'Admins cannot leave a profile. Please delete the profile instead.' });
+    }
+
+    // Remove the user-baby-role relationship
+    await UserBabyRole.deleteOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    res.json({
+      success: true,
+      message: 'Successfully left baby profile',
+    });
+  } catch (error) {
+    console.error('Error leaving baby profile:', error);
+    res.status(500).json({ error: 'Failed to leave baby profile', message: error.message });
   }
 });
 
