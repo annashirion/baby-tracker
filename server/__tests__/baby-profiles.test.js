@@ -1113,6 +1113,420 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
+  describe('Join Code Enable/Disable', () => {
+    describe('Default behavior', () => {
+      it('should create profile with joinCodeEnabled defaulting to true', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        expect(profile.joinCodeEnabled).toBe(true);
+      });
+
+      it('should return joinCodeEnabled in GET response', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        const response = await request(app)
+          .get('/api/baby-profiles')
+          .query({ userId: testUser1._id.toString() });
+
+        expect(response.status).toBe(200);
+        expect(response.body.profiles[0].joinCodeEnabled).toBe(true);
+      });
+
+      it('should return joinCodeEnabled in create response', async () => {
+        const response = await request(app)
+          .post('/api/baby-profiles')
+          .send({
+            userId: testUser1._id.toString(),
+            name: 'Baby 1',
+          });
+
+        expect(response.status).toBe(200);
+        expect(response.body.profile.joinCodeEnabled).toBe(true);
+      });
+    });
+
+    describe('POST /api/baby-profiles/join with disabled join code', () => {
+      it('should return 403 if join code is disabled', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: false,
+        });
+
+        const response = await request(app)
+          .post('/api/baby-profiles/join')
+          .send({
+            userId: testUser1._id.toString(),
+            joinCode: 'ABC123',
+          });
+
+        expect(response.status).toBe(403);
+        expect(response.body.error).toBe('Join code is disabled for this baby profile');
+      });
+
+      it('should allow joining when join code is enabled', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: true,
+        });
+
+        const response = await request(app)
+          .post('/api/baby-profiles/join')
+          .send({
+            userId: testUser1._id.toString(),
+            joinCode: 'ABC123',
+          });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.profile.name).toBe('Baby 1');
+      });
+
+      it('should allow joining when joinCodeEnabled is undefined (defaults to true)', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          // joinCodeEnabled not set, should default to true
+        });
+
+        const response = await request(app)
+          .post('/api/baby-profiles/join')
+          .send({
+            userId: testUser1._id.toString(),
+            joinCode: 'ABC123',
+          });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+      });
+    });
+
+    describe('PUT /api/baby-profiles/:id/toggle-join-code', () => {
+      it('should return 400 if userId is missing', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({});
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe('userId is required');
+      });
+
+      it('should return 404 if user does not have access to profile', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(404);
+        expect(response.body.error).toBe('Baby profile not found or you do not have access');
+      });
+
+      it('should return 403 if user is not admin (viewer)', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'viewer',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(403);
+        expect(response.body.error).toBe('Only admins can toggle join code status');
+      });
+
+      it('should return 403 if user is not admin (editor)', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'editor',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(403);
+        expect(response.body.error).toBe('Only admins can toggle join code status');
+      });
+
+      it('should return 403 if user is blocked', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+          blocked: true,
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(403);
+        expect(response.body.error).toBe('You have been blocked from accessing this baby profile');
+      });
+
+      it('should toggle join code from enabled to disabled (admin)', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: true,
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.profile.joinCodeEnabled).toBe(false);
+
+        // Verify in database
+        const updatedProfile = await BabyProfile.findById(profile._id);
+        expect(updatedProfile.joinCodeEnabled).toBe(false);
+      });
+
+      it('should toggle join code from disabled to enabled (admin)', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: false,
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.profile.joinCodeEnabled).toBe(true);
+
+        // Verify in database
+        const updatedProfile = await BabyProfile.findById(profile._id);
+        expect(updatedProfile.joinCodeEnabled).toBe(true);
+      });
+
+      it('should toggle join code multiple times', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: true,
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        // Toggle to disabled
+        const response1 = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response1.status).toBe(200);
+        expect(response1.body.profile.joinCodeEnabled).toBe(false);
+
+        // Toggle back to enabled
+        const response2 = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response2.status).toBe(200);
+        expect(response2.body.profile.joinCodeEnabled).toBe(true);
+
+        // Toggle to disabled again
+        const response3 = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response3.status).toBe(200);
+        expect(response3.body.profile.joinCodeEnabled).toBe(false);
+      });
+
+      it('should return updated profile with all fields in toggle response', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          birthDate: new Date('2023-01-01'),
+          joinCodeEnabled: true,
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        const response = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(response.status).toBe(200);
+        expect(response.body.profile).toHaveProperty('id');
+        expect(response.body.profile).toHaveProperty('name', 'Baby 1');
+        expect(response.body.profile).toHaveProperty('joinCode', 'ABC123');
+        expect(response.body.profile).toHaveProperty('joinCodeEnabled', false);
+        expect(response.body.profile).toHaveProperty('role', 'admin');
+      });
+    });
+
+    describe('Integration: Toggle and Join', () => {
+      it('should prevent joining after admin disables join code', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: true,
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        // Admin disables join code
+        const toggleResponse = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(toggleResponse.status).toBe(200);
+        expect(toggleResponse.body.profile.joinCodeEnabled).toBe(false);
+
+        // User 2 tries to join - should fail
+        const joinResponse = await request(app)
+          .post('/api/baby-profiles/join')
+          .send({
+            userId: testUser2._id.toString(),
+            joinCode: 'ABC123',
+          });
+
+        expect(joinResponse.status).toBe(403);
+        expect(joinResponse.body.error).toBe('Join code is disabled for this baby profile');
+      });
+
+      it('should allow joining after admin re-enables join code', async () => {
+        const profile = await BabyProfile.create({
+          name: 'Baby 1',
+          joinCode: 'ABC123',
+          joinCodeEnabled: false,
+        });
+
+        await UserBabyRole.create({
+          userId: testUser1._id,
+          babyProfileId: profile._id,
+          role: 'admin',
+        });
+
+        // User 2 tries to join - should fail
+        const joinResponse1 = await request(app)
+          .post('/api/baby-profiles/join')
+          .send({
+            userId: testUser2._id.toString(),
+            joinCode: 'ABC123',
+          });
+
+        expect(joinResponse1.status).toBe(403);
+
+        // Admin enables join code
+        const toggleResponse = await request(app)
+          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .send({
+            userId: testUser1._id.toString(),
+          });
+
+        expect(toggleResponse.status).toBe(200);
+        expect(toggleResponse.body.profile.joinCodeEnabled).toBe(true);
+
+        // Wait for rate limit to expire (3 seconds + small buffer)
+        await new Promise(resolve => setTimeout(resolve, 3100));
+
+        // User 2 tries to join again - should succeed
+        const joinResponse2 = await request(app)
+          .post('/api/baby-profiles/join')
+          .send({
+            userId: testUser2._id.toString(),
+            joinCode: 'ABC123',
+          });
+
+        expect(joinResponse2.status).toBe(200);
+        expect(joinResponse2.body.success).toBe(true);
+      });
+    });
+  });
+
   describe('Additional edge cases', () => {
     describe('POST /api/baby-profiles', () => {
       it('should handle invalid birthDate format gracefully', async () => {
