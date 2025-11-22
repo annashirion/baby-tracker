@@ -25,9 +25,9 @@ router.get('/', async (req, res) => {
     // Find all roles for this user
     const userRoles = await UserBabyRole.find({ userId }).populate('babyProfileId');
 
-    // Filter out any roles where the baby profile was deleted (null)
+    // Filter out any roles where the baby profile was deleted (null) or user is blocked
     const profiles = userRoles
-      .filter(role => role.babyProfileId !== null)
+      .filter(role => role.babyProfileId !== null && !role.blocked)
       .map(role => ({
         id: role.babyProfileId._id,
         name: role.babyProfileId.name,
@@ -110,6 +110,10 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
     }
 
+    if (userRole.blocked) {
+      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
+    }
+
     if (userRole.role !== 'admin') {
       return res.status(403).json({ error: 'Only admins can update baby profiles' });
     }
@@ -164,6 +168,10 @@ router.delete('/:id', async (req, res) => {
 
     if (!userRole) {
       return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.blocked) {
+      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
     }
 
     if (userRole.role !== 'admin') {
@@ -233,6 +241,12 @@ router.post('/join', async (req, res) => {
     });
 
     if (existingRole) {
+      // Check if user is blocked
+      if (existingRole.blocked) {
+        return res.status(403).json({ 
+          error: 'You have been blocked from accessing this baby profile',
+        });
+      }
       return res.status(400).json({ 
         error: 'You already have access to this baby profile',
         profile: {
@@ -299,6 +313,10 @@ router.post('/:id/leave', async (req, res) => {
 
     if (!userRole) {
       return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.blocked) {
+      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
     }
 
     // Prevent admins from leaving (they should delete the profile instead)

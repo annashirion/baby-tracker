@@ -17,6 +17,10 @@ const userBabyRoleSchema = new mongoose.Schema({
     required: true,
     default: 'viewer',
   },
+  blocked: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields
 });

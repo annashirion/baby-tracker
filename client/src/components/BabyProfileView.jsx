@@ -4,6 +4,7 @@ import DiaperAction from './DiaperAction';
 import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
+import Reports from './Reports';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -12,6 +13,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showOtherAction, setShowOtherAction] = useState(false);
   const [showSleepAction, setShowSleepAction] = useState(false);
   const [showFeedAction, setShowFeedAction] = useState(false);
+  const [showReports, setShowReports] = useState(false);
   const [lastDiaperAction, setLastDiaperAction] = useState(null);
   const [lastOtherAction, setLastOtherAction] = useState(null);
   const [lastSleepAction, setLastSleepAction] = useState(null);
@@ -177,6 +179,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   };
 
   const handleAction = (actionType) => {
+    // Prevent action if user is a viewer
+    if (profile.role === 'viewer') {
+      return;
+    }
+    
     if (actionType === 'diaper') {
       setShowDiaperAction(true);
     } else if (actionType === 'other') {
@@ -190,6 +197,18 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       // TODO: Implement API call to track this action
     }
   };
+
+  const isViewer = profile.role === 'viewer';
+
+  // Show reports view if showReports is true
+  if (showReports) {
+    return (
+      <Reports
+        profile={profile}
+        onClose={() => setShowReports(false)}
+      />
+    );
+  }
 
   return (
     <>
@@ -256,15 +275,20 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           <button onClick={onClose} className="users-view-back-button">
             ←
           </button>
-          <button className="reports-icon-button btn btn-secondary" title="Reports">
+          <button 
+            className="reports-icon-button btn btn-secondary" 
+            title="Reports"
+            onClick={() => setShowReports(true)}
+          >
             📊
           </button>
         </div>
         <div className="action-buttons-container">
           <h2>{profile.name}</h2>
           <button 
-            className="action-button action-button-diaper"
+            className={`action-button action-button-diaper ${isViewer ? 'disabled' : ''}`}
             onClick={() => handleAction('diaper')}
+            disabled={isViewer}
           >
             <div className="action-button-main">
               <span>💩</span> <span>Diaper</span>
@@ -279,8 +303,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
             </div>
           </button>
           <button 
-            className="action-button action-button-sleep"
+            className={`action-button action-button-sleep ${isViewer ? 'disabled' : ''}`}
             onClick={() => handleAction('sleep')}
+            disabled={isViewer}
           >
             <div className="action-button-main">
               <span>😴</span> <span>Sleep</span>
@@ -311,8 +336,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
             </div>
           </button>
           <button 
-            className="action-button action-button-feed"
+            className={`action-button action-button-feed ${isViewer ? 'disabled' : ''}`}
             onClick={() => handleAction('feed')}
+            disabled={isViewer}
           >
             <div className="action-button-main">
               <span>🍼</span> <span>Feed</span>
@@ -346,8 +372,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
             </div>
           </button>
           <button 
-            className="action-button action-button-other"
+            className={`action-button action-button-other ${isViewer ? 'disabled' : ''}`}
             onClick={() => handleAction('other')}
+            disabled={isViewer}
           >
             <div className="action-button-main">
               <span>📝</span> <span>Other</span>

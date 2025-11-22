@@ -18,6 +18,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
   position: relative;
+  width: 400px;
 }
 
 .user-info {
@@ -42,7 +43,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 6px;
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,6 +81,19 @@
 .user-info-header h3 {
   margin: 0;
   color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.blocked-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: bold;
+  background-color: #ff9800;
+  color: white;
 }
 
 .role-badge {
@@ -156,14 +170,113 @@
   color: red;
 }
 
-.refresh-button {
+.admin-panel-actions {
+  display: flex;
+  gap: 1rem;
   margin-top: 20px;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.refresh-button,
+.blocked-users-btn {
+  margin-top: 0;
+}
+
+.blocked-users-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.blocked-users-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.delete-confirmation-card {
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.delete-confirmation-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #b9434e;
+}
+
+.delete-confirmation-card p {
+  margin: 0.75rem 0;
+  color: #555;
+}
+
+.delete-warning {
+  color: #b9434e;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.delete-confirm-btn {
+  background-color: #b9434e;
+}
+
+.delete-confirm-btn:hover:not(:disabled) {
+  background-color: #a03a44;
+}
+
+.btn-danger {
+  background-color: #b9434e;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #a03a44;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.blocked-user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.blocked-user-card .user-info {
+  flex: 1;
+}
+
+.blocked-user-card .user-info-header {
+  margin-bottom: 0;
+}
+
+.blocked-user-card .user-info-header h3 {
+  margin: 0;
+}
+
+.unblock-btn {
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
 }
 
 @media (max-width: 600px) {
   .user-card {
     flex-direction: column;
     align-items: center;
+    text-align: center;
+  }
+
+  .blocked-user-card {
+    flex-direction: column;
     text-align: center;
   }
 }
