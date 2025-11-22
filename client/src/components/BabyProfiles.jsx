@@ -200,9 +200,19 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     const birthDate = new Date(birthDateString);
     const today = new Date();
     
+    // Check if birthdate is invalid
+    if (isNaN(birthDate.getTime())) {
+      return null;
+    }
+    
     // Set time to midnight for accurate day calculation
     birthDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
+    
+    // Check if birthdate is in the future
+    if (birthDate > today) {
+      return null;
+    }
     
     let years = today.getFullYear() - birthDate.getFullYear();
     let months = today.getMonth() - birthDate.getMonth();
@@ -221,12 +231,23 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       months += 12;
     }
     
+    // Final check: if years is negative, the birthdate is in the future
+    if (years < 0) {
+      return null;
+    }
+    
     return { years, months, days };
   };
 
   const formatAge = (birthDateString) => {
     const age = calculateAge(birthDateString);
-    if (!age) return 'Not set';
+    if (!age) {
+      // If birthDateString exists but age is null, it means the date is invalid or in the future
+      if (birthDateString) {
+        return 'Not born yet';
+      }
+      return 'Not set';
+    }
     
     const parts = [];
     if (age.years > 0) {
