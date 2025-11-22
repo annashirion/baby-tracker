@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
@@ -16,6 +16,7 @@ function App() {
   const [error, setError] = useState(null)
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [openProfile, setOpenProfile] = useState(null)
+  const adminPanelRefreshRef = useRef(null)
 
   // Load user and restore profile from localStorage on mount
   useEffect(() => {
@@ -188,12 +189,20 @@ function App() {
             </svg>
           </button>
           <h2>{selectedProfile.name}</h2>
+          <button onClick={() => adminPanelRefreshRef.current?.()} className="btn refresh-icon-button" title="Refresh">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 8v4h4M21 16v-4h-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
         <div className="users-view-content">
           <AdminPanel 
             userId={user.id} 
             babyProfileId={selectedProfile.id}
             onClose={handleCloseUsers}
+            onRefreshReady={(refreshFn) => { adminPanelRefreshRef.current = refreshFn; }}
           />
         </div>
       </>

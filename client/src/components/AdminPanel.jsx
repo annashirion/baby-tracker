@@ -4,7 +4,7 @@ import './AdminPanel.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-function AdminPanel({ userId, babyProfileId, onClose }) {
+function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,6 +46,12 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
       fetchUsers();
     }
   }, [userId, babyProfileId]);
+
+  useEffect(() => {
+    if (onRefreshReady) {
+      onRefreshReady(fetchUsers);
+    }
+  }, [onRefreshReady]);
 
   const handleRoleChange = async (targetUserId, newRole) => {
     if (!userId || !babyProfileId) {
@@ -366,23 +372,23 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
         <div className="user-info">
           <div className="user-info-header">
             <h3>{user.name} {user.blocked && <span className="blocked-badge">(Blocked)</span>}</h3>
-            {user.id === userId ? (
-              <span className={`role-badge role-badge-${user.role || 'default'}`}>
-                {user.role} (You)
-              </span>
-            ) : (
-              <select
-                value={user.role}
-                onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                disabled={updatingRoles[user.id] || user.blocked}
-                className={`role-select role-select-${user.role || 'default'}`}
-              >
-                <option value="admin" className="role-option-admin">admin</option>
-                <option value="editor" className="role-option-editor">editor</option>
-                <option value="viewer" className="role-option-viewer">viewer</option>
-              </select>
-            )}
           </div>
+          {user.id === userId ? (
+            <span className={`role-badge role-badge-${user.role || 'default'}`}>
+              {user.role} (You)
+            </span>
+          ) : (
+            <select
+              value={user.role}
+              onChange={(e) => handleRoleChange(user.id, e.target.value)}
+              disabled={updatingRoles[user.id] || user.blocked}
+              className={`role-select role-select-${user.role || 'default'}`}
+            >
+              <option value="admin" className="role-option-admin">admin</option>
+              <option value="editor" className="role-option-editor">editor</option>
+              <option value="viewer" className="role-option-viewer">viewer</option>
+            </select>
+          )}
           <p><strong>Email:</strong> {user.email}</p>
           <p><strong>Joined:</strong> {new Date(user.joinedAt).toLocaleString()}</p>
           <p><strong>Account Created:</strong> {new Date(user.createdAt).toLocaleString()}</p>
@@ -395,9 +401,6 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
     <div className="admin-panel">
       {showBlockedUsers ? (
         <>
-          <div className="blocked-users-header">
-            <h2>Blocked Users</h2>
-          </div>
           {blockedUsers.length === 0 ? (
             <p>No blocked users.</p>
           ) : (
@@ -426,9 +429,6 @@ function AdminPanel({ userId, babyProfileId, onClose }) {
             {showBlockedUsers ? '← Back to Active Users' : `Blocked Users (${blockedUsers.length})`}
           </button>
         )}
-        <button onClick={fetchUsers} className="btn btn-secondary refresh-button">
-          Refresh
-        </button>
       </div>
     </div>
   );
