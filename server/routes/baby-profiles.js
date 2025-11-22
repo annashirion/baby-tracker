@@ -33,6 +33,7 @@ router.get('/', async (req, res) => {
         name: role.babyProfileId.name,
         birthDate: role.babyProfileId.birthDate,
         joinCode: role.babyProfileId.joinCode,
+        joinCodeEnabled: role.babyProfileId.joinCodeEnabled !== false, // Default to true if undefined
         role: role.role,
         createdAt: role.babyProfileId.createdAt,
         updatedAt: role.babyProfileId.updatedAt,
@@ -78,6 +79,7 @@ router.post('/', async (req, res) => {
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
         joinCode: babyProfile.joinCode,
+        joinCodeEnabled: babyProfile.joinCodeEnabled !== false, // Default to true if undefined
         role: 'admin',
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
@@ -139,6 +141,7 @@ router.put('/:id', async (req, res) => {
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
         joinCode: babyProfile.joinCode,
+        joinCodeEnabled: babyProfile.joinCodeEnabled !== false, // Default to true if undefined
         role: userRole.role,
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
@@ -234,6 +237,14 @@ router.post('/join', async (req, res) => {
       return res.status(404).json({ error: 'Baby profile not found with this join code' });
     }
 
+    // Check if join code is enabled
+    if (babyProfile.joinCodeEnabled === false) {
+      // Record failed attempt timestamp
+      failedJoinAttempts.set(userIdStr, Date.now());
+      console.log(`[RATE LIMIT] Recorded failed join attempt for user ${userIdStr}, joinCode disabled: ${joinCode.toUpperCase()}`);
+      return res.status(403).json({ error: 'Join code is disabled for this baby profile' });
+    }
+
     // Check if user already has a role for this profile
     const existingRole = await UserBabyRole.findOne({
       userId: userIdStr,
@@ -277,6 +288,7 @@ router.post('/join', async (req, res) => {
         name: babyProfile.name,
         birthDate: babyProfile.birthDate,
         joinCode: babyProfile.joinCode,
+        joinCodeEnabled: babyProfile.joinCodeEnabled !== false, // Default to true if undefined
         role: 'viewer',
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
@@ -292,6 +304,64 @@ router.post('/join', async (req, res) => {
     }
 
     res.status(500).json({ error: 'Failed to join baby profile', message: error.message });
+  }
+});
+
+// Toggle join code enabled/disabled (admin only)
+router.put('/:id/toggle-join-code', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Check if user is admin for this profile
+    const userRole = await UserBabyRole.findOne({
+      userId,
+      babyProfileId: id,
+    });
+
+    if (!userRole) {
+      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
+    }
+
+    if (userRole.blocked) {
+      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
+    }
+
+    if (userRole.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can toggle join code status' });
+    }
+
+    // Get the current baby profile
+    const babyProfile = await BabyProfile.findById(id);
+
+    if (!babyProfile) {
+      return res.status(404).json({ error: 'Baby profile not found' });
+    }
+
+    // Toggle the join code enabled status
+    babyProfile.joinCodeEnabled = !babyProfile.joinCodeEnabled;
+    await babyProfile.save();
+
+    res.json({
+      success: true,
+      profile: {
+        id: babyProfile._id,
+        name: babyProfile.name,
+        birthDate: babyProfile.birthDate,
+        joinCode: babyProfile.joinCode,
+        joinCodeEnabled: babyProfile.joinCodeEnabled,
+        role: userRole.role,
+        createdAt: babyProfile.createdAt,
+        updatedAt: babyProfile.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error toggling join code:', error);
+    res.status(500).json({ error: 'Failed to toggle join code', message: error.message });
   }
 });
 

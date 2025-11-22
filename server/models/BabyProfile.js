@@ -13,6 +13,10 @@ const babyProfileSchema = new mongoose.Schema({
     unique: true,
     sparse: true, // Allows null values but enforces uniqueness for non-null values
   },
+  joinCodeEnabled: {
+    type: Boolean,
+    default: true, // Enabled by default
+  },
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields
 });
