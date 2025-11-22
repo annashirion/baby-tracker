@@ -346,5 +346,188 @@ describe('Users Routes', () => {
       expect(role).toBeNull();
     });
   });
+
+  describe('PUT /api/users/block', () => {
+    it('should return 400 if required fields are missing', async () => {
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('userId, babyProfileId, targetUserId, and blocked (boolean) are required');
+    });
+
+    it('should return 400 if blocked is not a boolean', async () => {
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+          blocked: 'true',
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('userId, babyProfileId, targetUserId, and blocked (boolean) are required');
+    });
+
+    it('should return 403 if user is not an admin', async () => {
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: viewerUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: editorUser._id.toString(),
+          blocked: true,
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Only admins can block/unblock users');
+    });
+
+    it('should return 400 if admin tries to block themselves', async () => {
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: adminUser._id.toString(),
+          blocked: true,
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('You cannot block yourself');
+    });
+
+    it('should block a user successfully', async () => {
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+          blocked: true,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('User blocked successfully');
+      expect(response.body.userRole.blocked).toBe(true);
+
+      // Verify user is blocked in database
+      const role = await UserBabyRole.findOne({
+        userId: viewerUser._id,
+        babyProfileId: babyProfile._id,
+      });
+      expect(role.blocked).toBe(true);
+    });
+
+    it('should unblock a user successfully', async () => {
+      // First block the user
+      await UserBabyRole.updateOne(
+        {
+          userId: viewerUser._id,
+          babyProfileId: babyProfile._id,
+        },
+        { blocked: true }
+      );
+
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+          blocked: false,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('User unblocked successfully');
+      expect(response.body.userRole.blocked).toBe(false);
+
+      // Verify user is unblocked in database
+      const role = await UserBabyRole.findOne({
+        userId: viewerUser._id,
+        babyProfileId: babyProfile._id,
+      });
+      expect(role.blocked).toBe(false);
+    });
+
+    it('should create blocked record for user not in profile', async () => {
+      // Remove otherUser from profile first (if exists)
+      await UserBabyRole.deleteOne({
+        userId: otherUser._id,
+        babyProfileId: babyProfile._id,
+      });
+
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: otherUser._id.toString(),
+          blocked: true,
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+
+      // Verify blocked record was created
+      const role = await UserBabyRole.findOne({
+        userId: otherUser._id,
+        babyProfileId: babyProfile._id,
+      });
+      expect(role).toBeTruthy();
+      expect(role.blocked).toBe(true);
+    });
+
+    it('should return 404 when unblocking user who is not blocked', async () => {
+      // Ensure otherUser is not in profile
+      await UserBabyRole.deleteOne({
+        userId: otherUser._id,
+        babyProfileId: babyProfile._id,
+      });
+
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: otherUser._id.toString(),
+          blocked: false,
+        });
+
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('User is not blocked for this baby profile');
+    });
+
+    it('should return 400 when unblocking user who is already unblocked', async () => {
+      // Ensure viewerUser is not blocked
+      await UserBabyRole.updateOne(
+        {
+          userId: viewerUser._id,
+          babyProfileId: babyProfile._id,
+        },
+        { blocked: false }
+      );
+
+      const response = await request(app)
+        .put('/api/users/block')
+        .send({
+          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+          blocked: false,
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('User is not blocked');
+    });
+  });
 });
 

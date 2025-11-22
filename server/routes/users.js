@@ -77,6 +77,7 @@ router.get('/', async (req, res) => {
         givenName: role.userId.givenName,
         familyName: role.userId.familyName,
         role: role.role,
+        blocked: role.blocked || false,
         joinedAt: role.createdAt,
         createdAt: role.userId.createdAt,
         updatedAt: role.userId.updatedAt,
@@ -279,6 +280,109 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Failed to fetch user', message: error.message });
+  }
+});
+
+// Block or unblock a user from a baby profile (only admins can do this)
+router.put('/block', async (req, res) => {
+  try {
+    const { userId, babyProfileId, targetUserId, blocked } = req.body;
+
+    if (!userId || !babyProfileId || !targetUserId || typeof blocked !== 'boolean') {
+      return res.status(400).json({ 
+        error: 'userId, babyProfileId, targetUserId, and blocked (boolean) are required' 
+      });
+    }
+
+    // Convert to ObjectId for proper querying
+    let userIdObj, babyProfileIdObj, targetUserIdObj;
+    try {
+      userIdObj = new mongoose.Types.ObjectId(userId);
+      babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
+      targetUserIdObj = new mongoose.Types.ObjectId(targetUserId);
+    } catch (error) {
+      return res.status(400).json({ 
+        error: 'Invalid userId, babyProfileId, or targetUserId format' 
+      });
+    }
+
+    // Check if the requesting user is an admin of this baby profile
+    const adminRole = await UserBabyRole.findOne({
+      userId: userIdObj,
+      babyProfileId: babyProfileIdObj,
+    });
+
+    if (!adminRole) {
+      return res.status(403).json({ 
+        error: 'You do not have access to this baby profile' 
+      });
+    }
+
+    if (adminRole.role !== 'admin') {
+      return res.status(403).json({ 
+        error: 'Only admins can block/unblock users' 
+      });
+    }
+
+    // Prevent admins from blocking themselves
+    if (userIdObj.toString() === targetUserIdObj.toString()) {
+      return res.status(400).json({ 
+        error: 'You cannot block yourself' 
+      });
+    }
+
+    // Check if the target user has a role in this baby profile
+    let targetUserRole = await UserBabyRole.findOne({
+      userId: targetUserIdObj,
+      babyProfileId: babyProfileIdObj,
+    });
+
+    if (blocked) {
+      // Blocking: Create or update to set blocked=true
+      if (!targetUserRole) {
+        // If blocking a user who doesn't have a role, create one with blocked=true
+        // This prevents them from joining in the future
+        targetUserRole = await UserBabyRole.create({
+          userId: targetUserIdObj,
+          babyProfileId: babyProfileIdObj,
+          role: 'viewer', // Default role, but they're blocked so it doesn't matter
+          blocked: true,
+        });
+      } else {
+        // Update existing role to set blocked=true
+        targetUserRole.blocked = true;
+        await targetUserRole.save();
+      }
+    } else {
+      // Unblocking: Remove the blocked status
+      if (!targetUserRole) {
+        return res.status(404).json({ 
+          error: 'User is not blocked for this baby profile' 
+        });
+      }
+      if (!targetUserRole.blocked) {
+        return res.status(400).json({ 
+          error: 'User is not blocked' 
+        });
+      }
+      // Remove the blocked status
+      targetUserRole.blocked = false;
+      await targetUserRole.save();
+    }
+
+    res.json({
+      success: true,
+      message: blocked ? 'User blocked successfully' : 'User unblocked successfully',
+      userRole: {
+        userId: targetUserId,
+        babyProfileId,
+        role: targetUserRole.role,
+        blocked: targetUserRole.blocked,
+      },
+    });
+  } catch (error) {
+    console.error('Error blocking/unblocking user:', error);
+    res.status(500).json({ error: 'Failed to block/unblock user', message: error.message });
   }
 });
 

@@ -248,6 +248,21 @@
   margin-right: 0.5rem;
 }
 
+.join-code-detail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.join-code-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .join-code {
   display: inline-block;
   background: #f8f9fa;
@@ -256,7 +271,6 @@
   font-family: 'Courier New', monospace;
   font-weight: bold;
   letter-spacing: 0.1em;
-  margin-left: 0.5rem;
   color: #d449a3;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -264,11 +278,92 @@
   width: 70px;
 }
 
-.join-code:hover {
+.join-code:hover:not(.join-code-disabled) {
   background: #d449a3;
   color: white;
   transform: scale(1.05);
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.join-code-disabled {
+  background: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.join-code-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.join-code-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.join-code-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.join-code-toggle.toggle-on .toggle-slider {
+  background-color: #537492;
+}
+
+.join-code-toggle.toggle-on .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.join-code-toggle.toggle-off .toggle-slider {
+  background-color: #ccc;
+}
+
+.join-code-toggle.toggle-off .toggle-slider:before {
+  transform: translateX(0);
+}
+
+.join-code-toggle.toggle-loading .toggle-slider {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.join-code-toggle:hover:not(.toggle-loading) .toggle-slider {
+  box-shadow: 0 0 4px rgba(83, 116, 146, 0.4);
+}
+
+.join-code-toggle input:disabled + .toggle-slider {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .join-code-input {

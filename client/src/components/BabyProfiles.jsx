@@ -30,6 +30,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   const [joinCode, setJoinCode] = useState('');
   const [copiedCodeId, setCopiedCodeId] = useState(null);
   const [rateLimitActive, setRateLimitActive] = useState(false); // Simple flag for 3-second wait
+  const [togglingJoinCode, setTogglingJoinCode] = useState({}); // Track which profile is being toggled
 
   useEffect(() => {
     if (userId) {
@@ -270,6 +271,47 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setTimeout(() => setCopiedCodeId(null), 2000);
     } catch (err) {
       console.error('Failed to copy join code:', err);
+    }
+  };
+
+  const handleToggleJoinCode = async (profileId, e) => {
+    e.stopPropagation();
+    try {
+      setTogglingJoinCode(prev => ({ ...prev, [profileId]: true }));
+      setError(null);
+
+      const response = await fetch(`${API_URL}/baby-profiles/${profileId}/toggle-join-code`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to toggle join code (${response.status})`;
+        try {
+          const errorData = await parseJSONResponse(response);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error, use the default message
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await parseJSONResponse(response);
+      setProfiles(profiles.map(p => p.id === profileId ? data.profile : p));
+    } catch (err) {
+      console.error('Error toggling join code:', err);
+      setError(err.message || 'Failed to toggle join code');
+    } finally {
+      setTogglingJoinCode(prev => {
+        const updated = { ...prev };
+        delete updated[profileId];
+        return updated;
+      });
     }
   };
 
@@ -695,18 +737,47 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                   <div className="profile-detail">
                     <strong>Age:</strong> {formatAge(profile.birthDate)}
                   </div>
-                  <div className="profile-detail">
+                  <div className="profile-detail join-code-detail">
                     <strong>Join Code:</strong> 
-                    <code 
-                      className="join-code"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopyJoinCode(profile.joinCode, profile.id);
-                      }}
-                      title="Click to copy"
-                    >
-                      {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
-                    </code>
+                    <div className="join-code-container">
+                      <code 
+                        className={`join-code ${profile.joinCodeEnabled === false ? 'join-code-disabled' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (profile.joinCodeEnabled !== false) {
+                            handleCopyJoinCode(profile.joinCode, profile.id);
+                          }
+                        }}
+                        title={profile.joinCodeEnabled === false ? 'Join code is disabled' : 'Click to copy'}
+                      >
+                        {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
+                      </code>
+                      {profile.role === 'admin' && (
+                        <label
+                          className={`join-code-toggle ${togglingJoinCode[profile.id] ? 'toggle-loading' : ''} ${profile.joinCodeEnabled === false ? 'toggle-off' : 'toggle-on'}`}
+                          title={profile.joinCodeEnabled === false ? 'Enable join code' : 'Disable join code'}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!togglingJoinCode[profile.id]) {
+                              handleToggleJoinCode(profile.id, e);
+                            }
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={profile.joinCodeEnabled !== false}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              if (!togglingJoinCode[profile.id]) {
+                                handleToggleJoinCode(profile.id, e);
+                              }
+                            }}
+                            disabled={togglingJoinCode[profile.id]}
+                          />
+                          <span className="toggle-slider"></span>
+                        </label>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {profile.role === 'admin' && onViewUsers && (
