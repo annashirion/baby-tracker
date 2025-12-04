@@ -1,0 +1,65 @@
+.reports-view {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  background-color: transparent;
+  color: #333;
+  align-self: flex-start;
+}
+
+.reports-calendar-view {
+  background-color: transparent;
+}
+
+.reports-content {
+  padding: 1rem;
+}
+
+.reports-loading,
+.reports-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+  font-size: 0.9rem;
+}
+
+.btn.back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background-color: transparent;
+  color: #333;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn.back-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.btn.back-button svg {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .reports-view {
+    padding: 0;
+  }
+}

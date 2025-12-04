@@ -1,0 +1,216 @@
+/* Import styles from DiaperAction for diaper type buttons */
+.action-modal__content .diaper-type-selection {
+  margin-bottom: 1.5rem;
+}
+
+.action-modal__content .diaper-type-selection label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.action-modal__content .diaper-type-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.action-modal__content .diaper-type-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 1rem;
+  border: 2px solid #e4ba3f;
+  border-radius: 8px;
+  background: #fffbf0;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #333;
+  outline: none;
+}
+
+.action-modal__content .diaper-type-btn:focus {
+  outline: none;
+  border-color: #e4ba3f;
+  box-shadow: 0 0 0 3px rgba(228, 186, 63, 0.2);
+}
+
+.action-modal__content .diaper-type-btn:hover {
+  border-color: #e4ba3f;
+  background-color: #ffeaa7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(228, 186, 63, 0.2);
+}
+
+.action-modal__content .diaper-type-btn.active {
+  border-color: #e4ba3f !important;
+  background-color: #e4ba3f;
+  color: #333;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(228, 186, 63, 0.3);
+  transform: scale(1.02);
+  outline: none;
+}
+
+.action-modal__content .diaper-type-btn.active:focus {
+  outline: none;
+  border-color: #e4ba3f !important;
+  box-shadow: 0 0 0 3px rgba(228, 186, 63, 0.3), 0 2px 8px rgba(228, 186, 63, 0.3);
+}
+
+.action-modal__content .diaper-type-btn.active:hover {
+  background-color: #ffb300;
+  border-color: #ffb300;
+}
+
+/* Comments section styling */
+.action-modal__content .comments-section {
+  margin-bottom: 1.5rem;
+}
+
+.action-modal__content .comments-section label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.action-modal__content .comments-section textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+/* Action-specific colors for comments */
+.action-modal__modal[data-action-type="diaper"] .comments-section textarea:focus,
+.action-modal__modal[data-action-type="diaper"] .comments-section textarea:focus-visible {
+  outline: none !important;
+  border-color: #e4ba3f !important;
+  box-shadow: 0 0 0 4px rgba(228, 186, 63, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.action-modal__modal[data-action-type="diaper"] .comments-section textarea:hover {
+  border-color: #e4ba3f !important;
+  background-color: white;
+}
+
+.action-modal__modal[data-action-type="feed"] .comments-section textarea:focus,
+.action-modal__modal[data-action-type="feed"] .comments-section textarea:focus-visible {
+  outline: none !important;
+  border-color: #ff6b9d !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.action-modal__modal[data-action-type="feed"] .comments-section textarea:hover {
+  border-color: #ff6b9d !important;
+  background-color: white;
+}
+
+.action-modal__modal[data-action-type="sleep"] .comments-section textarea:focus,
+.action-modal__modal[data-action-type="sleep"] .comments-section textarea:focus-visible {
+  outline: none !important;
+  border-color: #17a2b8 !important;
+  box-shadow: 0 0 0 4px rgba(23, 162, 184, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.action-modal__modal[data-action-type="sleep"] .comments-section textarea:hover {
+  border-color: #17a2b8 !important;
+  background-color: white;
+}
+
+.action-modal__modal[data-action-type="other"] .comments-section textarea:focus,
+.action-modal__modal[data-action-type="other"] .comments-section textarea:focus-visible {
+  outline: none !important;
+  border-color: #6f42c1 !important;
+  box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.action-modal__modal[data-action-type="other"] .comments-section textarea:hover {
+  border-color: #6f42c1 !important;
+  background-color: white;
+}
+
+/* Title section for other actions */
+.action-modal__content .title-section {
+  margin-bottom: 1.5rem;
+}
+
+.action-modal__content .title-section label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.action-modal__content .title-section input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.action-modal__content .title-section input:focus,
+.action-modal__content .title-section input:focus-visible {
+  outline: none !important;
+  border-color: #6f42c1 !important;
+  box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+.action-modal__content .title-section input:hover {
+  border-color: #6f42c1 !important;
+  background-color: white;
+}
+
+/* Button styling */
+.action-edit-popup__button-save {
+  background-color: #4ade80;
+  color: #333;
+  font-weight: 600;
+}
+
+.action-edit-popup__button-save:hover:not(:disabled) {
+  background-color: #22c55e;
+}
+
+.action-edit-popup__button-delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.action-edit-popup__button-delete:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .action-modal__content .diaper-type-buttons {
+    flex-direction: column;
+  }
+
+  .action-modal__content .diaper-type-btn {
+    width: 100%;
+  }
+}

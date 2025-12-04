@@ -1,13 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './DiaperAction.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import './TimeInput.css';
+import { API_URL } from '../constants/constants';
 
 function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
-  const [diaperType, setDiaperType] = useState(null); // 'pee', 'poo', or 'both'
+  const [diaperType, setDiaperType] = useState(null); // 'pee' or 'poo'
   const [comments, setComments] = useState('');
+  const [timestamp, setTimestamp] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  const getLocalDateTime = () => {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 19);
+  };
+
+  useEffect(() => {
+    setTimestamp(getLocalDateTime());
+  }, []);
 
   const handleSave = async () => {
     if (!diaperType) {
@@ -31,8 +43,10 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
           details: {
             type: diaperType,
             comments: comments.trim() || null,
+            timestamp: timestamp ? new Date(timestamp).toISOString() : null,
           },
           userEmoji: userEmoji || null,
+          timestamp: timestamp ? new Date(timestamp).toISOString() : null,
         }),
       });
 
@@ -87,13 +101,18 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
               >
                 💩 Poo
               </button>
-              <button
-                className={`diaper-type-btn ${diaperType === 'both' ? 'active' : ''}`}
-                onClick={() => setDiaperType('both')}
-              >
-                💧💩 Both
-              </button>
             </div>
+          </div>
+
+          <div className="diaper-action-time-section">
+            <label htmlFor="diaperTime">Time:</label>
+            <input
+              type="datetime-local"
+              id="diaperTime"
+              className="time-input time-input--diaper"
+              value={timestamp}
+              onChange={(e) => setTimestamp(e.target.value)}
+            />
           </div>
 
           <div className="comments-section">
@@ -117,7 +136,7 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
             <button
               className="btn btn-save"
               onClick={handleSave}
-              disabled={saving || !diaperType}
+              disabled={saving || !diaperType || !timestamp}
             >
               {saving ? 'Saving...' : 'Save'}
             </button>

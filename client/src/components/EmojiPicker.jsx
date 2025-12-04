@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './EmojiPicker.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { API_URL } from '../constants/constants';
 
 function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', readOnly = false }) {
   const [isOpen, setIsOpen] = useState(false);

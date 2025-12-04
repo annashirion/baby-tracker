@@ -1,0 +1,294 @@
+/* Calendar View Styles */
+.calendar-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.calendar-header .back-button {
+  position: absolute;
+  left: 1rem;
+}
+
+.calendar-header .today-btn {
+  position: absolute;
+  right: 1rem;
+}
+
+.calendar-header-center {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.week-nav-btn {
+  background-color: transparent;
+  border: none;
+  color: #333;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  margin: 0 0.25rem;
+}
+
+.week-nav-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.week-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.month-year {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.today-btn {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: #333;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.today-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.calendar-grid {
+  display: flex;
+  gap: 0.5rem;
+  min-height: 600px;
+}
+
+.time-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 60px;
+  position: sticky;
+  left: 0;
+  background-color: transparent;
+  z-index: 5;
+}
+
+.month-label {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #666;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.time-slot {
+  height: calc(600px / 24);
+  display: flex;
+  align-items: center;
+  padding-left: 0.5rem;
+  font-size: 0.75rem;
+  color: #666;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.days-container {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.day-column {
+  flex: 1;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.day-column:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.day-column.selected {
+  background-color: rgba(74, 222, 128, 0.1);
+  border-color: #4ade80;
+}
+
+.day-column.today {
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.day-header {
+  padding: 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.day-name {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.day-number {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.day-bars {
+  flex: 1;
+  position: relative;
+  min-height: 600px;
+}
+
+.action-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 2;
+}
+
+.action-bar.selected {
+  outline: 2px solid #fff;
+  outline-offset: -2px; 
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  z-index: 4;
+}
+
+.action-bar.sleep {
+  background-color: #87CEEB;
+  min-height: 4px;
+}
+
+.action-bar.feed {
+  background-color: #FF6B9D;
+  min-height: 2px;
+}
+
+.action-bar.diaper {
+  background-color: #e4ba3f; /* Default/fallback color */
+  min-height: 2px;
+}
+
+.action-bar.diaper.diaper-pee {
+  background-color: #e4ba3f; /* Yellow for pee */
+}
+
+.action-bar.diaper.diaper-poo {
+  background-color: #8B4513; /* Brown for poo */
+}
+
+.action-bar.other {
+  background-color: #6f42c1;
+  min-height: 2px;
+}
+
+/* Action Detail Panel */
+.action-detail-panel {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.detail-panel-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: inherit;
+}
+
+.detail-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  filter: hue-rotate(0deg) saturate(1.2);
+}
+
+.detail-text {
+  flex: 1;
+}
+
+.detail-main {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.detail-time {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .calendar-grid {
+    min-height: 500px;
+  }
+
+  .day-bars {
+    min-height: 500px;
+  }
+
+  .time-slot {
+    height: calc(500px / 24);
+  }
+
+  .month-label {
+    height: 50px;
+  }
+
+  .day-column {
+    min-width: 50px;
+  }
+
+  .day-header {
+    padding: 0.375rem;
+  }
+
+  .day-name {
+    font-size: 0.625rem;
+  }
+
+  .day-number {
+    font-size: 1rem;
+  }
+}
+

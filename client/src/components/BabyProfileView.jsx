@@ -5,8 +5,7 @@ import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
 import Reports from './Reports';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { API_URL } from '../constants/constants';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
@@ -114,8 +113,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
         return 'Pee';
       case 'poo':
         return 'Poo';
-      case 'both':
-        return 'Pee & Poo';
       default:
         return '';
     }
@@ -295,7 +292,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               {!loadingAction && lastDiaperAction && (
               <div className="last-action-info">
                 <div className="action-details">
-                  {getDiaperTypeLabel(lastDiaperAction.details?.type)} • {formatTimeAgo(lastDiaperAction.createdAt)}
+                  {getDiaperTypeLabel(lastDiaperAction.details?.type)} • {formatTimeAgo(lastDiaperAction.details?.timestamp || lastDiaperAction.createdAt)}
                   {lastDiaperAction.userEmoji && <span className="action-emoji"> • {lastDiaperAction.userEmoji}</span>}
                 </div>
               </div>
@@ -381,7 +378,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               {!loadingAction && lastOtherAction && (
                 <div className="last-action-info">
                   <div className="action-details">
-                    {lastOtherAction.details?.title} • {formatTimeAgo(lastOtherAction.createdAt)}
+                    {lastOtherAction.details?.title} • {formatTimeAgo(lastOtherAction.details?.timestamp || lastOtherAction.createdAt)}
                     {lastOtherAction.userEmoji && <span className="action-emoji"> • {lastOtherAction.userEmoji}</span>}
                   </div>
                 </div>

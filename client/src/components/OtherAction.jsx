@@ -1,13 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './OtherAction.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import './TimeInput.css';
+import { API_URL } from '../constants/constants';
 
 function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
   const [title, setTitle] = useState('');
   const [comments, setComments] = useState('');
+  const [timestamp, setTimestamp] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  const getLocalDateTime = () => {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 19);
+  };
+
+  useEffect(() => {
+    setTimestamp(getLocalDateTime());
+  }, []);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -31,8 +43,10 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
           details: {
             title: title.trim(),
             comments: comments.trim() || null,
+            timestamp: timestamp ? new Date(timestamp).toISOString() : null,
           },
           userEmoji: userEmoji || null,
+          timestamp: timestamp ? new Date(timestamp).toISOString() : null,
         }),
       });
 
@@ -84,6 +98,17 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
             />
           </div>
 
+          <div className="other-action-time-section">
+            <label htmlFor="otherTime">Time:</label>
+            <input
+              type="datetime-local"
+              id="otherTime"
+              className="time-input time-input--other"
+              value={timestamp}
+              onChange={(e) => setTimestamp(e.target.value)}
+            />
+          </div>
+
           <div className="comments-section">
             <label htmlFor="comments">Comments (optional):</label>
             <textarea
@@ -105,7 +130,7 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
             <button
               className="btn btn-save"
               onClick={handleSave}
-              disabled={saving || !title.trim()}
+              disabled={saving || !title.trim() || !timestamp}
             >
               {saving ? 'Saving...' : 'Save'}
             </button>

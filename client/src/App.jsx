@@ -5,8 +5,7 @@ import BabyProfiles from './components/BabyProfiles'
 import BabyProfileView from './components/BabyProfileView'
 import EmojiPicker from './components/EmojiPicker'
 import './App.css'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+import { API_URL } from './constants/constants'
 const USER_STORAGE_KEY = 'babyTracker_user'
 const OPEN_PROFILE_STORAGE_KEY = 'babyTracker_openProfile'
 

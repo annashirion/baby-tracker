@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import './BabyProfiles.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { API_URL } from '../constants/constants';
 
 function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   const [profiles, setProfiles] = useState([]);
