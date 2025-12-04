@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { ALLOWED_JOIN_CODE_CHARS } from '../constants/constants.js';
 
 const babyProfileSchema = new mongoose.Schema({
   name: {
@@ -25,14 +26,13 @@ const babyProfileSchema = new mongoose.Schema({
 babyProfileSchema.pre('save', async function(next) {
   if (!this.joinCode) {
     // Generate a random 6-character alphanumeric code
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluding confusing characters
     let code = '';
     let isUnique = false;
     
     while (!isUnique) {
       code = '';
       for (let i = 0; i < 6; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+        code += ALLOWED_JOIN_CODE_CHARS.charAt(Math.floor(Math.random() * ALLOWED_JOIN_CODE_CHARS.length));
       }
       
       const existing = await this.constructor.findOne({ joinCode: code });

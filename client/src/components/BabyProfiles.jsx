@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import './BabyProfiles.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { ALLOWED_JOIN_CODE_CHARS, API_URL } from '../constants/constants';
 
 function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   const [profiles, setProfiles] = useState([]);
@@ -551,7 +550,14 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                 type="text"
                 id="joinCode"
                 value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                onChange={(e) => {
+                  const filtered = e.target.value
+                    .toUpperCase()
+                    .split('')
+                    .filter(char => ALLOWED_JOIN_CODE_CHARS.includes(char))
+                    .join('');
+                  setJoinCode(filtered);
+                }}
                 required
                 placeholder="------"
                 maxLength="6"

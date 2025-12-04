@@ -5,8 +5,7 @@ import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
 import Reports from './Reports';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { API_URL } from '../constants/constants';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
@@ -272,9 +271,12 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       )}
       <div className="baby-profile-view">
         <div className="baby-profile-view-header">
-          <button onClick={onClose} className="users-view-back-button">
-            ←
+          <button onClick={onClose} className="btn back-button" title="Back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 8l-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
+          <h2>{profile.name}</h2>
           <button 
             className="reports-icon-button btn btn-secondary" 
             title="Reports"
@@ -284,7 +286,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           </button>
         </div>
         <div className="action-buttons-container">
-          <h2>{profile.name}</h2>
           <button 
             className={`action-button action-button-diaper ${isViewer ? 'disabled' : ''}`}
             onClick={() => handleAction('diaper')}
