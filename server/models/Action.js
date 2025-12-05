@@ -18,7 +18,7 @@ const actionSchema = new mongoose.Schema({
   },
   details: {
     type: mongoose.Schema.Types.Mixed,
-    // For diaper: { type: 'pee' | 'poo' | 'both', comments: string }
+    // For diaper: { type: 'pee' | 'poo', comments: string }
     // For other action types: flexible structure
   },
   userEmoji: {

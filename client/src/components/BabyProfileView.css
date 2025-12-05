@@ -157,12 +157,12 @@
 }
 
 .action-button-feed {
-  background-color: #4c975e;
+  background-color: #ff6b9d;
   color: white;
 }
 
 .action-button-feed:hover {
-  background-color: #218838;
+  background-color: #e55a8a;
 }
 
 .action-button-sleep {

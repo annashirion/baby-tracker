@@ -6,19 +6,36 @@ const router = express.Router();
 // Create a new action
 router.post('/', async (req, res) => {
   try {
-    const { babyProfileId, userId, actionType, details, userEmoji } = req.body;
+    const { babyProfileId, userId, actionType, details, userEmoji, timestamp } = req.body;
 
     if (!babyProfileId || !userId || !actionType) {
       return res.status(400).json({ error: 'babyProfileId, userId, and actionType are required' });
     }
 
-    const action = await Action.create({
-      babyProfileId,
-      userId,
-      actionType,
-      details: details || {},
-      userEmoji: userEmoji || null,
-    });
+    // If a custom timestamp is provided, create the action with custom timestamps
+    let action;
+    if (timestamp) {
+      const customTimestamp = new Date(timestamp);
+      action = new Action({
+        babyProfileId,
+        userId,
+        actionType,
+        details: details || {},
+        userEmoji: userEmoji || null,
+        createdAt: customTimestamp,
+        updatedAt: customTimestamp,
+      });
+      // Use save() instead of create() to preserve custom timestamps
+      await action.save();
+    } else {
+      action = await Action.create({
+        babyProfileId,
+        userId,
+        actionType,
+        details: details || {},
+        userEmoji: userEmoji || null,
+      });
+    }
 
     res.json({
       success: true,

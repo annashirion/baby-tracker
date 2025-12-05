@@ -110,6 +110,32 @@
   transform: translateY(-1px);
 }
 
+.other-action-time-section {
+  margin-bottom: 1.5rem;
+}
+
+.other-action-time-section label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.time-input--other:hover {
+  border-color: #6f42c1;
+}
+
+.time-input--other:focus,
+.time-input--other:focus-visible {
+  border-color: #6f42c1 !important;
+  box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15) !important;
+}
+
+.time-input--other::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(111, 66, 193, 0.1);
+}
+
 .comments-section {
   margin-bottom: 1.5rem;
 }

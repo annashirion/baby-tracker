@@ -53,25 +53,25 @@
 }
 
 .time-input--feed:hover {
-  border-color: #4c975e;
+  border-color: #ff6b9d;
 }
 
 .time-input--feed:focus,
 .time-input--feed:focus-visible {
-  border-color: #4c975e !important;
-  box-shadow: 0 0 0 4px rgba(76, 151, 94, 0.15) !important;
+  border-color: #ff6b9d !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15) !important;
 }
 
 .time-input--feed::-webkit-calendar-picker-indicator:hover {
-  background-color: rgba(76, 151, 94, 0.1);
+  background-color: rgba(255, 107, 157, 0.1);
 }
 
 .time-input--number:hover {
-  border-color: #4c975e;
+  border-color: #ff6b9d;
 }
 
 .time-input--number:focus,
 .time-input--number:focus-visible {
-  border-color: #4c975e !important;
-  box-shadow: 0 0 0 4px rgba(76, 151, 94, 0.15) !important;
+  border-color: #ff6b9d !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15) !important;
 }
