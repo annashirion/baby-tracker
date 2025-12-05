@@ -1,17 +1,17 @@
 .feed-action__button-start,
 .feed-action__button-end {
-  background-color: #ff6b9d;
+  background-color: var(--color-action-feed);
 }
 
 .feed-action__button-start:hover:not(:disabled),
 .feed-action__button-end:hover:not(:disabled) {
-  background-color: #e55a8a;
+  background-color: var(--color-action-feed);
 }
 
 .feed-action__button-cancel {
-  background-color: #b9434e;
+  background-color: var(--color-error);
 }
 
 .feed-action__button-cancel:hover:not(:disabled) {
-  background-color: #c82333;
+  background-color: var(--color-error-dark);
 }

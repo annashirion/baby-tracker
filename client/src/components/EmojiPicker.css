@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0;
+  background-color: var(--color-bg-quaternary);
   flex-shrink: 0;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.2s;
@@ -16,9 +16,9 @@
 }
 
 .emoji-display:hover:not(.emoji-readonly) {
-  background-color: #e0e0e0;
+  background-color: var(--color-bg-quinary);
   transform: scale(1.05);
-  border-color: #ddd;
+  border-color: var(--color-border);
 }
 
 .emoji-readonly {
@@ -52,7 +52,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
+  background: var(--color-bg-primary);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 1001;
@@ -75,7 +75,7 @@
 .emoji-picker-header h3 {
   margin: 0;
   font-size: 1.2rem;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .emoji-picker-close {
@@ -83,7 +83,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-secondary);
   padding: 0;
   width: 30px;
   height: 30px;
@@ -95,8 +95,8 @@
 }
 
 .emoji-picker-close:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--color-bg-quaternary);
+  color: var(--color-text-primary);
 }
 
 .emoji-picker-grid {
@@ -123,14 +123,14 @@
 }
 
 .emoji-option:hover:not(:disabled) {
-  background-color: #f0f0f0;
-  border-color: #007bff;
+  background-color: var(--color-bg-quaternary);
+  border-color: var(--color-border-focus);
   transform: scale(1.1);
 }
 
 .emoji-option.selected {
-  background-color: #e3f2fd;
-  border-color: #007bff;
+  background-color: var(--color-blue-light);
+  border-color: var(--color-border-focus);
 }
 
 .emoji-option:disabled {
@@ -141,7 +141,7 @@
 .emoji-picker-loading {
   padding: 1rem;
   text-align: center;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 

@@ -7,7 +7,7 @@
 }
 
 .login-card {
-  background: white;
+  background: var(--color-bg-primary);
   border-radius: 16px;
   padding: 3rem 2.5rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -19,12 +19,12 @@
 .login-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #333;
+  color: var(--color-text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .login-subtitle {
-  color: #666;
+  color: var(--color-text-secondary);
   margin: 0 0 2rem 0;
   font-size: 1rem;
 }
@@ -36,12 +36,12 @@
   gap: 12px;
   width: 100%;
   padding: 12px 24px;
-  background: white;
-  border: 1px solid #dadce0;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  color: #3c4043;
+  color: var(--color-text-dark);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -49,12 +49,12 @@
 
 .google-login-button:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  background: #f8f9fa;
+  background: var(--color-bg-secondary);
 }
 
 .google-login-button:active {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  background: #f1f3f4;
+  background: var(--color-bg-gray-light);
 }
 
 .google-icon {

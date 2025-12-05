@@ -1,17 +1,17 @@
 .sleep-action__button-start,
 .sleep-action__button-end {
-  background-color: #17a2b8;
+  background-color: var(--color-action-sleep);
 }
 
 .sleep-action__button-start:hover:not(:disabled),
 .sleep-action__button-end:hover:not(:disabled) {
-  background-color: #138496;
+  background-color: var(--color-action-sleep-hover);
 }
 
 .sleep-action__button-cancel {
-  background-color: #b9434e;
+  background-color: var(--color-error);
 }
 
 .sleep-action__button-cancel:hover:not(:disabled) {
-  background-color: #c82333;
+  background-color: var(--color-error-dark);
 }

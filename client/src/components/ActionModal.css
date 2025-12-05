@@ -13,7 +13,7 @@
 }
 
 .action-modal__modal {
-  background: white;
+  background: var(--color-bg-primary);
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
@@ -31,7 +31,7 @@
 
 .action-modal__header h3 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1.5rem;
 }
 
@@ -43,7 +43,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: #666;
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -56,8 +56,8 @@
 }
 
 .action-modal__close-button:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--color-bg-quaternary);
+  color: var(--color-text-primary);
 }
 
 .action-modal__time-section {
@@ -68,17 +68,17 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
 .action-modal__error {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--color-error-light);
+  color: var(--color-error-text);
   padding: 0.75rem;
   border-radius: 6px;
   margin-bottom: 1rem;
-  border: 1px solid #f5c6cb;
+  border: 1px solid var(--color-error-border);
   font-size: 0.9rem;
 }
 
@@ -104,17 +104,17 @@
 }
 
 .action-modal__button-cancel {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--color-disabled);
+  color: var(--color-text-on-dark);
 }
 
 .action-modal__button-cancel:hover:not(:disabled) {
-  background-color: #545b62;
+  background-color: var(--color-disabled-hover);
 }
 
 .action-modal__button-start,
 .action-modal__button-end {
-  color: white;
+  color: var(--color-text-on-dark);
 }
 
 .action-modal__button-start:hover:not(:disabled),

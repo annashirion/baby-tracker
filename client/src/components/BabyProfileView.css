@@ -10,13 +10,13 @@
   align-items: center;
   gap: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 2rem;
 }
 
 .baby-profile-view-header h2 {
   margin: 0;
-  color: #875f7f;
+  color: var(--color-secondary);
   font-size: 2rem;
   text-align: center;
   grid-column: 2;
@@ -30,7 +30,7 @@
   height: 2.5rem;
   padding: 0;
   background-color: transparent;
-  color: #537492;
+  color: var(--color-primary);
   border: 2px solid #ddd;
   border-radius: 50%;
   cursor: pointer;
@@ -39,9 +39,9 @@
 }
 
 .btn.back-button:hover {
-  background-color: #875f7f;
-  border-color: #875f7f;
-  color: white;
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-text-on-dark);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -54,7 +54,7 @@
   display: block;
 }
 
-.reports-icon-button {
+#reports-icon-button {
   padding: 0.5rem;
   font-size: 1.5rem;
   cursor: pointer;
@@ -66,13 +66,13 @@
   height: 2.5rem;
 }
 
-.reports-icon-button:hover {
+#reports-icon-button:hover {
   background-color: rgba(0, 0, 0, 0.05);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.reports-icon-button:active {
+#reports-icon-button:active {
   transform: translateY(0);
 }
 
@@ -148,39 +148,39 @@
 }
 
 .action-button-diaper {
-  background-color: #e4ba3f;
-  color: #333;
+  background-color: var(--color-action-diaper);
+  color: var(--color-text-primary);
 }
 
 .action-button-diaper:hover {
-  background-color: #cea442;
+  background-color: var(--color-action-diaper-hover);
 }
 
 .action-button-feed {
-  background-color: #ff6b9d;
-  color: white;
+  background-color: var(--color-action-feed);
+  color: var(--color-text-on-dark);
 }
 
 .action-button-feed:hover {
-  background-color: #e55a8a;
+  background-color: var(--color-action-feed-hover);
 }
 
 .action-button-sleep {
-  background-color: #17a2b8;
-  color: white;
+  background-color: var(--color-action-sleep);
+  color: var(--color-text-on-dark);
 }
 
 .action-button-sleep:hover {
-  background-color: #138496;
+  background-color: var(--color-action-sleep-hover);
 }
 
 .action-button-other {
-  background-color: #6f42c1;
-  color: white;
+  background-color: var(--color-action-other-light);
+  color: var(--color-text-on-dark);
 }
 
 .action-button-other:hover {
-  background-color: #5a32a3;
+  background-color: var(--color-action-other-dark);
 }
 
 .action-button.disabled {

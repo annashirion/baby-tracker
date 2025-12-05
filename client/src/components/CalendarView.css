@@ -35,7 +35,7 @@
 .week-nav-btn {
   background-color: transparent;
   border: none;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.5rem;
@@ -58,13 +58,13 @@
 .month-year {
   font-size: 1rem;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .today-btn {
   background-color: rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.2);
-  color: #333;
+  color: var(--color-text-primary);
   padding: 0.25rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
@@ -98,7 +98,7 @@
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--color-text-secondary);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   padding: 0.5rem;
@@ -111,7 +111,7 @@
   align-items: center;
   padding-left: 0.5rem;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--color-text-secondary);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -142,7 +142,7 @@
 
 .day-column.selected {
   background-color: rgba(74, 222, 128, 0.1);
-  border-color: #4ade80;
+  border-color: var(--color-success-light);
 }
 
 .day-column.today {
@@ -158,7 +158,7 @@
 
 .day-name {
   font-size: 0.75rem;
-  color: #666;
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   margin-bottom: 0.25rem;
 }
@@ -166,7 +166,7 @@
 .day-number {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .day-bars {
@@ -194,30 +194,30 @@
 }
 
 .action-bar.sleep {
-  background-color: #87CEEB;
+  background-color: var(--color-calendar-sky);
   min-height: 4px;
 }
 
 .action-bar.feed {
-  background-color: #FF6B9D;
+  background-color: var(--color-action-feed);
   min-height: 2px;
 }
 
 .action-bar.diaper {
-  background-color: #e4ba3f; /* Default/fallback color */
+  background-color: var(--color-action-diaper); /* Default/fallback color */
   min-height: 2px;
 }
 
 .action-bar.diaper.diaper-pee {
-  background-color: #e4ba3f; /* Yellow for pee */
+  background-color: var(--color-action-diaper); /* Yellow for pee */
 }
 
 .action-bar.diaper.diaper-poo {
-  background-color: #8B4513; /* Brown for poo */
+  background-color: var(--color-action-poo); /* Brown for poo */
 }
 
 .action-bar.other {
-  background-color: #6f42c1;
+  background-color: var(--color-action-other);
   min-height: 2px;
 }
 
@@ -248,14 +248,14 @@
 
 .detail-main {
   font-size: 1rem;
-  color: #333;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
   line-height: 1.4;
 }
 
 .detail-time {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 768px) {

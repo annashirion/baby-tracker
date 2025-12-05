@@ -6,7 +6,7 @@
   padding: 0.75rem;
   background-color: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
-  border-left: 4px solid #6c757d;
+  border-left: 4px solid var(--color-text-muted);
   transition: background-color 0.2s;
   width: inherit;
 }
@@ -20,27 +20,27 @@
 }
 
 .reports-action-item[data-type="diaper"] {
-  border-left-color: #e4ba3f; /* Default/fallback color */
+  border-left-color: var(--color-action-diaper); /* Default/fallback color */
 }
 
 .reports-action-item[data-type="diaper"][data-diaper-type="pee"] {
-  border-left-color: #e4ba3f; /* Yellow for pee */
+  border-left-color: var(--color-action-diaper); /* Yellow for pee */
 }
 
 .reports-action-item[data-type="diaper"][data-diaper-type="poo"] {
-  border-left-color: #8B4513; /* Brown for poo */
+  border-left-color: var(--color-action-poo); /* Brown for poo */
 }
 
 .reports-action-item[data-type="feed"] {
-  border-left-color: #ff6b9d;
+  border-left-color: var(--color-action-feed);
 }
 
 .reports-action-item[data-type="sleep"] {
-  border-left-color: #17a2b8;
+  border-left-color: var(--color-action-sleep);
 }
 
 .reports-action-item[data-type="other"] {
-  border-left-color: #6f42c1;
+  border-left-color: var(--color-action-other);
 }
 
 .reports-action-type {
@@ -53,14 +53,14 @@
 
 .reports-action-details {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-secondary);
   flex: 1;
   min-width: 0;
 }
 
 .reports-action-time {
   font-size: 0.85rem;
-  color: #999;
+  color: var(--color-text-tertiary);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -72,7 +72,7 @@
 
 .reports-action-comments-inline {
   font-size: 0.85rem;
-  color: #999;
+  color: var(--color-text-tertiary);
   font-style: italic;
   flex-shrink: 0;
   overflow: hidden;
@@ -86,7 +86,7 @@
   padding-top: 0.5rem;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 

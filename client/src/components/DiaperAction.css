@@ -13,7 +13,7 @@
 }
 
 .diaper-action-modal {
-  background: white;
+  background: var(--color-bg-primary);
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
@@ -37,12 +37,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .diaper-action-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1.5rem;
 }
 
@@ -50,7 +50,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: #666;
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -63,8 +63,8 @@
 }
 
 .close-button:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--color-bg-quaternary);
+  color: var(--color-text-primary);
 }
 
 .diaper-action-content {
@@ -79,7 +79,7 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
@@ -93,34 +93,34 @@
   flex: 1;
   min-width: 100px;
   padding: 1rem;
-  border: 2px solid #e4ba3f;
+  border: 2px solid var(--color-action-diaper);
   border-radius: 8px;
-  background: #fffbf0;
+  background: var(--color-bg-light);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  color: #333;
+  color: var(--color-text-primary);
   outline: none;
 }
 
 .diaper-type-btn:focus {
   outline: none;
-  border-color: #e4ba3f;
+  border-color: var(--color-action-diaper);
   box-shadow: 0 0 0 3px rgba(228, 186, 63, 0.2);
 }
 
 .diaper-type-btn:hover {
-  border-color: #e4ba3f;
-  background-color: #ffeaa7;
+  border-color: var(--color-action-diaper);
+  background-color: var(--color-action-diaper-light);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(228, 186, 63, 0.2);
 }
 
 .diaper-type-btn.active {
-  border-color: #e4ba3f !important;
-  background-color: #e4ba3f;
-  color: #333;
+  border-color: var(--color-action-diaper) !important;
+  background-color: var(--color-action-diaper);
+  color: var(--color-text-primary);
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(228, 186, 63, 0.3);
   transform: scale(1.02);
@@ -129,13 +129,13 @@
 
 .diaper-type-btn.active:focus {
   outline: none;
-  border-color: #e4ba3f !important;
+  border-color: var(--color-action-diaper) !important;
   box-shadow: 0 0 0 3px rgba(228, 186, 63, 0.3), 0 2px 8px rgba(228, 186, 63, 0.3);
 }
 
 .diaper-type-btn.active:hover {
-  background-color: #ffb300;
-  border-color: #ffb300;
+  background-color: var(--color-action-diaper-active);
+  border-color: var(--color-action-diaper-active);
 }
 
 .diaper-action-time-section {
@@ -146,17 +146,17 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
 .time-input--diaper:hover {
-  border-color: #e4ba3f;
+  border-color: var(--color-action-diaper);
 }
 
 .time-input--diaper:focus,
 .time-input--diaper:focus-visible {
-  border-color: #e4ba3f !important;
+  border-color: var(--color-action-diaper) !important;
   box-shadow: 0 0 0 4px rgba(228, 186, 63, 0.15) !important;
 }
 
@@ -172,55 +172,45 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
 .diaper-action-content .comments-section textarea {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--color-bg-quinary);
   border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   transition: all 0.2s ease;
 }
 
 .diaper-action-content .comments-section textarea::selection {
-  background-color: #e4ba3f;
-  color: #333;
+  background-color: var(--color-action-diaper);
+  color: var(--color-text-primary);
 }
 
 .diaper-action-content .comments-section textarea::-moz-selection {
-  background-color: #e4ba3f;
-  color: #333;
+  background-color: var(--color-action-diaper);
+  color: var(--color-text-primary);
 }
 
 .diaper-action-content .comments-section textarea:focus,
 .diaper-action-content .comments-section textarea:focus-visible {
   outline: none !important;
-  border-color: #e4ba3f !important;
+  border-color: var(--color-action-diaper) !important;
   box-shadow: 0 0 0 4px rgba(228, 186, 63, 0.15) !important;
   transform: translateY(-1px);
 }
 
 .diaper-action-content .comments-section textarea:hover {
-  border-color: #e4ba3f !important;
-  background-color: white;
-}
-
-.error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  border: 1px solid #f5c6cb;
-  font-size: 0.9rem;
+  border-color: var(--color-action-diaper) !important;
+  background-color: var(--color-bg-primary);
 }
 
 .diaper-action-buttons {
@@ -245,21 +235,21 @@
 }
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--color-disabled);
+  color: var(--color-text-on-dark);
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background-color: #545b62;
+  background-color: var(--color-disabled-hover);
 }
 
 .diaper-action-buttons .btn-save {
-  background-color: #e4ba3f;
-  color: #333;
+  background-color: var(--color-action-diaper);
+  color: var(--color-text-primary);
 }
 
 .diaper-action-buttons .btn-save:hover:not(:disabled) {
-  background-color: #ffb300;
+  background-color: var(--color-action-diaper-active);
 }
 
 @media (max-width: 768px) {

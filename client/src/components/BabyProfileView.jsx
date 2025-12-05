@@ -276,7 +276,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           </button>
           <h2>{profile.name}</h2>
           <button 
-            className="reports-icon-button btn btn-secondary" 
+            className="btn btn-secondary" 
+            id="reports-icon-button"
             title="Reports"
             onClick={() => setShowReports(true)}
           >
