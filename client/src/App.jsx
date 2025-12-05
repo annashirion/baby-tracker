@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
 import BabyProfileView from './components/BabyProfileView'
 import EmojiPicker from './components/EmojiPicker'
-import './App.css'
 import { API_URL } from './constants/constants'
+import './App.css'
 const USER_STORAGE_KEY = 'babyTracker_user'
 const OPEN_PROFILE_STORAGE_KEY = 'babyTracker_openProfile'
 
@@ -15,6 +15,7 @@ function App() {
   const [error, setError] = useState(null)
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [openProfile, setOpenProfile] = useState(null)
+  const adminPanelRefreshRef = useRef(null)
 
   // Load user and restore profile from localStorage on mount
   useEffect(() => {
@@ -181,16 +182,26 @@ function App() {
     return (
       <>
         <div className="users-view-header">
-          <button onClick={handleCloseUsers} className="btn btn-back">
-            ←
+          <button onClick={handleCloseUsers} className="btn back-button" title="Back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 8l-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
           <h2>{selectedProfile.name}</h2>
+          <button onClick={() => adminPanelRefreshRef.current?.()} className="btn refresh-icon-button" title="Refresh">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 8v4h4M21 16v-4h-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
         </div>
         <div className="users-view-content">
           <AdminPanel 
             userId={user.id} 
             babyProfileId={selectedProfile.id}
             onClose={handleCloseUsers}
+            onRefreshReady={(refreshFn) => { adminPanelRefreshRef.current = refreshFn; }}
           />
         </div>
       </>
@@ -200,26 +211,30 @@ function App() {
   return (
     <div className="app-container">
       <div className="app-header">
-        <div className="app-header-user">
-          <EmojiPicker
-            currentEmoji={user.emoji}
-            onEmojiChange={handleEmojiChange}
-            userId={user.id}
-            size="medium"
-          />
-          <div>
-            <h2 className="app-header-title">Welcome, {user.name}!</h2>
-            <p className="app-header-email">{user.email}</p>
-          </div>
+        <EmojiPicker
+          currentEmoji={user.emoji}
+          onEmojiChange={handleEmojiChange}
+          userId={user.id}
+          size="medium"
+        />
+        <div className="app-header-welcome">
+          <h2 className="app-header-title">Welcome, {user.name}!</h2>
+          <p className="app-header-email">{user.email}</p>
         </div>
-        <div className="app-header-actions">
-          <button onClick={() => {
+        <button 
+          className="logout-btn"
+          onClick={() => {
             setUser(null)
             setOpenProfile(null)
             localStorage.removeItem(USER_STORAGE_KEY)
             localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
-          }}>Logout</button>
-        </div>
+          }}
+          title="Logout"
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
       {error && <p className="app-error">{error}</p>}
       <BabyProfiles userId={user.id} onViewUsers={handleViewUsers} onOpenProfile={handleOpenProfile} />
