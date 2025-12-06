@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './DiaperAction.css';
@@ -197,12 +198,12 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
       <div className="action-modal__time-section">
         <label htmlFor="diaperTime">Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="diaperTime"
-          className="time-input time-input--diaper"
+          className="time-input--diaper"
           value={diaperTimestamp}
           onChange={(e) => setDiaperTimestamp(e.target.value)}
+          label="Time"
         />
       </div>
 
@@ -223,23 +224,23 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     <>
       <div className="action-modal__time-section">
         <label htmlFor="feedStartTime">Start Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="feedStartTime"
-          className="time-input time-input--feed"
+          className="time-input--feed"
           value={feedStartTime}
           onChange={(e) => setFeedStartTime(e.target.value)}
+          label="Start time"
         />
       </div>
 
       <div className="action-modal__time-section">
         <label htmlFor="feedEndTime">End Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="feedEndTime"
-          className="time-input time-input--feed"
+          className="time-input--feed"
           value={feedEndTime}
           onChange={(e) => setFeedEndTime(e.target.value)}
+          label="End time"
         />
       </div>
 
@@ -274,23 +275,23 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     <>
       <div className="action-modal__time-section">
         <label htmlFor="sleepStartTime">Start Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="sleepStartTime"
-          className="time-input time-input--sleep"
+          className="time-input--sleep"
           value={sleepStartTime}
           onChange={(e) => setSleepStartTime(e.target.value)}
+          label="Start time"
         />
       </div>
 
       <div className="action-modal__time-section">
         <label htmlFor="sleepEndTime">End Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="sleepEndTime"
-          className="time-input time-input--sleep"
+          className="time-input--sleep"
           value={sleepEndTime}
           onChange={(e) => setSleepEndTime(e.target.value)}
+          label="End time"
         />
       </div>
 
@@ -323,12 +324,12 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
       <div className="action-modal__time-section">
         <label htmlFor="otherTime">Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="otherTime"
-          className="time-input time-input--other"
+          className="time-input--other"
           value={otherTimestamp}
           onChange={(e) => setOtherTimestamp(e.target.value)}
+          label="Time"
         />
       </div>
 

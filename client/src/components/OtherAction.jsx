@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import TimeInputPicker from './TimeInputPicker';
 import './OtherAction.css';
 import './TimeInput.css';
 import { API_URL } from '../constants/constants';
@@ -100,12 +101,12 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
 
           <div className="other-action-time-section">
             <label htmlFor="otherTime">Time:</label>
-            <input
-              type="datetime-local"
+            <TimeInputPicker
               id="otherTime"
-              className="time-input time-input--other"
+              className="time-input--other"
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
+              label="Time"
             />
           </div>
 

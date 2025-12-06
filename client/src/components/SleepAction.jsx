@@ -1,4 +1,5 @@
 import { useTimeAction } from './useTimeAction';
+import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './SleepAction.css';
@@ -36,24 +37,24 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
         <div className="action-modal__content">
           <div className="action-modal__time-section">
             <label htmlFor="startTime">Start Time:</label>
-            <input
-              type="datetime-local"
+            <TimeInputPicker
               id="startTime"
-              className="time-input time-input--sleep"
+              className="time-input--sleep"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
+              label="Start time"
             />
           </div>
 
           {!isStarting && (
             <div className="action-modal__time-section">
               <label htmlFor="endTime">End Time:</label>
-              <input
-                type="datetime-local"
+              <TimeInputPicker
                 id="endTime"
-                className="time-input time-input--sleep"
+                className="time-input--sleep"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
+                label="End time"
               />
             </div>
           )}

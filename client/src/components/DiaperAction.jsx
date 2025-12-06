@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import TimeInputPicker from './TimeInputPicker';
 import './DiaperAction.css';
 import './TimeInput.css';
 import { API_URL } from '../constants/constants';
@@ -106,12 +107,12 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
 
           <div className="diaper-action-time-section">
             <label htmlFor="diaperTime">Time:</label>
-            <input
-              type="datetime-local"
+            <TimeInputPicker
               id="diaperTime"
-              className="time-input time-input--diaper"
+              className="time-input--diaper"
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
+              label="Time"
             />
           </div>
 
