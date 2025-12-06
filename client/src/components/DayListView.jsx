@@ -16,37 +16,59 @@ function DayListView({
   onDeleteAction,
   onUpdateAction
 }) {
-  // Get actions for selected day, sorted by time
-  const selectedDayActions = selectedDay ? (() => {
-    const dayStart = new Date(selectedDay);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(selectedDay);
-    dayEnd.setHours(23, 59, 59, 999);
+  // Get actions for selected day (6 AM to 5:59 AM next day), split into two groups
+  const { selectedDayActions, nextDayActions, nextDay } = selectedDay ? (() => {
+    // Selected day: from 6:00 AM to 11:59:59 PM
+    const selectedDayStart = new Date(selectedDay);
+    selectedDayStart.setHours(6, 0, 0, 0);
+    const selectedDayEnd = new Date(selectedDay);
+    selectedDayEnd.setHours(23, 59, 59, 999);
 
-    const dayActions = actions.filter(action => {
-      // For sleep/feed, check if they start or end on this day, or span this day
-      if (action.actionType === 'sleep' || action.actionType === 'feed') {
-        const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
-        const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
-        
-        // Check if action overlaps with this day
-        return (startTime <= dayEnd && endTime >= dayStart);
-      }
-      // For other actions (diaper, other), just check createdAt
-      const actionDate = new Date(action.createdAt);
-      return actionDate >= dayStart && actionDate <= dayEnd;
-    });
+    // Next day: from 00:00:00 to 5:59:59 AM
+    const nextDay = new Date(selectedDay);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const nextDayStart = new Date(nextDay);
+    nextDayStart.setHours(0, 0, 0, 0);
+    const nextDayEnd = new Date(nextDay);
+    nextDayEnd.setHours(5, 59, 59, 999);
 
-    return dayActions.sort((a, b) => {
-      const timeA = a.actionType === 'sleep' || a.actionType === 'feed'
-        ? (a.details?.startTime ? new Date(a.details.startTime) : new Date(a.createdAt))
-        : new Date(a.createdAt);
-      const timeB = b.actionType === 'sleep' || b.actionType === 'feed'
-        ? (b.details?.startTime ? new Date(b.details.startTime) : new Date(b.createdAt))
-        : new Date(b.createdAt);
-      return timeB - timeA; // Most recent first
-    });
-  })() : [];
+    const filterActions = (dayStart, dayEnd) => {
+      return actions.filter(action => {
+        // For sleep/feed, check if they start or end in this time range, or span this range
+        if (action.actionType === 'sleep' || action.actionType === 'feed') {
+          const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
+          const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
+          
+          // Check if action overlaps with this time range
+          return (startTime <= dayEnd && endTime >= dayStart);
+        }
+        // For other actions (diaper, other), just check createdAt
+        const actionDate = new Date(action.createdAt);
+        return actionDate >= dayStart && actionDate <= dayEnd;
+      });
+    };
+
+    const selectedActions = filterActions(selectedDayStart, selectedDayEnd);
+    const nextActions = filterActions(nextDayStart, nextDayEnd);
+
+    const sortActions = (actionList) => {
+      return actionList.sort((a, b) => {
+        const timeA = a.actionType === 'sleep' || a.actionType === 'feed'
+          ? (a.details?.startTime ? new Date(a.details.startTime) : new Date(a.createdAt))
+          : new Date(a.createdAt);
+        const timeB = b.actionType === 'sleep' || b.actionType === 'feed'
+          ? (b.details?.startTime ? new Date(b.details.startTime) : new Date(b.createdAt))
+          : new Date(b.createdAt);
+        return timeA - timeB; // Oldest first (chronological order, matching calendar view)
+      });
+    };
+
+    return {
+      selectedDayActions: sortActions(selectedActions),
+      nextDayActions: sortActions(nextActions),
+      nextDay: nextDay
+    };
+  })() : { selectedDayActions: [], nextDayActions: [], nextDay: null };
 
   return (
     <div className="reports-view">
@@ -95,21 +117,53 @@ function DayListView({
           </div>
         )}
 
-        {!loading && !error && selectedDayActions.length === 0 && (
+        {!loading && !error && selectedDayActions.length === 0 && nextDayActions.length === 0 && (
           <div className="reports-empty">
             No actions recorded for this day.
           </div>
         )}
 
-        {!loading && !error && selectedDayActions.length > 0 && (
+        {!loading && !error && (selectedDayActions.length > 0 || nextDayActions.length > 0) && (
           <div className="reports-list">
-            {selectedDayActions.map((action) => (
-              <ReportsActionItem
-                key={action.id}
-                action={action}
-                onClick={(e) => onActionItemClick(action, e)}
-              />
-            ))}
+            {selectedDayActions.length > 0 && (
+              <div className="reports-date-group">
+                <div className="reports-date-header">
+                  {selectedDay.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                  })} (06:00 - 23:59)
+                </div>
+                {selectedDayActions.map((action) => (
+                  <ReportsActionItem
+                    key={action.id}
+                    action={action}
+                    onClick={(e) => onActionItemClick(action, e)}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {nextDayActions.length > 0 && (
+              <div className="reports-date-group">
+                <div className="reports-date-header">
+                  {nextDay.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                  })} (00:00 - 05:59)
+                </div>
+                {nextDayActions.map((action) => (
+                  <ReportsActionItem
+                    key={action.id}
+                    action={action}
+                    onClick={(e) => onActionItemClick(action, e)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
