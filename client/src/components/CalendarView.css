@@ -2,6 +2,8 @@
 .calendar-container {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: hidden;
 }
 
 .calendar-header {
@@ -259,6 +261,16 @@
 }
 
 @media (max-width: 768px) {
+  .calendar-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .calendar-header {
+    padding: 0.75rem;
+  }
+
   .calendar-grid {
     min-height: 500px;
   }
@@ -289,6 +301,10 @@
 
   .day-number {
     font-size: 1rem;
+  }
+
+  .time-column {
+    min-width: 50px;
   }
 }
 

@@ -138,7 +138,9 @@
   transition: transform 0.2s, box-shadow 0.2s;
   color: var(--color-text-primary);
   position: relative;
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
+  box-sizing: border-box;
 }
 
 .profile-card:hover {
@@ -425,6 +427,7 @@
 @media (max-width: 768px) {
   .baby-profiles-container {
     padding: 1rem;
+    max-width: 100%;
   }
 
   .baby-profiles-header {
@@ -438,6 +441,10 @@
 
   .profiles-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-card {
+    max-width: 100%;
   }
 }
 

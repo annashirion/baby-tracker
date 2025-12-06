@@ -1,7 +1,9 @@
 .baby-profile-view {
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
   margin: 0 auto;
   padding: 2rem;
+  box-sizing: border-box;
 }
 
 .baby-profile-view-header {
@@ -83,7 +85,8 @@
 }
 
 .action-button {
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
   padding: 1.5rem 2rem;
   border: none;
   border-radius: 8px;
@@ -96,6 +99,7 @@
   align-items: flex-start;
   gap: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .action-button-main {
@@ -196,6 +200,7 @@
 @media (max-width: 768px) {
   .baby-profile-view {
     padding: 1rem;
+    max-width: 100%;
   }
 
   .baby-profile-view-header {
@@ -206,6 +211,7 @@
   .action-button {
     padding: 1.25rem 1.5rem;
     font-size: 1.1rem;
+    max-width: 100%;
   }
 }
 

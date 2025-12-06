@@ -3,6 +3,9 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .logo {
@@ -46,6 +49,8 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .loading {
@@ -63,7 +68,9 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  width: 450px;
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
 }
 
 .app-header-welcome {
@@ -213,4 +220,20 @@
   color: var(--color-text-muted);
   background: var(--color-bg-empty);
   border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  #root {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .app-container {
+    padding: 1rem;
+  }
+
+  .app-header {
+    max-width: 100%;
+    padding: 0.75rem;
+  }
 }

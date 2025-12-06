@@ -18,7 +18,9 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .user-info {
@@ -258,11 +260,18 @@
   white-space: nowrap;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .admin-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .user-card {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    max-width: 100%;
+    width: 100%;
   }
 
   .blocked-user-card {

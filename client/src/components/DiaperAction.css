@@ -7,9 +7,9 @@
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0;
 }
 
 .diaper-action-modal {
@@ -19,6 +19,10 @@
   max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.2s ease-out;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 @keyframes slideIn {
@@ -69,6 +73,10 @@
 
 .diaper-action-content {
   padding: 1.5rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 .diaper-type-selection {
@@ -252,9 +260,34 @@
   background-color: var(--color-action-diaper-active);
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
+  .diaper-action-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
   .diaper-action-modal {
     max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    animation: slideUp 0.3s ease-out;
+    max-height: 90vh;
+  }
+
+  .diaper-action-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .diaper-action-content {
+    padding: 1rem 1.5rem;
   }
 
   .diaper-type-buttons {
