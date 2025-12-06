@@ -10,17 +10,14 @@ function Reports({ profile, onClose }) {
   const [error, setError] = useState(null);
   const [actions, setActions] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
-  const [selectedAction, setSelectedAction] = useState(null);
   const [showDayList, setShowDayList] = useState(false);
   const [actionToEdit, setActionToEdit] = useState(null);
-  const [currentWeekStart, setCurrentWeekStart] = useState(() => {
-    // Start with current week (Monday as start)
+  const [currentPeriodStart, setCurrentPeriodStart] = useState(() => {
+    // Start with today minus 1 day (show yesterday, today, and 2 days ahead)
     const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust to Monday
-    const monday = new Date(today.setDate(diff));
-    monday.setHours(0, 0, 0, 0);
-    return monday;
+    today.setDate(today.getDate() - 1);
+    today.setHours(0, 0, 0, 0);
+    return today;
   });
 
   useEffect(() => {
@@ -51,11 +48,6 @@ function Reports({ profile, onClose }) {
   };
 
   const handleActionClick = (action) => {
-    setSelectedAction(action);
-  };
-
-  const handleActionItemClick = (action, e) => {
-    e.stopPropagation();
     setActionToEdit(action);
   };
 
@@ -76,7 +68,6 @@ function Reports({ profile, onClose }) {
       // Refresh actions list
       await fetchActions();
       setActionToEdit(null);
-      setSelectedAction(null);
       setError(null);
     } catch (err) {
       console.error('Error deleting action:', err);
@@ -89,29 +80,18 @@ function Reports({ profile, onClose }) {
     if (!actionId) return;
     
     // Refresh actions list
-    const updatedActions = await fetchActions();
-    
-    // Update selectedAction to the updated action from the new actions array
-    if (selectedAction && selectedAction.id === actionId) {
-      const updatedAction = updatedActions.find(a => a.id === actionId);
-      if (updatedAction) {
-        setSelectedAction(updatedAction);
-      }
-    }
-    
+    await fetchActions();
     setActionToEdit(null);
   };
 
   const handleDayClick = (day) => {
     setSelectedDay(day);
-    setSelectedAction(null);
     setShowDayList(true);
   };
 
   const handleBackToCalendar = () => {
     setShowDayList(false);
     setSelectedDay(null);
-    setSelectedAction(null);
   };
 
   const handleNavigateDay = (direction) => {
@@ -120,46 +100,14 @@ function Reports({ profile, onClose }) {
     newDay.setDate(newDay.getDate() + direction);
     newDay.setHours(0, 0, 0, 0);
     setSelectedDay(newDay);
-    setSelectedAction(null);
   };
 
-  const navigateWeek = (direction) => {
-    const newWeekStart = new Date(currentWeekStart);
-    newWeekStart.setDate(newWeekStart.getDate() + (direction * 7));
-    setCurrentWeekStart(newWeekStart);
+  const navigatePeriod = (direction) => {
+    const newPeriodStart = new Date(currentPeriodStart);
+    newPeriodStart.setDate(newPeriodStart.getDate() + direction);
+    setCurrentPeriodStart(newPeriodStart);
     setSelectedDay(null);
-    setSelectedAction(null);
     setShowDayList(false);
-  };
-
-  const goToToday = () => {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-    const todayWeekStart = new Date(today);
-    todayWeekStart.setDate(diff);
-    todayWeekStart.setHours(0, 0, 0, 0);
-    
-    // Check if today's week is already shown
-    const currentWeekStartCopy = new Date(currentWeekStart);
-    currentWeekStartCopy.setHours(0, 0, 0, 0);
-    const currentWeekStartTime = currentWeekStartCopy.getTime();
-    const todayWeekStartTime = todayWeekStart.getTime();
-    
-    if (currentWeekStartTime === todayWeekStartTime) {
-      // Today's week is already shown, open today's list
-      const todayDate = new Date();
-      todayDate.setHours(0, 0, 0, 0);
-      setSelectedDay(todayDate);
-      setSelectedAction(null);
-      setShowDayList(true);
-    } else {
-      // Navigate to today's week
-      setCurrentWeekStart(todayWeekStart);
-      setSelectedDay(null);
-      setSelectedAction(null);
-      setShowDayList(false);
-    }
   };
 
   // Show day list view when a day is selected
@@ -173,7 +121,7 @@ function Reports({ profile, onClose }) {
         actionToEdit={actionToEdit}
         onBack={handleBackToCalendar}
         onNavigateDay={handleNavigateDay}
-        onActionItemClick={handleActionItemClick}
+        onActionItemClick={handleActionClick}
         onCloseEditPopup={handleCloseEditPopup}
         onDeleteAction={handleDeleteAction}
         onUpdateAction={fetchActions}
@@ -199,13 +147,10 @@ function Reports({ profile, onClose }) {
         {!loading && !error && (
           <CalendarView
             actions={actions}
-            currentWeekStart={currentWeekStart}
-            selectedAction={selectedAction}
+            currentPeriodStart={currentPeriodStart}
             onDayClick={handleDayClick}
             onActionClick={handleActionClick}
-            onActionItemClick={handleActionItemClick}
-            onWeekNavigate={navigateWeek}
-            onGoToToday={goToToday}
+            onPeriodNavigate={navigatePeriod}
             onClose={onClose}
           />
         )}

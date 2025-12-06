@@ -216,7 +216,7 @@ function App() {
           size="medium"
         />
         <div className="app-header-welcome">
-          <h2 className="app-header-title">Welcome, {user.name}!</h2>
+          <h2 className="app-header-title">Welcome,<br />{user.name}!</h2>
           <p className="app-header-email">{user.email}</p>
         </div>
         <button 

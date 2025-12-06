@@ -23,6 +23,10 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+
+  .btn {
+    width: 40%;
+  }
 }
 
 .baby-profiles-container .form-card {
@@ -433,10 +437,6 @@
   .baby-profiles-header {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .baby-profiles-actions {
-    flex-direction: column;
   }
 
   .profiles-grid {

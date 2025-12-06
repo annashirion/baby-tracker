@@ -338,6 +338,12 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   };
 
   const handleDateScroll = (e) => {
+    // Don't update selectedDate until scroll positions have been initialized
+    // This prevents the initial scroll position (0) from overwriting the correct date
+    if (!scrollPositionsSet.current) {
+      return;
+    }
+    
     hasScrolled.current = true;
     const itemHeight = 50;
     const topPadding = 100;
@@ -361,6 +367,11 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   };
 
   const handleDateScrollEnd = (e) => {
+    // Don't update until scroll positions have been initialized
+    if (!scrollPositionsSet.current) {
+      return;
+    }
+    
     const itemHeight = 50;
     const index = snapToCenter(e.target, itemHeight, dateOptions.length - 1);
     if (index >= 0 && index < dateOptions.length) {

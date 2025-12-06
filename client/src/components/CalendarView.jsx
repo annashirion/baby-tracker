@@ -1,36 +1,32 @@
 import { useMemo } from 'react';
 import './CalendarView.css';
-import ReportsActionItem from './ReportsActionItem';
 import { getActionDetails } from '../utils/actionHelpers';
 import { ACTION_TYPES } from '../constants/constants';
 
 function CalendarView({ 
   actions, 
-  currentWeekStart, 
-  selectedAction, 
+  currentPeriodStart, 
   onDayClick, 
   onActionClick,
-  onActionItemClick,
-  onWeekNavigate, 
-  onGoToToday,
+  onPeriodNavigate, 
   onClose 
 }) {
-  // Generate week days
-  const weekDays = useMemo(() => {
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(currentWeekStart);
-      date.setDate(currentWeekStart.getDate() + i);
-      days.push(date);
+  // Generate 4 days
+  const days = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 4; i++) {
+      const date = new Date(currentPeriodStart);
+      date.setDate(currentPeriodStart.getDate() + i);
+      result.push(date);
     }
-    return days;
-  }, [currentWeekStart]);
+    return result;
+  }, [currentPeriodStart]);
 
-  // Calculate week date range
-  const weekDateRange = useMemo(() => {
-    const firstDay = currentWeekStart;
-    const lastDay = new Date(currentWeekStart);
-    lastDay.setDate(currentWeekStart.getDate() + 6);
+  // Calculate date range for 4 days
+  const dateRange = useMemo(() => {
+    const firstDay = currentPeriodStart;
+    const lastDay = new Date(currentPeriodStart);
+    lastDay.setDate(currentPeriodStart.getDate() + 3);
     
     const firstDayNum = firstDay.getDate();
     const lastDayNum = lastDay.getDate();
@@ -41,11 +37,11 @@ function CalendarView({
     if (firstDay.getMonth() === lastDay.getMonth()) {
       return `${firstDayNum}-${lastDayNum} ${month} ${year}`;
     } else {
-      // If week spans two months
+      // If range spans two months, don't show year
       const lastMonth = lastDay.toLocaleDateString('en-US', { month: 'short' });
-      return `${firstDayNum} ${month} - ${lastDayNum} ${lastMonth} ${year}`;
+      return `${firstDayNum} ${month} - ${lastDayNum} ${lastMonth}`;
     }
-  }, [currentWeekStart]);
+  }, [currentPeriodStart]);
 
   // Time slots for the chart (6am to 5am next day - 24 hours)
   const timeSlots = useMemo(() => {
@@ -225,21 +221,20 @@ function CalendarView({
           </svg>
         </button>
         <div className="calendar-header-center">
-          <button className="week-nav-btn" onClick={() => onWeekNavigate(-1)}>‹</button>
-          <div className="week-info">
+          <button className="nav-btn" onClick={() => onPeriodNavigate(-1)}>‹</button>
+          <div className="date-info">
             <span className="month-year">
-              {weekDateRange}
+              {dateRange}
             </span>
           </div>
-          <button className="week-nav-btn" onClick={() => onWeekNavigate(1)}>›</button>
+          <button className="nav-btn" onClick={() => onPeriodNavigate(1)}>›</button>
         </div>
-        <button className="today-btn" onClick={onGoToToday}>Today</button>
       </div>
 
       <div className="calendar-grid">
         <div className="time-column">
           <div className="month-label">
-            {currentWeekStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+            {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
           </div>
           {timeSlots.map((slot, idx) => (
             <div key={idx} className="time-slot">
@@ -249,7 +244,7 @@ function CalendarView({
         </div>
 
         <div className="days-container">
-          {weekDays.map((day, dayIdx) => {
+          {days.map((day, dayIdx) => {
             const dayActions = getActionsForDay(day);
             const isToday = day.toDateString() === new Date().toDateString();
             
@@ -270,7 +265,7 @@ function CalendarView({
                     return (
                       <div
                         key={action.id}
-                        className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''} ${selectedAction?.id === action.id ? 'selected' : ''}`}
+                        className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''}`}
                         style={style}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -286,17 +281,6 @@ function CalendarView({
           })}
         </div>
       </div>
-
-      {selectedAction && (
-        <div className="action-detail-panel">
-          <div className="detail-panel-content">
-            <ReportsActionItem
-              action={selectedAction}
-              onClick={onActionItemClick ? (e) => onActionItemClick(selectedAction, e) : undefined}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
