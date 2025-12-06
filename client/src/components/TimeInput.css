@@ -1,25 +1,25 @@
 .time-input {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--color-bg-quinary);
   border-radius: 8px;
   font-size: 1.1rem;
   font-weight: 500;
   box-sizing: border-box;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .time-input:hover {
-  background-color: white;
+  background-color: var(--color-bg-primary);
 }
 
 .time-input:focus,
 .time-input:focus-visible {
   outline: none !important;
-  background-color: white;
+  background-color: var(--color-bg-primary);
   box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1) !important;
   transform: translateY(-1px);
 }
@@ -39,12 +39,12 @@
 }
 
 .time-input--sleep:hover {
-  border-color: #17a2b8;
+  border-color: var(--color-action-sleep);
 }
 
 .time-input--sleep:focus,
 .time-input--sleep:focus-visible {
-  border-color: #17a2b8 !important;
+  border-color: var(--color-action-sleep) !important;
   box-shadow: 0 0 0 4px rgba(23, 162, 184, 0.15) !important;
 }
 
@@ -53,12 +53,12 @@
 }
 
 .time-input--feed:hover {
-  border-color: #ff6b9d;
+  border-color: var(--color-action-feed);
 }
 
 .time-input--feed:focus,
 .time-input--feed:focus-visible {
-  border-color: #ff6b9d !important;
+  border-color: var(--color-action-feed) !important;
   box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15) !important;
 }
 
@@ -67,11 +67,11 @@
 }
 
 .time-input--number:hover {
-  border-color: #ff6b9d;
+  border-color: var(--color-action-feed);
 }
 
 .time-input--number:focus,
 .time-input--number:focus-visible {
-  border-color: #ff6b9d !important;
+  border-color: var(--color-action-feed) !important;
   box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15) !important;
 }

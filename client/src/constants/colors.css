@@ -1,0 +1,101 @@
+:root {
+  /* Primary Colors */
+  --color-primary: #235480;
+  --color-primary-light: #3375af;
+  --color-primary-dark: #1a3f5f;
+  
+  /* Secondary Colors */
+  --color-secondary: #6e2860;
+  --color-secondary-light: #8f4680;
+  --color-secondary-dark: #4d1c42;
+  
+  /* Action Colors */
+  --color-action-feed: #ff6b6b;
+  --color-action-feed-hover: #c24d4d;
+  --color-action-feed-dark: #b9434e;
+  --color-action-feed-darker: #c82333;
+  
+  --color-action-sleep: #17a2b8;
+  --color-action-sleep-hover: #138496;
+  
+  --color-action-diaper: #f0a542;
+  --color-action-diaper-hover: #d18f39;
+  --color-action-diaper-active: #ffb300;
+  --color-action-diaper-light: #ffeaa7;
+  
+  --color-action-other: #6f42c1;
+  --color-action-other-hover: #5a32a3;
+  --color-action-other-light: #7649ca;
+  --color-action-other-dark: #5f34ad;
+  
+  --color-action-poo: #8B4513;
+  
+  /* Text Colors */
+  --color-text-primary: #333;
+  --color-text-secondary: #666;
+  --color-text-tertiary: #999;
+  --color-text-muted: #6c757d;
+  --color-text-light: #888;
+  --color-text-on-dark: #ffffff;
+  
+  /* Background Colors */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-bg-tertiary: #f5f5f5;
+  --color-bg-quaternary: #f0f0f0;
+  --color-bg-quinary: #e0e0e0;
+  --color-bg-light: #fffbf0;
+  --color-bg-empty: #f8f9fa;
+  
+  /* Border Colors */
+  --color-border: #ddd;
+  --color-border-dark: #999;
+  --color-border-light: #e0e0e0;
+  --color-border-focus: #007bff;
+  
+  /* Status Colors */
+  --color-success: #4c975e;
+  --color-success-light: #4ade80;
+  --color-success-dark: #22c55e;
+  
+  --color-error: #b9434e;
+  --color-error-light: #f8d7da;
+  --color-error-text: #721c24;
+  --color-error-border: #f5c6cb;
+  --color-error-hover: #a03a44;
+  --color-error-dark: #c82333;
+  
+  --color-warning: #ff9800;
+  
+  --color-info: #17a2b8;
+  
+  /* Role Colors */
+  --color-role-admin: #b9434e;
+  --color-role-editor: #f0a542;
+  --color-role-viewer: #4c975e;
+  --color-role-default: #6c757d;
+  
+  /* UI Element Colors */
+  --color-join-code: #d449a3;
+  --color-calendar-bg: #87CEEB;
+  --color-disabled: #6c757d;
+  --color-disabled-hover: #545b62;
+  
+  /* Special Colors */
+  --color-link: #646cff;
+  --color-link-hover: #535bf2;
+  --color-link-light: #747bff;
+  
+  /* Legacy/Other Colors */
+  --color-brown: #8b6f47;
+  --color-red: red;
+  --color-app-bg: #dfbfbf;
+  --color-button-default: #797777;
+  --color-button-hover-bg: #f9f9f9;
+  --color-text-dark: #3c4043;
+  --color-calendar-sky: #87CEEB;
+  --color-red-variant: #dc3545;
+  --color-blue-light: #e3f2fd;
+  --color-border-light-gray: #dadce0;
+  --color-bg-gray-light: #f1f3f4;
+}

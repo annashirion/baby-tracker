@@ -116,7 +116,6 @@ function App() {
       console.error('Error saving user:', err)
       const errorMessage = err.message || 'Unknown error occurred'
       setError(errorMessage)
-      alert(`Failed to save user: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -125,7 +124,6 @@ function App() {
   const handleLoginError = (error) => {
     console.error('Login error:', error)
     setError('Login failed. Please try again.')
-    alert('Login failed. Please try again.')
   }
 
   if (loading) {
@@ -218,7 +216,7 @@ function App() {
           size="medium"
         />
         <div className="app-header-welcome">
-          <h2 className="app-header-title">Welcome, {user.name}!</h2>
+          <h2 className="app-header-title">Welcome,<br />{user.name}!</h2>
           <p className="app-header-email">{user.email}</p>
         </div>
         <button 

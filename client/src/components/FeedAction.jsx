@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useTimeAction } from './useTimeAction';
+import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './FeedAction.css';
+import { ACTION_TYPES } from '../constants/constants';
 
 function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAction }) {
   const [ml, setMl] = useState('');
@@ -20,7 +22,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
     handleEnd,
     handleCancel,
   } = useTimeAction({
-          actionType: 'feed',
+          actionType: ACTION_TYPES.FEED,
     lastAction: lastFeedAction,
     profile,
     userId,
@@ -62,12 +64,12 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
         <div className="action-modal__content">
           <div className="action-modal__time-section">
             <label htmlFor="startTime">Start Time:</label>
-            <input
-              type="datetime-local"
+            <TimeInputPicker
               id="startTime"
-              className="time-input time-input--feed"
+              className="time-input--feed"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
+              label="Start time"
             />
           </div>
 
@@ -75,12 +77,12 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
             <>
               <div className="action-modal__time-section">
                 <label htmlFor="endTime">End Time:</label>
-                <input
-                  type="datetime-local"
+                <TimeInputPicker
                   id="endTime"
-                  className="time-input time-input--feed"
+                  className="time-input--feed"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
+                  label="End time"
                 />
               </div>
               <div className="action-modal__time-section">

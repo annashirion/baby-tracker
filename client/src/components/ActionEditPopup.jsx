@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './DiaperAction.css';
@@ -6,12 +7,13 @@ import './FeedAction.css';
 import './SleepAction.css';
 import './OtherAction.css';
 import './ActionEditPopup.css';
-import { API_URL } from '../constants/constants';
+import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 
 function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Diaper state
   const [diaperType, setDiaperType] = useState(action.details?.type || null);
@@ -43,18 +45,18 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   };
 
   useEffect(() => {
-    if (action.actionType === 'diaper') {
+    if (action.actionType === ACTION_TYPES.DIAPER) {
       const timestamp = action.details?.timestamp || action.createdAt;
       setDiaperTimestamp(getLocalDateTime(timestamp));
-    } else if (action.actionType === 'feed') {
+    } else if (action.actionType === ACTION_TYPES.FEED) {
       setFeedStartTime(getLocalDateTime(action.details?.startTime || action.createdAt));
       setFeedEndTime(getLocalDateTime(action.details?.endTime || ''));
       setFeedComments(action.details?.comments || '');
-    } else if (action.actionType === 'sleep') {
+    } else if (action.actionType === ACTION_TYPES.SLEEP) {
       setSleepStartTime(getLocalDateTime(action.details?.startTime || action.createdAt));
       setSleepEndTime(getLocalDateTime(action.details?.endTime || ''));
       setSleepComments(action.details?.comments || '');
-    } else if (action.actionType === 'other') {
+    } else if (action.actionType === ACTION_TYPES.OTHER) {
       const timestamp = action.details?.timestamp || action.createdAt;
       setOtherTimestamp(getLocalDateTime(timestamp));
     }
@@ -67,7 +69,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
       let details = {};
 
-      if (action.actionType === 'diaper') {
+      if (action.actionType === ACTION_TYPES.DIAPER) {
         if (!diaperType) {
           setError('Please select a diaper type');
           return;
@@ -77,7 +79,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
           comments: diaperComments.trim() || null,
           timestamp: diaperTimestamp ? new Date(diaperTimestamp).toISOString() : null,
         };
-      } else if (action.actionType === 'feed') {
+      } else if (action.actionType === ACTION_TYPES.FEED) {
         if (!feedStartTime) {
           setError('Start time is required');
           return;
@@ -88,7 +90,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
           ml: feedMl ? parseFloat(feedMl) : null,
           comments: feedComments.trim() || null,
         };
-      } else if (action.actionType === 'sleep') {
+      } else if (action.actionType === ACTION_TYPES.SLEEP) {
         if (!sleepStartTime) {
           setError('Start time is required');
           return;
@@ -98,7 +100,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
           endTime: sleepEndTime ? new Date(sleepEndTime).toISOString() : null,
           comments: sleepComments.trim() || null,
         };
-      } else if (action.actionType === 'other') {
+      } else if (action.actionType === ACTION_TYPES.OTHER) {
         if (!otherTitle.trim()) {
           setError('Title is required');
           return;
@@ -144,14 +146,19 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this action? This cannot be undone.')) {
-      return;
-    }
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       setDeleting(true);
       setError(null);
+      setShowDeleteConfirm(false);
       await onDelete(action.id);
     } catch (err) {
       setError(err.message || 'Failed to delete action');
@@ -162,13 +169,13 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
   const getActionTitle = () => {
     switch (action.actionType) {
-      case 'diaper':
+      case ACTION_TYPES.DIAPER:
         return 'Edit Diaper Change';
-      case 'feed':
+      case ACTION_TYPES.FEED:
         return 'Edit Feed';
-      case 'sleep':
+      case ACTION_TYPES.SLEEP:
         return 'Edit Sleep';
-      case 'other':
+      case ACTION_TYPES.OTHER:
         return 'Edit Action';
       default:
         return 'Edit Action';
@@ -181,14 +188,14 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
         <label>Type:</label>
         <div className="diaper-type-buttons">
           <button
-            className={`diaper-type-btn ${diaperType === 'pee' ? 'active' : ''}`}
-            onClick={() => setDiaperType('pee')}
+            className={`diaper-type-btn ${diaperType === DIAPER_TYPES.PEE ? 'active' : ''}`}
+            onClick={() => setDiaperType(DIAPER_TYPES.PEE)}
           >
             💧 Pee
           </button>
           <button
-            className={`diaper-type-btn ${diaperType === 'poo' ? 'active' : ''}`}
-            onClick={() => setDiaperType('poo')}
+            className={`diaper-type-btn ${diaperType === DIAPER_TYPES.POO ? 'active' : ''}`}
+            onClick={() => setDiaperType(DIAPER_TYPES.POO)}
           >
             💩 Poo
           </button>
@@ -197,12 +204,12 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
       <div className="action-modal__time-section">
         <label htmlFor="diaperTime">Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="diaperTime"
-          className="time-input time-input--diaper"
+          className="time-input--diaper"
           value={diaperTimestamp}
           onChange={(e) => setDiaperTimestamp(e.target.value)}
+          label="Time"
         />
       </div>
 
@@ -223,23 +230,23 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     <>
       <div className="action-modal__time-section">
         <label htmlFor="feedStartTime">Start Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="feedStartTime"
-          className="time-input time-input--feed"
+          className="time-input--feed"
           value={feedStartTime}
           onChange={(e) => setFeedStartTime(e.target.value)}
+          label="Start time"
         />
       </div>
 
       <div className="action-modal__time-section">
         <label htmlFor="feedEndTime">End Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="feedEndTime"
-          className="time-input time-input--feed"
+          className="time-input--feed"
           value={feedEndTime}
           onChange={(e) => setFeedEndTime(e.target.value)}
+          label="End time"
         />
       </div>
 
@@ -274,23 +281,23 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     <>
       <div className="action-modal__time-section">
         <label htmlFor="sleepStartTime">Start Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="sleepStartTime"
-          className="time-input time-input--sleep"
+          className="time-input--sleep"
           value={sleepStartTime}
           onChange={(e) => setSleepStartTime(e.target.value)}
+          label="Start time"
         />
       </div>
 
       <div className="action-modal__time-section">
         <label htmlFor="sleepEndTime">End Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="sleepEndTime"
-          className="time-input time-input--sleep"
+          className="time-input--sleep"
           value={sleepEndTime}
           onChange={(e) => setSleepEndTime(e.target.value)}
+          label="End time"
         />
       </div>
 
@@ -323,12 +330,12 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
       <div className="action-modal__time-section">
         <label htmlFor="otherTime">Time:</label>
-        <input
-          type="datetime-local"
+        <TimeInputPicker
           id="otherTime"
-          className="time-input time-input--other"
+          className="time-input--other"
           value={otherTimestamp}
           onChange={(e) => setOtherTimestamp(e.target.value)}
+          label="Time"
         />
       </div>
 
@@ -346,48 +353,84 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   );
 
   return (
-    <div className="action-modal__overlay" onClick={onClose}>
-      <div className="action-modal__modal" onClick={(e) => e.stopPropagation()} data-action-type={action.actionType}>
-        <div className="action-modal__header">
-          <h3>{getActionTitle()}</h3>
-          <button className="action-modal__close-button" onClick={onClose}>×</button>
-        </div>
-        
-        <div className="action-modal__content">
-          {action.actionType === 'diaper' && renderDiaperForm()}
-          {action.actionType === 'feed' && renderFeedForm()}
-          {action.actionType === 'sleep' && renderSleepForm()}
-          {action.actionType === 'other' && renderOtherForm()}
-
-          {error && (
-            <div className="action-modal__error">
-              {error}
+    <>
+      {showDeleteConfirm && (
+        <div className="action-modal__overlay" onClick={handleDeleteCancel} style={{ zIndex: 2000 }}>
+          <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="action-modal__header">
+              <h3>Delete Action?</h3>
+              <button className="action-modal__close-button" onClick={handleDeleteCancel}>×</button>
             </div>
-          )}
+            
+            <div className="action-modal__content">
+              <p style={{ marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
+                Are you sure you want to delete this action? This cannot be undone.
+              </p>
 
-          <div className="action-modal__buttons">
-            <button
-              className="action-modal__button action-modal__button-cancel action-edit-popup__button-delete"
-              onClick={handleDelete}
-              disabled={saving || deleting}
-            >
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
-            <button
-              className="action-modal__button action-edit-popup__button-save"
-              onClick={handleUpdate}
-              disabled={saving || deleting || 
-                (action.actionType === 'diaper' && !diaperType) ||
-                (action.actionType === 'feed' && !feedStartTime) ||
-                (action.actionType === 'sleep' && !sleepStartTime) ||
-                (action.actionType === 'other' && !otherTitle.trim())}
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
+              <div className="action-modal__buttons">
+                <button
+                  className="action-modal__button action-modal__button-cancel"
+                  onClick={handleDeleteCancel}
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="action-modal__button action-edit-popup__button-delete"
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="action-modal__overlay" onClick={onClose}>
+        <div className="action-modal__modal" onClick={(e) => e.stopPropagation()} data-action-type={action.actionType}>
+          <div className="action-modal__header">
+            <h3>{getActionTitle()}</h3>
+            <button className="action-modal__close-button" onClick={onClose}>×</button>
+          </div>
+          
+          <div className="action-modal__content">
+            {action.actionType === ACTION_TYPES.DIAPER && renderDiaperForm()}
+            {action.actionType === ACTION_TYPES.FEED && renderFeedForm()}
+            {action.actionType === ACTION_TYPES.SLEEP && renderSleepForm()}
+            {action.actionType === ACTION_TYPES.OTHER && renderOtherForm()}
+
+            {error && (
+              <div className="action-modal__error">
+                {error}
+              </div>
+            )}
+
+            <div className="action-modal__buttons">
+              <button
+                className="action-modal__button action-modal__button-cancel action-edit-popup__button-delete"
+                onClick={handleDeleteClick}
+                disabled={saving || deleting}
+              >
+                Delete
+              </button>
+              <button
+                className="action-modal__button action-edit-popup__button-save"
+                onClick={handleUpdate}
+                disabled={saving || deleting || 
+                  (action.actionType === ACTION_TYPES.DIAPER && !diaperType) ||
+                  (action.actionType === ACTION_TYPES.FEED && !feedStartTime) ||
+                  (action.actionType === ACTION_TYPES.SLEEP && !sleepStartTime) ||
+                  (action.actionType === ACTION_TYPES.OTHER && !otherTitle.trim())}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

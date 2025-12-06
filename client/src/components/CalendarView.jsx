@@ -1,35 +1,32 @@
 import { useMemo } from 'react';
 import './CalendarView.css';
-import ReportsActionItem from './ReportsActionItem';
 import { getActionDetails } from '../utils/actionHelpers';
+import { ACTION_TYPES } from '../constants/constants';
 
 function CalendarView({ 
   actions, 
-  currentWeekStart, 
-  selectedAction, 
+  currentPeriodStart, 
   onDayClick, 
   onActionClick,
-  onActionItemClick,
-  onWeekNavigate, 
-  onGoToToday,
+  onPeriodNavigate, 
   onClose 
 }) {
-  // Generate week days
-  const weekDays = useMemo(() => {
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(currentWeekStart);
-      date.setDate(currentWeekStart.getDate() + i);
-      days.push(date);
+  // Generate 4 days
+  const days = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 4; i++) {
+      const date = new Date(currentPeriodStart);
+      date.setDate(currentPeriodStart.getDate() + i);
+      result.push(date);
     }
-    return days;
-  }, [currentWeekStart]);
+    return result;
+  }, [currentPeriodStart]);
 
-  // Calculate week date range
-  const weekDateRange = useMemo(() => {
-    const firstDay = currentWeekStart;
-    const lastDay = new Date(currentWeekStart);
-    lastDay.setDate(currentWeekStart.getDate() + 6);
+  // Calculate date range for 4 days
+  const dateRange = useMemo(() => {
+    const firstDay = currentPeriodStart;
+    const lastDay = new Date(currentPeriodStart);
+    lastDay.setDate(currentPeriodStart.getDate() + 3);
     
     const firstDayNum = firstDay.getDate();
     const lastDayNum = lastDay.getDate();
@@ -40,11 +37,11 @@ function CalendarView({
     if (firstDay.getMonth() === lastDay.getMonth()) {
       return `${firstDayNum}-${lastDayNum} ${month} ${year}`;
     } else {
-      // If week spans two months
+      // If range spans two months, don't show year
       const lastMonth = lastDay.toLocaleDateString('en-US', { month: 'short' });
-      return `${firstDayNum} ${month} - ${lastDayNum} ${lastMonth} ${year}`;
+      return `${firstDayNum} ${month} - ${lastDayNum} ${lastMonth}`;
     }
-  }, [currentWeekStart]);
+  }, [currentPeriodStart]);
 
   // Time slots for the chart (6am to 5am next day - 24 hours)
   const timeSlots = useMemo(() => {
@@ -67,47 +64,88 @@ function CalendarView({
     return slots;
   }, []);
 
-  // Get actions for a specific day
+  // Get actions for a specific day (6 AM to 5:59 AM next day)
   const getActionsForDay = (day) => {
+    // Selected day: from 6:00 AM to 11:59:59 PM
     const dayStart = new Date(day);
-    dayStart.setHours(0, 0, 0, 0);
+    dayStart.setHours(6, 0, 0, 0);
     const dayEnd = new Date(day);
     dayEnd.setHours(23, 59, 59, 999);
 
+    // Next day: from 00:00:00 to 5:59:59 AM
+    const nextDay = new Date(day);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const nextDayStart = new Date(nextDay);
+    nextDayStart.setHours(0, 0, 0, 0);
+    const nextDayEnd = new Date(nextDay);
+    nextDayEnd.setHours(5, 59, 59, 999);
+
     return actions.filter(action => {
-      // For sleep/feed, check if they start or end on this day, or span this day
-      if (action.actionType === 'sleep' || action.actionType === 'feed') {
+      // For sleep/feed, check if they start or end in the time range, or span the range
+      if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
         const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
         const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
         
-        // Check if action overlaps with this day
-        return (startTime <= dayEnd && endTime >= dayStart);
+        // Check if action overlaps with selected day (6am-11:59pm) or next day (midnight-5:59am)
+        const overlapsSelectedDay = (startTime <= dayEnd && endTime >= dayStart);
+        const overlapsNextDay = (startTime <= nextDayEnd && endTime >= nextDayStart);
+        return overlapsSelectedDay || overlapsNextDay;
       }
-      // For other actions (diaper, other), just check createdAt
+      // For other actions (diaper, other), check if they fall in either time range
       const actionDate = new Date(action.createdAt);
-      return actionDate >= dayStart && actionDate <= dayEnd;
+      const inSelectedDay = actionDate >= dayStart && actionDate <= dayEnd;
+      const inNextDay = actionDate >= nextDayStart && actionDate <= nextDayEnd;
+      return inSelectedDay || inNextDay;
     });
   };
 
   // Calculate position and height for an action bar
   const getActionBarStyle = (action, day) => {
-    const dayStart = new Date(day);
-    dayStart.setHours(0, 0, 0, 0);
-    const dayEnd = new Date(day);
-    dayEnd.setHours(23, 59, 59, 999);
+    // Selected day boundaries: 6:00 AM to 11:59:59 PM
+    const selectedDayStart = new Date(day);
+    selectedDayStart.setHours(6, 0, 0, 0);
+    const selectedDayEnd = new Date(day);
+    selectedDayEnd.setHours(23, 59, 59, 999);
+
+    // Next day boundaries: 00:00:00 to 5:59:59 AM
+    const nextDay = new Date(day);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const nextDayStart = new Date(nextDay);
+    nextDayStart.setHours(0, 0, 0, 0);
+    const nextDayEnd = new Date(nextDay);
+    nextDayEnd.setHours(5, 59, 59, 999);
 
     let startTime, endTime;
     
-    if (action.actionType === 'sleep' || action.actionType === 'feed') {
+    if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
       startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
       endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
       
-      // Clamp to day boundaries for display
-      const displayStart = startTime < dayStart ? dayStart : startTime;
-      const displayEnd = endTime > dayEnd ? dayEnd : endTime;
+      // Clamp to the appropriate boundaries (selected day 6am-11:59pm or next day midnight-5:59am)
+      // Check which range the action overlaps with
+      const overlapsSelectedDay = (startTime <= selectedDayEnd && endTime >= selectedDayStart);
+      const overlapsNextDay = (startTime <= nextDayEnd && endTime >= nextDayStart);
       
-      startTime = displayStart;
-      endTime = displayEnd;
+      if (overlapsSelectedDay && overlapsNextDay) {
+        // Action spans both ranges - clamp to the range where it starts
+        if (startTime < selectedDayStart) {
+          // Starts before selected day, clamp to next day range
+          startTime = startTime < nextDayStart ? nextDayStart : startTime;
+          endTime = endTime > nextDayEnd ? nextDayEnd : endTime;
+        } else {
+          // Starts in selected day, clamp to selected day range
+          startTime = startTime < selectedDayStart ? selectedDayStart : startTime;
+          endTime = endTime > selectedDayEnd ? selectedDayEnd : endTime;
+        }
+      } else if (overlapsSelectedDay) {
+        // Only overlaps selected day
+        startTime = startTime < selectedDayStart ? selectedDayStart : startTime;
+        endTime = endTime > selectedDayEnd ? selectedDayEnd : endTime;
+      } else if (overlapsNextDay) {
+        // Only overlaps next day
+        startTime = startTime < nextDayStart ? nextDayStart : startTime;
+        endTime = endTime > nextDayEnd ? nextDayEnd : endTime;
+      }
     } else {
       // For instant actions (diaper, other), use details.timestamp if available, otherwise createdAt
       const actionTime = action.details?.timestamp ? new Date(action.details.timestamp) : new Date(action.createdAt);
@@ -116,9 +154,14 @@ function CalendarView({
       // Add a small duration for visibility (15 minutes)
       endTime.setMinutes(endTime.getMinutes() + 15);
       
-      // Clamp to day boundaries
-      if (startTime < dayStart) startTime = dayStart;
-      if (endTime > dayEnd) endTime = dayEnd;
+      // Clamp to appropriate boundaries
+      if (actionTime >= selectedDayStart && actionTime <= selectedDayEnd) {
+        if (startTime < selectedDayStart) startTime = selectedDayStart;
+        if (endTime > selectedDayEnd) endTime = selectedDayEnd;
+      } else if (actionTime >= nextDayStart && actionTime <= nextDayEnd) {
+        if (startTime < nextDayStart) startTime = nextDayStart;
+        if (endTime > nextDayEnd) endTime = nextDayEnd;
+      }
     }
 
     // Calculate position in minutes from start of day using local time
@@ -129,35 +172,15 @@ function CalendarView({
     let endHour = endTime.getHours();
     let endMin = endTime.getMinutes();
     
-    // Check if times were clamped to day boundaries
-    const startWasClamped = startTime.getTime() === dayStart.getTime();
-    const endWasClamped = endTime.getTime() === dayEnd.getTime();
-    
     // Convert to calendar hours (0 = 6am, 23 = 5am next day)
-    // Times before 6am are on the "next day" in calendar view
-    let startCalendarHour = startHour >= 6 ? startHour - 6 : startHour + 18; // +18 = +24-6
+    // Times >= 6am: calendarHour = hour - 6 (6am = 0, 7am = 1, ..., 11pm = 17)
+    // Times < 6am: calendarHour = hour + 18 (midnight = 18, 1am = 19, ..., 5am = 23)
+    let startCalendarHour = startHour >= 6 ? startHour - 6 : startHour + 18;
     let endCalendarHour = endHour >= 6 ? endHour - 6 : endHour + 18;
-    
-    // If end time was clamped to end of day, it should extend to the end of the calendar view (5am next day = calendar hour 23)
-    if (endWasClamped) {
-      endCalendarHour = 23;
-      endMin = 60; // Set to 60 so it extends to the very end (will be handled in calculation)
-    }
-    
-    // If start time was clamped to start of day, it should start at the beginning of the calendar view (6am = calendar hour 0)
-    if (startWasClamped) {
-      startCalendarHour = 0;
-      startMin = 0;
-    }
     
     // Calculate minutes from calendar start (6am = 0)
     let startMinutes = startCalendarHour * 60 + startMin;
     let endMinutes = endCalendarHour * 60 + endMin;
-    
-    // If endMin was set to 60 (clamped case), set endMinutes to exactly 1440 (end of calendar view)
-    if (endWasClamped && endMin === 60) {
-      endMinutes = 24 * 60; // Exactly 1440 minutes = end of calendar view
-    }
     
     // Total minutes in a day (1440)
     const totalMinutes = 24 * 60;
@@ -175,13 +198,13 @@ function CalendarView({
 
   const getActionTypeLabel = (type) => {
     switch (type) {
-      case 'diaper':
+      case ACTION_TYPES.DIAPER:
         return 'Diaper';
-      case 'feed':
+      case ACTION_TYPES.FEED:
         return 'Feed';
-      case 'sleep':
+      case ACTION_TYPES.SLEEP:
         return 'Sleep';
-      case 'other':
+      case ACTION_TYPES.OTHER:
         return 'Other';
       default:
         return type;
@@ -198,21 +221,20 @@ function CalendarView({
           </svg>
         </button>
         <div className="calendar-header-center">
-          <button className="week-nav-btn" onClick={() => onWeekNavigate(-1)}>‹</button>
-          <div className="week-info">
+          <button className="nav-btn" onClick={() => onPeriodNavigate(-1)}>‹</button>
+          <div className="date-info">
             <span className="month-year">
-              {weekDateRange}
+              {dateRange}
             </span>
           </div>
-          <button className="week-nav-btn" onClick={() => onWeekNavigate(1)}>›</button>
+          <button className="nav-btn" onClick={() => onPeriodNavigate(1)}>›</button>
         </div>
-        <button className="today-btn" onClick={onGoToToday}>Today</button>
       </div>
 
       <div className="calendar-grid">
         <div className="time-column">
           <div className="month-label">
-            {currentWeekStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+            {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
           </div>
           {timeSlots.map((slot, idx) => (
             <div key={idx} className="time-slot">
@@ -222,7 +244,7 @@ function CalendarView({
         </div>
 
         <div className="days-container">
-          {weekDays.map((day, dayIdx) => {
+          {days.map((day, dayIdx) => {
             const dayActions = getActionsForDay(day);
             const isToday = day.toDateString() === new Date().toDateString();
             
@@ -239,11 +261,11 @@ function CalendarView({
                 <div className="day-bars">
                   {dayActions.map((action) => {
                     const style = getActionBarStyle(action, day);
-                    const diaperType = action.actionType === 'diaper' ? action.details?.type : null;
+                    const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
                     return (
                       <div
                         key={action.id}
-                        className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''} ${selectedAction?.id === action.id ? 'selected' : ''}`}
+                        className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''}`}
                         style={style}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -259,17 +281,6 @@ function CalendarView({
           })}
         </div>
       </div>
-
-      {selectedAction && (
-        <div className="action-detail-panel">
-          <div className="detail-panel-content">
-            <ReportsActionItem
-              action={selectedAction}
-              onClick={onActionItemClick ? (e) => onActionItemClick(selectedAction, e) : undefined}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -12,13 +12,15 @@
   display: flex;
   gap: 1.5rem;
   padding: 1.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: white;
+  background: var(--color-bg-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: left;
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .user-info {
@@ -28,12 +30,12 @@
 
 .user-info p {
   margin: 0.25rem 0;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
 
 .user-info strong {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .delete-user-btn {
@@ -47,7 +49,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #b9434e;
+  color: var(--color-error);
   opacity: 0.7;
   transition: opacity 0.2s, transform 0.2s;
   border-radius: 4px;
@@ -80,7 +82,7 @@
 
 .user-info-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -92,8 +94,8 @@
   border-radius: 12px;
   font-size: 0.75em;
   font-weight: bold;
-  background-color: #ff9800;
-  color: white;
+  background-color: var(--color-warning);
+  color: var(--color-text-on-dark);
 }
 
 .role-badge {
@@ -101,25 +103,25 @@
   border-radius: 12px;
   font-size: 0.85em;
   font-weight: bold;
-  color: white;
+  color: var(--color-text-on-dark);
   margin-bottom: 10px;
   display: inline-block;
 }
 
 .role-badge-admin {
-  background-color: #b9434e;
+  background-color: var(--color-role-admin);
 }
 
 .role-badge-editor {
-  background-color: #e4ba3f;
+  background-color: var(--color-role-editor);
 }
 
 .role-badge-viewer {
-  background-color: #4c975e;
+  background-color: var(--color-role-viewer);
 }
 
 .role-badge-default {
-  background-color: #6c757d;
+  background-color: var(--color-role-default);
 }
 
 .role-select {
@@ -129,7 +131,7 @@
   cursor: pointer;
   font-size: 0.85em;
   font-weight: bold;
-  color: white;
+  color: var(--color-text-on-dark);
   margin-bottom: 10px;
   display: inline-block;
 }
@@ -139,35 +141,35 @@
 }
 
 .role-select-admin {
-  background-color: #b9434e;
+  background-color: var(--color-role-admin);
 }
 
 .role-select-editor {
-  background-color: #e4ba3f;
+  background-color: var(--color-role-editor);
 }
 
 .role-select-viewer {
-  background-color: #4c975e;
+  background-color: var(--color-role-viewer);
 }
 
 .role-option-admin {
-  background-color: #b9434e;
-  color: white;
+  background-color: var(--color-role-admin);
+  color: var(--color-text-on-dark);
 }
 
 .role-option-editor {
-  background-color: #e4ba3f;
-  color: white;
+  background-color: var(--color-role-editor);
+  color: var(--color-text-on-dark);
 }
 
 .role-option-viewer {
-  background-color: #4c975e;
-  color: white;
+  background-color: var(--color-role-viewer);
+  color: var(--color-text-on-dark);
 }
 
 .updating-text {
   font-size: 0.85em;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .admin-panel-error {
@@ -196,35 +198,35 @@
 .delete-confirmation-card h3 {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: #b9434e;
+  color: var(--color-error);
 }
 
 .delete-confirmation-card p {
   margin: 0.75rem 0;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .delete-warning {
-  color: #b9434e;
+  color: var(--color-error);
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .delete-confirm-btn {
-  background-color: #b9434e;
+  background-color: var(--color-role-admin);
 }
 
 .delete-confirm-btn:hover:not(:disabled) {
-  background-color: #a03a44;
+  background-color: var(--color-error-hover);
 }
 
 .btn-danger {
-  background-color: #b9434e;
-  color: white;
+  background-color: var(--color-role-admin);
+  color: var(--color-text-on-dark);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #a03a44;
+  background-color: var(--color-error-hover);
 }
 
 .form-actions {
@@ -258,11 +260,18 @@
   white-space: nowrap;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .admin-panel {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .user-card {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    max-width: 100%;
+    width: 100%;
   }
 
   .blocked-user-card {

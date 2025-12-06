@@ -7,6 +7,7 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
   const [updating, setUpdating] = useState(false);
   const [emojis, setEmojis] = useState([]);
   const [loadingEmojis, setLoadingEmojis] = useState(true);
+  const [error, setError] = useState(null);
   const pickerRef = useRef(null);
 
   // Fetch emojis from server on component mount
@@ -56,6 +57,7 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
     }
 
     setUpdating(true);
+    setError(null);
     try {
       const response = await fetch(`${API_URL}/users/${userId}/emoji`, {
         method: 'PUT',
@@ -72,9 +74,10 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
 
       onEmojiChange(emoji);
       setIsOpen(false);
+      setError(null);
     } catch (err) {
       console.error('Error updating emoji:', err);
-      alert(`Failed to update emoji: ${err.message}`);
+      setError(err.message || 'Failed to update emoji');
     } finally {
       setUpdating(false);
     }
@@ -86,7 +89,10 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
     <div className="emoji-picker-container" ref={pickerRef}>
       <div 
         className={`emoji-display ${sizeClass} ${readOnly ? 'emoji-readonly' : ''}`}
-        onClick={readOnly ? undefined : () => setIsOpen(!isOpen)}
+        onClick={readOnly ? undefined : () => {
+          setIsOpen(!isOpen);
+          setError(null);
+        }}
         title={readOnly ? undefined : "Click to change emoji"}
       >
         {currentEmoji || '👤'}
@@ -109,6 +115,11 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
                 ✕
               </button>
             </div>
+            {error && (
+              <div className="error-message" style={{ margin: '1rem', marginBottom: '0' }}>
+                {error}
+              </div>
+            )}
             <div className="emoji-picker-grid">
               {loadingEmojis ? (
                 <div className="emoji-picker-loading">Loading emojis...</div>

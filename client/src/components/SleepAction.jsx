@@ -1,7 +1,9 @@
 import { useTimeAction } from './useTimeAction';
+import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './SleepAction.css';
+import { ACTION_TYPES } from '../constants/constants';
 
 function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleepAction }) {
   const {
@@ -16,7 +18,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
     handleEnd,
     handleCancel,
   } = useTimeAction({
-          actionType: 'sleep',
+          actionType: ACTION_TYPES.SLEEP,
     lastAction: lastSleepAction,
     profile,
     userId,
@@ -36,24 +38,24 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
         <div className="action-modal__content">
           <div className="action-modal__time-section">
             <label htmlFor="startTime">Start Time:</label>
-            <input
-              type="datetime-local"
+            <TimeInputPicker
               id="startTime"
-              className="time-input time-input--sleep"
+              className="time-input--sleep"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
+              label="Start time"
             />
           </div>
 
           {!isStarting && (
             <div className="action-modal__time-section">
               <label htmlFor="endTime">End Time:</label>
-              <input
-                type="datetime-local"
+              <TimeInputPicker
                 id="endTime"
-                className="time-input time-input--sleep"
+                className="time-input--sleep"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
+                label="End time"
               />
             </div>
           )}

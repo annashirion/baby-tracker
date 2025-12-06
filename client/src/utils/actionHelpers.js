@@ -19,6 +19,8 @@ export const formatDuration = (startTime, endTime) => {
   return `${minutes}m`;
 };
 
+import { ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
+
 /**
  * Get formatted details string for an action
  * @param {Object} action - Action object
@@ -26,12 +28,12 @@ export const formatDuration = (startTime, endTime) => {
  */
 export const getActionDetails = (action) => {
   switch (action.actionType) {
-    case 'diaper':
+    case ACTION_TYPES.DIAPER:
       const type = action.details?.type;
-      if (type === 'pee') return 'Pee';
-      if (type === 'poo') return 'Poo';
+      if (type === DIAPER_TYPES.PEE) return 'Pee';
+      if (type === DIAPER_TYPES.POO) return 'Poo';
       return '';
-    case 'feed':
+    case ACTION_TYPES.FEED:
       const ml = action.details?.ml;
       if (ml) {
         return `${ml}ml`;
@@ -41,11 +43,11 @@ export const getActionDetails = (action) => {
         return `${formatDuration(action.details.startTime, action.details.endTime)}`;
       }
       return 'Feeding in progress';
-    case 'sleep':
+    case ACTION_TYPES.SLEEP:
       return action.details?.endTime 
         ? formatDuration(action.details.startTime, action.details.endTime)
         : 'In progress';
-    case 'other':
+    case ACTION_TYPES.OTHER:
       return action.details?.title || '';
     default:
       return '';

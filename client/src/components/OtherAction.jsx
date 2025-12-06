@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import TimeInputPicker from './TimeInputPicker';
 import './OtherAction.css';
 import './TimeInput.css';
-import { API_URL } from '../constants/constants';
+import { API_URL, ACTION_TYPES } from '../constants/constants';
 
 function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
   const [title, setTitle] = useState('');
@@ -39,7 +40,7 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
         body: JSON.stringify({
           babyProfileId: profile.id,
           userId: userId,
-          actionType: 'other',
+          actionType: ACTION_TYPES.OTHER,
           details: {
             title: title.trim(),
             comments: comments.trim() || null,
@@ -100,12 +101,12 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
 
           <div className="other-action-time-section">
             <label htmlFor="otherTime">Time:</label>
-            <input
-              type="datetime-local"
+            <TimeInputPicker
               id="otherTime"
-              className="time-input time-input--other"
+              className="time-input--other"
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
+              label="Time"
             />
           </div>
 

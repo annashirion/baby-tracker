@@ -485,7 +485,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
             }}
             className="btn btn-primary"
           >
-            {showCreateForm ? 'Cancel' : '+ Create Profile'}
+            {showCreateForm ? 'Cancel' : '+ Create'}
           </button>
           <button 
             onClick={() => {
@@ -498,7 +498,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
             }}
             className="btn btn-secondary"
           >
-            {showJoinForm ? 'Cancel' : '+ Join Profile'}
+            {showJoinForm ? 'Cancel' : '+ Join'}
           </button>
         </div>
       </div>

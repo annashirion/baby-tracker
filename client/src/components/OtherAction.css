@@ -7,18 +7,22 @@
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0;
 }
 
 .other-action-modal {
-  background: white;
+  background: var(--color-bg-primary);
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.2s ease-out;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 @keyframes slideIn {
@@ -37,12 +41,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .other-action-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1.5rem;
 }
 
@@ -50,7 +54,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: #666;
+  color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -63,12 +67,16 @@
 }
 
 .close-button:hover {
-  background-color: #f0f0f0;
-  color: #333;
+  background-color: var(--color-bg-quaternary);
+  color: var(--color-text-primary);
 }
 
 .other-action-content {
   padding: 1.5rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 .title-section {
@@ -79,7 +87,7 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
@@ -87,24 +95,24 @@
 .title-section input {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--color-bg-quinary);
   border-radius: 8px;
   font-size: 1.1rem;
   font-weight: 500;
   box-sizing: border-box;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   transition: all 0.2s ease;
 }
 
 .title-section input:hover {
-  border-color: #6f42c1;
+  border-color: var(--color-action-other);
   background-color: white;
 }
 
 .title-section input:focus {
   outline: none;
-  border-color: #6f42c1;
+  border-color: var(--color-action-other);
   background-color: white;
   box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
   transform: translateY(-1px);
@@ -118,17 +126,17 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
 .time-input--other:hover {
-  border-color: #6f42c1;
+  border-color: var(--color-action-other);
 }
 
 .time-input--other:focus,
 .time-input--other:focus-visible {
-  border-color: #6f42c1 !important;
+  border-color: var(--color-action-other) !important;
   box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15) !important;
 }
 
@@ -144,45 +152,35 @@
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 1rem;
 }
 
 .comments-section textarea {
   width: 100%;
   padding: 1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--color-bg-quinary);
   border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   transition: all 0.2s ease;
 }
 
 .comments-section textarea:hover {
-  border-color: #6f42c1;
+  border-color: var(--color-action-other);
   background-color: white;
 }
 
 .comments-section textarea:focus {
   outline: none;
-  border-color: #6f42c1;
+  border-color: var(--color-action-other);
   background-color: white;
   box-shadow: 0 0 0 4px rgba(111, 66, 193, 0.15);
   transform: translateY(-1px);
-}
-
-.error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  border: 1px solid #f5c6cb;
-  font-size: 0.9rem;
 }
 
 .other-action-buttons {
@@ -207,26 +205,51 @@
 }
 
 .btn-cancel {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--color-disabled);
+  color: var(--color-text-on-dark);
 }
 
 .btn-cancel:hover:not(:disabled) {
-  background-color: #545b62;
+  background-color: var(--color-disabled-hover);
 }
 
 .btn-save {
-  background-color: #6f42c1;
-  color: white;
+  background-color: var(--color-action-other);
+  color: var(--color-text-on-dark);
 }
 
 .btn-save:hover:not(:disabled) {
-  background-color: #5a32a3;
+  background-color: var(--color-action-other-hover);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
+  .other-action-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
   .other-action-modal {
     max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    animation: slideUp 0.3s ease-out;
+    max-height: 90vh;
+  }
+
+  .other-action-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .other-action-content {
+    padding: 1rem 1.5rem;
   }
 }
 

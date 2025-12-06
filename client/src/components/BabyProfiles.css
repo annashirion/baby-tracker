@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .baby-profiles-header {
@@ -16,70 +16,27 @@
 
 .baby-profiles-header h2 {
   margin: 0;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .baby-profiles-actions {
   display: flex;
   justify-content: space-between;
   width: 100%;
-}
 
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background-color: #537492;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #3a8bd3;
-}
-
-.btn-secondary {
-  background-color: #875f7f;
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #925385;
-}
-
-.error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1.5rem;
-  border: 1px solid #f5c6cb;
+  .btn {
+    width: 40%;
+  }
 }
 
 .baby-profiles-container .form-card {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .baby-profiles-container .form-card-inline {
@@ -95,32 +52,32 @@
 .delete-confirmation-card h3 {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: #b9434e;
+  color: var(--color-error);
 }
 
 .delete-confirmation-card p {
   margin: 0.75rem 0;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .delete-warning {
-  color: #b9434e;
+  color: var(--color-error);
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .delete-confirm-btn {
-  background-color: #b9434e;
+  background-color: var(--color-error);
 }
 
 .delete-confirm-btn:hover:not(:disabled) {
-  background-color: #a03a44;
+  background-color: var(--color-error-hover);
 }
 
 .baby-profiles-container .form-card h3 {
   margin-top: 0;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .baby-profiles-container .form-group {
@@ -131,36 +88,36 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .baby-profiles-container .form-card .form-group label {
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .baby-profiles-container .form-group input,
 .baby-profiles-container .form-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   font-size: 1rem;
   box-sizing: border-box;
-  background-color: white;
-  color: #333;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 .baby-profiles-container .form-group input:focus,
 .baby-profiles-container .form-group select:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-border-focus);
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .baby-profiles-container .form-group small {
   display: block;
   margin-top: 0.5rem;
-  color: #6c757d;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
 }
 
@@ -170,14 +127,6 @@
   justify-content: space-between;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6c757d;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
 .profiles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -185,15 +134,17 @@
 }
 
 .profile-card {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
-  color: #333;
+  color: var(--color-text-primary);
   position: relative;
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
+  box-sizing: border-box;
 }
 
 .profile-card:hover {
@@ -218,14 +169,14 @@
 
 .profile-header h3 {
   margin: 0;
-  color: #875f7f;
+  color: var(--color-secondary);
   font-size: 1.5rem;
 }
 
 .role-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  color: white;
+  color: var(--color-text-on-dark);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -239,12 +190,12 @@
 }
 
 .profile-detail {
-  color: #555;
+  color: var(--color-text-secondary);
   font-size: 0.95rem;
 }
 
 .profile-detail strong {
-  color: #333;
+  color: var(--color-text-primary);
   margin-right: 0.5rem;
 }
 
@@ -265,13 +216,13 @@
 
 .join-code {
   display: inline-block;
-  background: #f8f9fa;
+  background: var(--color-bg-secondary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   letter-spacing: 0.1em;
-  color: #d449a3;
+  color: var(--color-join-code);
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
@@ -279,15 +230,15 @@
 }
 
 .join-code:hover:not(.join-code-disabled) {
-  background: #d449a3;
-  color: white;
+  background: var(--color-join-code);
+  color: var(--color-text-on-dark);
   transform: scale(1.05);
   box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
 .join-code-disabled {
-  background: #e9ecef;
-  color: #6c757d;
+  background: var(--color-bg-quaternary);
+  color: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 0.6;
   text-decoration: line-through;
@@ -319,7 +270,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--color-bg-quinary);
   transition: 0.3s;
   border-radius: 24px;
 }
@@ -331,13 +282,13 @@
   width: 18px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  background-color: var(--color-bg-primary);
   transition: 0.3s;
   border-radius: 50%;
 }
 
 .join-code-toggle.toggle-on .toggle-slider {
-  background-color: #537492;
+  background-color: var(--color-primary);
 }
 
 .join-code-toggle.toggle-on .toggle-slider:before {
@@ -345,7 +296,7 @@
 }
 
 .join-code-toggle.toggle-off .toggle-slider {
-  background-color: #ccc;
+  background-color: var(--color-bg-quinary);
 }
 
 .join-code-toggle.toggle-off .toggle-slider:before {
@@ -378,19 +329,19 @@
 }
 
 .role-badge-admin {
-  background-color: #b9434e;
+  background-color: var(--color-error);
 }
 
 .role-badge-editor {
-  background-color: #e4ba3f;
+  background-color: var(--color-role-editor);
 }
 
 .role-badge-viewer {
-  background-color: #4c975e;
+  background-color: var(--color-role-viewer);
 }
 
 .role-badge-default {
-  background-color: #6c757d;
+  background-color: var(--color-role-default);
 }
 
 .profile-card-edit-buttons {
@@ -413,7 +364,7 @@
 }
 
 .edit-profile-btn {
-  color: #537492;
+  color: var(--color-primary);
 }
 
 .edit-profile-btn:hover:not(:disabled) {
@@ -423,7 +374,7 @@
 }
 
 .delete-profile-btn {
-  color: #b9434e;
+  color: var(--color-error);
 }
 
 .delete-profile-btn:hover:not(:disabled) {
@@ -433,7 +384,7 @@
 }
 
 .leave-profile-btn {
-  color: #8b6f47;
+  color: var(--color-brown);
 }
 
 .leave-profile-btn svg {
@@ -480,6 +431,7 @@
 @media (max-width: 768px) {
   .baby-profiles-container {
     padding: 1rem;
+    max-width: 100%;
   }
 
   .baby-profiles-header {
@@ -487,12 +439,12 @@
     align-items: stretch;
   }
 
-  .baby-profiles-actions {
-    flex-direction: column;
-  }
-
   .profiles-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-card {
+    max-width: 100%;
   }
 }
 
