@@ -116,7 +116,6 @@ function App() {
       console.error('Error saving user:', err)
       const errorMessage = err.message || 'Unknown error occurred'
       setError(errorMessage)
-      alert(`Failed to save user: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -125,7 +124,6 @@ function App() {
   const handleLoginError = (error) => {
     console.error('Login error:', error)
     setError('Login failed. Please try again.')
-    alert('Login failed. Please try again.')
   }
 
   if (loading) {

@@ -77,9 +77,10 @@ function Reports({ profile, onClose }) {
       await fetchActions();
       setActionToEdit(null);
       setSelectedAction(null);
+      setError(null);
     } catch (err) {
       console.error('Error deleting action:', err);
-      alert(err.message || 'Failed to delete action');
+      setError(err.message || 'Failed to delete action');
     }
   };
 

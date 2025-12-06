@@ -13,6 +13,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Diaper state
   const [diaperType, setDiaperType] = useState(action.details?.type || null);
@@ -145,14 +146,19 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this action? This cannot be undone.')) {
-      return;
-    }
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       setDeleting(true);
       setError(null);
+      setShowDeleteConfirm(false);
       await onDelete(action.id);
     } catch (err) {
       setError(err.message || 'Failed to delete action');
@@ -347,48 +353,84 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   );
 
   return (
-    <div className="action-modal__overlay" onClick={onClose}>
-      <div className="action-modal__modal" onClick={(e) => e.stopPropagation()} data-action-type={action.actionType}>
-        <div className="action-modal__header">
-          <h3>{getActionTitle()}</h3>
-          <button className="action-modal__close-button" onClick={onClose}>×</button>
-        </div>
-        
-        <div className="action-modal__content">
-          {action.actionType === ACTION_TYPES.DIAPER && renderDiaperForm()}
-          {action.actionType === ACTION_TYPES.FEED && renderFeedForm()}
-          {action.actionType === ACTION_TYPES.SLEEP && renderSleepForm()}
-          {action.actionType === ACTION_TYPES.OTHER && renderOtherForm()}
-
-          {error && (
-            <div className="action-modal__error">
-              {error}
+    <>
+      {showDeleteConfirm && (
+        <div className="action-modal__overlay" onClick={handleDeleteCancel} style={{ zIndex: 2000 }}>
+          <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="action-modal__header">
+              <h3>Delete Action?</h3>
+              <button className="action-modal__close-button" onClick={handleDeleteCancel}>×</button>
             </div>
-          )}
+            
+            <div className="action-modal__content">
+              <p style={{ marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
+                Are you sure you want to delete this action? This cannot be undone.
+              </p>
 
-          <div className="action-modal__buttons">
-            <button
-              className="action-modal__button action-modal__button-cancel action-edit-popup__button-delete"
-              onClick={handleDelete}
-              disabled={saving || deleting}
-            >
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
-            <button
-              className="action-modal__button action-edit-popup__button-save"
-              onClick={handleUpdate}
-              disabled={saving || deleting || 
-                (action.actionType === ACTION_TYPES.DIAPER && !diaperType) ||
-                (action.actionType === ACTION_TYPES.FEED && !feedStartTime) ||
-                (action.actionType === ACTION_TYPES.SLEEP && !sleepStartTime) ||
-                (action.actionType === ACTION_TYPES.OTHER && !otherTitle.trim())}
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
+              <div className="action-modal__buttons">
+                <button
+                  className="action-modal__button action-modal__button-cancel"
+                  onClick={handleDeleteCancel}
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="action-modal__button action-edit-popup__button-delete"
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="action-modal__overlay" onClick={onClose}>
+        <div className="action-modal__modal" onClick={(e) => e.stopPropagation()} data-action-type={action.actionType}>
+          <div className="action-modal__header">
+            <h3>{getActionTitle()}</h3>
+            <button className="action-modal__close-button" onClick={onClose}>×</button>
+          </div>
+          
+          <div className="action-modal__content">
+            {action.actionType === ACTION_TYPES.DIAPER && renderDiaperForm()}
+            {action.actionType === ACTION_TYPES.FEED && renderFeedForm()}
+            {action.actionType === ACTION_TYPES.SLEEP && renderSleepForm()}
+            {action.actionType === ACTION_TYPES.OTHER && renderOtherForm()}
+
+            {error && (
+              <div className="action-modal__error">
+                {error}
+              </div>
+            )}
+
+            <div className="action-modal__buttons">
+              <button
+                className="action-modal__button action-modal__button-cancel action-edit-popup__button-delete"
+                onClick={handleDeleteClick}
+                disabled={saving || deleting}
+              >
+                Delete
+              </button>
+              <button
+                className="action-modal__button action-edit-popup__button-save"
+                onClick={handleUpdate}
+                disabled={saving || deleting || 
+                  (action.actionType === ACTION_TYPES.DIAPER && !diaperType) ||
+                  (action.actionType === ACTION_TYPES.FEED && !feedStartTime) ||
+                  (action.actionType === ACTION_TYPES.SLEEP && !sleepStartTime) ||
+                  (action.actionType === ACTION_TYPES.OTHER && !otherTitle.trim())}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
