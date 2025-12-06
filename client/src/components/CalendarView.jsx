@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import './CalendarView.css';
 import ReportsActionItem from './ReportsActionItem';
 import { getActionDetails } from '../utils/actionHelpers';
+import { ACTION_TYPES } from '../constants/constants';
 
 function CalendarView({ 
   actions, 
@@ -85,7 +86,7 @@ function CalendarView({
 
     return actions.filter(action => {
       // For sleep/feed, check if they start or end in the time range, or span the range
-      if (action.actionType === 'sleep' || action.actionType === 'feed') {
+      if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
         const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
         const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
         
@@ -120,7 +121,7 @@ function CalendarView({
 
     let startTime, endTime;
     
-    if (action.actionType === 'sleep' || action.actionType === 'feed') {
+    if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
       startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
       endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
       
@@ -201,13 +202,13 @@ function CalendarView({
 
   const getActionTypeLabel = (type) => {
     switch (type) {
-      case 'diaper':
+      case ACTION_TYPES.DIAPER:
         return 'Diaper';
-      case 'feed':
+      case ACTION_TYPES.FEED:
         return 'Feed';
-      case 'sleep':
+      case ACTION_TYPES.SLEEP:
         return 'Sleep';
-      case 'other':
+      case ACTION_TYPES.OTHER:
         return 'Other';
       default:
         return type;
@@ -265,7 +266,7 @@ function CalendarView({
                 <div className="day-bars">
                   {dayActions.map((action) => {
                     const style = getActionBarStyle(action, day);
-                    const diaperType = action.actionType === 'diaper' ? action.details?.type : null;
+                    const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
                     return (
                       <div
                         key={action.id}

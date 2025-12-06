@@ -3,6 +3,7 @@ import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './SleepAction.css';
+import { ACTION_TYPES } from '../constants/constants';
 
 function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleepAction }) {
   const {
@@ -17,7 +18,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
     handleEnd,
     handleCancel,
   } = useTimeAction({
-          actionType: 'sleep',
+          actionType: ACTION_TYPES.SLEEP,
     lastAction: lastSleepAction,
     profile,
     userId,

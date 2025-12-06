@@ -1,5 +1,6 @@
 import './ReportsActionItem.css';
 import { getActionDetails } from '../utils/actionHelpers';
+import { ACTION_TYPES } from '../constants/constants';
 
 function ReportsActionItem({ action, onClick }) {
   const formatTime = (dateString) => {
@@ -14,24 +15,24 @@ function ReportsActionItem({ action, onClick }) {
 
   const getActionTypeLabel = (type) => {
     switch (type) {
-      case 'diaper':
+      case ACTION_TYPES.DIAPER:
         return 'Diaper';
-      case 'feed':
+      case ACTION_TYPES.FEED:
         return 'Feed';
-      case 'sleep':
+      case ACTION_TYPES.SLEEP:
         return 'Sleep';
-      case 'other':
+      case ACTION_TYPES.OTHER:
         return 'Other';
       default:
         return type;
     }
   };
 
-  const diaperType = action.actionType === 'diaper' ? action.details?.type : null;
+  const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
   
   // Get start and end times based on action type
   const getTimeRange = () => {
-    if (action.actionType === 'sleep' || action.actionType === 'feed') {
+    if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
       const startTime = action.details?.startTime || action.createdAt;
       const endTime = action.details?.endTime;
       

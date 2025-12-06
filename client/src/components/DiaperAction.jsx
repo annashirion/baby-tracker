@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import TimeInputPicker from './TimeInputPicker';
 import './DiaperAction.css';
 import './TimeInput.css';
-import { API_URL } from '../constants/constants';
+import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 
 function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
-  const [diaperType, setDiaperType] = useState(null); // 'pee' or 'poo'
+  const [diaperType, setDiaperType] = useState(DIAPER_TYPES.PEE);
   const [comments, setComments] = useState('');
   const [timestamp, setTimestamp] = useState('');
   const [saving, setSaving] = useState(false);
@@ -40,7 +40,7 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
         body: JSON.stringify({
           babyProfileId: profile.id,
           userId: userId,
-          actionType: 'diaper',
+          actionType: ACTION_TYPES.DIAPER,
           details: {
             type: diaperType,
             comments: comments.trim() || null,
@@ -91,14 +91,14 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
             <label>Type:</label>
             <div className="diaper-type-buttons">
               <button
-                className={`diaper-type-btn ${diaperType === 'pee' ? 'active' : ''}`}
-                onClick={() => setDiaperType('pee')}
+                className={`diaper-type-btn ${diaperType === DIAPER_TYPES.PEE ? 'active' : ''}`}
+                onClick={() => setDiaperType(DIAPER_TYPES.PEE)}
               >
                 💧 Pee
               </button>
               <button
-                className={`diaper-type-btn ${diaperType === 'poo' ? 'active' : ''}`}
-                onClick={() => setDiaperType('poo')}
+                className={`diaper-type-btn ${diaperType === DIAPER_TYPES.POO ? 'active' : ''}`}
+                onClick={() => setDiaperType(DIAPER_TYPES.POO)}
               >
                 💩 Poo
               </button>

@@ -4,6 +4,7 @@ import TimeInputPicker from './TimeInputPicker';
 import './ActionModal.css';
 import './TimeInput.css';
 import './FeedAction.css';
+import { ACTION_TYPES } from '../constants/constants';
 
 function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAction }) {
   const [ml, setMl] = useState('');
@@ -21,7 +22,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
     handleEnd,
     handleCancel,
   } = useTimeAction({
-          actionType: 'feed',
+          actionType: ACTION_TYPES.FEED,
     lastAction: lastFeedAction,
     profile,
     userId,

@@ -5,7 +5,7 @@ import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
 import Reports from './Reports';
-import { API_URL } from '../constants/constants';
+import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
@@ -56,28 +56,28 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       if (response.ok) {
         const data = await response.json();
         // Find the most recent diaper action
-        const diaperActions = data.actions.filter(action => action.actionType === 'diaper');
+        const diaperActions = data.actions.filter(action => action.actionType === ACTION_TYPES.DIAPER);
         if (diaperActions.length > 0) {
           setLastDiaperAction(diaperActions[0]);
         } else {
           setLastDiaperAction(null);
         }
         // Find the most recent other action
-        const otherActions = data.actions.filter(action => action.actionType === 'other');
+        const otherActions = data.actions.filter(action => action.actionType === ACTION_TYPES.OTHER);
         if (otherActions.length > 0) {
           setLastOtherAction(otherActions[0]);
         } else {
           setLastOtherAction(null);
         }
         // Find the most recent sleep action
-        const sleepActions = data.actions.filter(action => action.actionType === 'sleep');
+        const sleepActions = data.actions.filter(action => action.actionType === ACTION_TYPES.SLEEP);
         if (sleepActions.length > 0) {
           setLastSleepAction(sleepActions[0]);
         } else {
           setLastSleepAction(null);
         }
         // Find the most recent feed action
-        const feedActions = data.actions.filter(action => action.actionType === 'feed');
+        const feedActions = data.actions.filter(action => action.actionType === ACTION_TYPES.FEED);
         if (feedActions.length > 0) {
           setLastFeedAction(feedActions[0]);
         } else {
@@ -109,9 +109,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
 
   const getDiaperTypeLabel = (type) => {
     switch (type) {
-      case 'pee':
+      case DIAPER_TYPES.PEE:
         return 'Pee';
-      case 'poo':
+      case DIAPER_TYPES.POO:
         return 'Poo';
       default:
         return '';
@@ -181,13 +181,13 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       return;
     }
     
-    if (actionType === 'diaper') {
+    if (actionType === ACTION_TYPES.DIAPER) {
       setShowDiaperAction(true);
-    } else if (actionType === 'other') {
+    } else if (actionType === ACTION_TYPES.OTHER) {
       setShowOtherAction(true);
-    } else if (actionType === 'sleep') {
+    } else if (actionType === ACTION_TYPES.SLEEP) {
       setShowSleepAction(true);
-    } else if (actionType === 'feed') {
+    } else if (actionType === ACTION_TYPES.FEED) {
       setShowFeedAction(true);
     } else {
       console.log(`Action: ${actionType} for profile: ${profile.name}`);
@@ -287,7 +287,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
         <div className="action-buttons-container">
           <button 
             className={`action-button action-button-diaper ${isViewer ? 'disabled' : ''}`}
-            onClick={() => handleAction('diaper')}
+            onClick={() => handleAction(ACTION_TYPES.DIAPER)}
             disabled={isViewer}
           >
             <div className="action-button-main">
@@ -304,7 +304,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           </button>
           <button 
             className={`action-button action-button-sleep ${isViewer ? 'disabled' : ''}`}
-            onClick={() => handleAction('sleep')}
+            onClick={() => handleAction(ACTION_TYPES.SLEEP)}
             disabled={isViewer}
           >
             <div className="action-button-main">
@@ -337,7 +337,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           </button>
           <button 
             className={`action-button action-button-feed ${isViewer ? 'disabled' : ''}`}
-            onClick={() => handleAction('feed')}
+            onClick={() => handleAction(ACTION_TYPES.FEED)}
             disabled={isViewer}
           >
             <div className="action-button-main">
@@ -373,7 +373,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           </button>
           <button 
             className={`action-button action-button-other ${isViewer ? 'disabled' : ''}`}
-            onClick={() => handleAction('other')}
+            onClick={() => handleAction(ACTION_TYPES.OTHER)}
             disabled={isViewer}
           >
             <div className="action-button-main">

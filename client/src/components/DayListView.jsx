@@ -2,6 +2,7 @@ import './Reports.css';
 import './DayListView.css';
 import ReportsActionItem from './ReportsActionItem';
 import ActionEditPopup from './ActionEditPopup';
+import { ACTION_TYPES } from '../constants/constants';
 
 function DayListView({ 
   selectedDay, 
@@ -35,7 +36,7 @@ function DayListView({
     const filterActions = (dayStart, dayEnd) => {
       return actions.filter(action => {
         // For sleep/feed, check if they start or end in this time range, or span this range
-        if (action.actionType === 'sleep' || action.actionType === 'feed') {
+        if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
           const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
           const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
           
@@ -53,10 +54,10 @@ function DayListView({
 
     const sortActions = (actionList) => {
       return actionList.sort((a, b) => {
-        const timeA = a.actionType === 'sleep' || a.actionType === 'feed'
+        const timeA = a.actionType === ACTION_TYPES.SLEEP || a.actionType === ACTION_TYPES.FEED
           ? (a.details?.startTime ? new Date(a.details.startTime) : new Date(a.createdAt))
           : new Date(a.createdAt);
-        const timeB = b.actionType === 'sleep' || b.actionType === 'feed'
+        const timeB = b.actionType === ACTION_TYPES.SLEEP || b.actionType === ACTION_TYPES.FEED
           ? (b.details?.startTime ? new Date(b.details.startTime) : new Date(b.createdAt))
           : new Date(b.createdAt);
         return timeA - timeB; // Oldest first (chronological order, matching calendar view)
