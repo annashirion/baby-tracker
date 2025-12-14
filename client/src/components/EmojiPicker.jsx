@@ -66,6 +66,7 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ emoji }),
       });
 

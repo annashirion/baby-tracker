@@ -80,7 +80,9 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/baby-profiles?userId=${userId}`);
+      const response = await fetch(`${API_URL}/baby-profiles?userId=${userId}`, {
+        credentials: 'include',
+      });
       
       if (!response.ok) {
         let errorMessage = `Failed to fetch baby profiles (${response.status})`;
@@ -115,6 +117,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           name: createForm.name,
@@ -157,6 +160,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           joinCode: joinCode.trim().toUpperCase(),
@@ -285,6 +289,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
         }),
@@ -343,6 +348,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           name: editForm.name,
@@ -392,6 +398,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
         }),
@@ -441,6 +448,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
         }),

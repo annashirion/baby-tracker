@@ -1,8 +1,13 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { getRandomEmoji } from '../constants/emojis.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
+
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 // Verify Google token and create/update user
 router.post('/google', async (req, res) => {
@@ -58,15 +63,23 @@ router.post('/google', async (req, res) => {
       });
     }
 
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id.toString() },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Set HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.json({
       success: true,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        emoji: user.emoji,
-        googleId: user.googleId,
-      },
     });
   } catch (error) {
     console.error('Auth error:', error.message);
@@ -94,6 +107,30 @@ router.post('/google', async (req, res) => {
       details: error.stack
     });
   }
+});
+
+// Get current user from cookie
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).json({ error: 'Failed to get user' });
+  }
+});
+
+// Logout - clear cookie
+router.post('/logout', (req, res) => {
+  res.cookie('token', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0,
+  });
+  res.json({ success: true });
 });
 
 export default router;

@@ -23,14 +23,14 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
     try {
       setLoading(true);
       setError(null);
-      console.log('[CLIENT DEBUG] Fetching users for:', userId, babyProfileId);
-      const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`);
+      const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch users');
       }
       const data = await response.json();
-      console.log('[CLIENT DEBUG] Received users:', data.users?.length || 0, 'users');
       setUsers(data.users || []);
     } catch (err) {
       setError(err.message);
@@ -67,6 +67,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           babyProfileId,
@@ -121,6 +122,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           babyProfileId,
@@ -173,6 +175,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           babyProfileId,

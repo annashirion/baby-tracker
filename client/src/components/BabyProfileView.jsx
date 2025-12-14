@@ -53,7 +53,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const fetchLastActions = async () => {
     try {
       setLoadingAction(true);
-      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
+      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`, {
+        credentials: 'include',
+      });
       
       if (response.ok) {
         const data = await response.json();
@@ -170,9 +172,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       setShowSleepAction(true);
     } else if (actionType === ACTION_TYPES.FEED) {
       setShowFeedAction(true);
-    } else {
-      console.log(`Action: ${actionType} for profile: ${profile.name}`);
-      // TODO: Implement API call to track this action
     }
   };
 
@@ -201,7 +200,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           userEmoji={userEmoji}
           onClose={() => setShowDiaperAction(false)}
           onSuccess={(action) => {
-            console.log('Diaper action saved:', action);
             setShowDiaperAction(false);
             // Refresh the last actions
             fetchLastActions();
@@ -215,7 +213,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           userEmoji={userEmoji}
           onClose={() => setShowOtherAction(false)}
           onSuccess={(action) => {
-            console.log('Other action saved:', action);
             setShowOtherAction(false);
             // Refresh the last actions
             fetchLastActions();
@@ -230,7 +227,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           lastSleepAction={lastSleepAction}
           onClose={() => setShowSleepAction(false)}
           onSuccess={(action) => {
-            console.log('Sleep action saved:', action);
             setShowSleepAction(false);
             // Refresh the last actions
             fetchLastActions();
@@ -245,7 +241,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           lastFeedAction={lastFeedAction}
           onClose={() => setShowFeedAction(false)}
           onSuccess={(action) => {
-            console.log('Feed action saved:', action);
             setShowFeedAction(false);
             // Refresh the last actions
             fetchLastActions();

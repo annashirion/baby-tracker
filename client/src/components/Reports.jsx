@@ -38,7 +38,9 @@ function Reports({ profile, onClose, openToToday = false }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
+      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`, {
+        credentials: 'include',
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch actions');
@@ -69,6 +71,7 @@ function Reports({ profile, onClose, openToToday = false }) {
     try {
       const response = await fetch(`${API_URL}/actions/${actionId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {

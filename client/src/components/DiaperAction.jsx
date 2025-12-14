@@ -38,6 +38,7 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           babyProfileId: profile.id,
           userId: userId,

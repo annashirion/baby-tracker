@@ -118,6 +118,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ details }),
       });
 
