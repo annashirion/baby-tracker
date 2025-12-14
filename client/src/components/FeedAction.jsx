@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTimeAction } from './useTimeAction';
 import TimeInputPicker from './TimeInputPicker';
+import LoadingDots from './LoadingDots';
 import './ActionModal.css';
 import './TimeInput.css';
 import './FeedAction.css';
@@ -122,7 +123,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
                 onClick={() => handleStart()}
                 disabled={saving || !startTime}
               >
-                Start Feed
+                {saving ? <LoadingDots size="small" /> : 'Start Feed'}
               </button>
             ) : (
               <>
@@ -132,7 +133,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
                     onClick={() => handleCancel()}
                     disabled={saving}
                   >
-                    Reset
+                    {saving ? <LoadingDots size="small" /> : 'Reset'}
                   </button>
                 )}
                 <button
@@ -140,7 +141,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
                   onClick={handleEndWithMl}
                   disabled={saving || !startTime || !endTime || !!mlError}
                 >
-                  End Feed
+                  {saving ? <LoadingDots size="small" /> : 'End Feed'}
                 </button>
               </>
             )}

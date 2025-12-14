@@ -148,10 +148,13 @@
 }
 
 .emoji-picker-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 1rem;
-  text-align: center;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
+  min-height: 100px;
 }
 
 .emoji-picker-popup .error-message {

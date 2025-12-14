@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import TimeInputPicker from './TimeInputPicker';
+import LoadingDots from './LoadingDots';
 import './ActionModal.css';
 import './TimeInput.css';
 import './DiaperAction.css';
@@ -380,7 +381,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
                   onClick={handleDeleteConfirm}
                   disabled={deleting}
                 >
-                  {deleting ? 'Deleting...' : 'Delete'}
+                  {deleting ? <LoadingDots size="small" /> : 'Delete'}
                 </button>
               </div>
             </div>
@@ -424,7 +425,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
                   (action.actionType === ACTION_TYPES.SLEEP && !sleepStartTime) ||
                   (action.actionType === ACTION_TYPES.OTHER && !otherTitle.trim())}
               >
-                {saving ? 'Saving...' : 'Save'}
+                {saving ? <LoadingDots size="small" /> : 'Save'}
               </button>
             </div>
           </div>

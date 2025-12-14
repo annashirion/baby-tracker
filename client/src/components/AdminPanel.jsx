@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../constants/constants';
+import Spinner from './Spinner';
 import './AdminPanel.css';
 
 function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
@@ -201,7 +202,11 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
 
   if (loading) {
-    return <div className="admin-panel">Loading users...</div>;
+    return (
+      <div className="admin-panel">
+        <Spinner size="medium" />
+      </div>
+    );
   }
 
   if (error) {

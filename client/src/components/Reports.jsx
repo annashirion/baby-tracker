@@ -4,6 +4,7 @@ import { API_URL } from '../constants/constants';
 import CalendarView from './CalendarView';
 import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
+import Spinner from './Spinner';
 
 function Reports({ profile, onClose, openToToday = false }) {
   const [loading, setLoading] = useState(true);
@@ -158,7 +159,7 @@ function Reports({ profile, onClose, openToToday = false }) {
       <div className="reports-content">
         {loading && (
           <div className="reports-loading">
-            Loading reports...
+            <Spinner size="medium" />
           </div>
         )}
 

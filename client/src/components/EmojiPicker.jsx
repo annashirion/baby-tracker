@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './EmojiPicker.css';
+import Spinner from './Spinner';
+import LoadingDots from './LoadingDots';
 import { API_URL } from '../constants/constants';
 
 function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', readOnly = false }) {
@@ -122,7 +124,9 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
             )}
             <div className="emoji-picker-grid">
               {loadingEmojis ? (
-                <div className="emoji-picker-loading">Loading emojis...</div>
+                <div className="emoji-picker-loading">
+                  <Spinner size="small" />
+                </div>
               ) : emojis.length === 0 ? (
                 <div className="emoji-picker-loading">No emojis available</div>
               ) : (
@@ -140,7 +144,7 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
             </div>
             {updating && (
               <div className="emoji-picker-loading">
-                Updating...
+                <LoadingDots size="small" />
               </div>
             )}
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './BabyProfiles.css';
+import Spinner from './Spinner';
 import { ALLOWED_JOIN_CODE_CHARS, API_URL } from '../constants/constants';
 
 function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
@@ -471,7 +472,11 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   };
 
   if (loading) {
-    return <div className="baby-profiles-container">Loading baby profiles...</div>;
+    return (
+      <div className="baby-profiles-container baby-profiles-container--loading">
+        <Spinner size="medium" />
+      </div>
+    );
   }
 
   return (

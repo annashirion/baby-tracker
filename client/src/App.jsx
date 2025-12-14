@@ -4,6 +4,7 @@ import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
 import BabyProfileView from './components/BabyProfileView'
 import EmojiPicker from './components/EmojiPicker'
+import Spinner from './components/Spinner'
 import { API_URL } from './constants/constants'
 import './App.css'
 const USER_STORAGE_KEY = 'babyTracker_user'
@@ -129,7 +130,9 @@ function App() {
   if (loading) {
     return (
       <div className="app-container">
-        <div className="loading">Just a second...</div>
+        <div className="loading">
+          <Spinner size="medium" />
+        </div>
       </div>
     )
   }

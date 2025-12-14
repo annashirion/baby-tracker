@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import TimeInputPicker from './TimeInputPicker';
+import LoadingDots from './LoadingDots';
 import './DiaperAction.css';
 import './TimeInput.css';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
@@ -139,7 +140,7 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
               onClick={handleSave}
               disabled={saving || !diaperType || !timestamp}
             >
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? <LoadingDots size="small" /> : 'Save'}
             </button>
           </div>
         </div>

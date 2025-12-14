@@ -5,6 +5,7 @@ import OtherAction from './OtherAction';
 import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
 import Reports from './Reports';
+import LoadingDots from './LoadingDots';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
@@ -268,7 +269,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>💩</span> <span>Diaper</span>
-              {!loadingAction && lastDiaperAction && (
+              {loadingAction ? (
+                <div className="last-action-info">
+                  <LoadingDots size="small" />
+                </div>
+              ) : lastDiaperAction && (
               <div className="last-action-info">
                 <div className="action-details">
                   {getDiaperTypeLabel(lastDiaperAction.details?.type)} • {formatTimeAgo(lastDiaperAction.details?.timestamp || lastDiaperAction.createdAt)}
@@ -285,7 +290,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>😴</span> <span>Sleep</span>
-            {!loadingAction && lastSleepAction && (
+            {loadingAction ? (
+              <div className="last-action-info">
+                <LoadingDots size="small" />
+              </div>
+            ) : lastSleepAction && (
               <div className="last-action-info">
                 {lastSleepAction.details?.endTime ? (
                     <div className="action-details">
@@ -318,7 +327,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>🍼</span> <span>Feed</span>
-              {!loadingAction && lastFeedAction && (
+              {loadingAction ? (
+                <div className="last-action-info">
+                  <LoadingDots size="small" />
+                </div>
+              ) : lastFeedAction && (
                 <div className="last-action-info">
                   {lastFeedAction.details?.endTime ? (
                     <div className="action-details">
@@ -354,7 +367,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>📝</span> <span>Other</span>
-              {!loadingAction && lastOtherAction && (
+              {loadingAction ? (
+                <div className="last-action-info">
+                  <LoadingDots size="small" />
+                </div>
+              ) : lastOtherAction && (
                 <div className="last-action-info">
                   <div className="action-details">
                     {lastOtherAction.details?.title} • {formatTimeAgo(lastOtherAction.details?.timestamp || lastOtherAction.createdAt)}

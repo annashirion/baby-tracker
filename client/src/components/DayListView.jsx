@@ -2,6 +2,7 @@ import './Reports.css';
 import './DayListView.css';
 import ReportsActionItem from './ReportsActionItem';
 import ActionEditPopup from './ActionEditPopup';
+import Spinner from './Spinner';
 import { ACTION_TYPES } from '../constants/constants';
 
 function DayListView({ 
@@ -112,7 +113,7 @@ function DayListView({
       <div className="reports-content">
         {loading && (
           <div className="reports-loading">
-            Loading reports...
+            <Spinner size="medium" />
           </div>
         )}
 
