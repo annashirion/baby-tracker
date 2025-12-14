@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import './CalendarView.css';
 import { getActionDetails } from '../utils/actionHelpers';
 import { ACTION_TYPES } from '../constants/constants';
@@ -11,6 +11,62 @@ function CalendarView({
   onPeriodNavigate, 
   onClose 
 }) {
+  // Touch/swipe handling
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const lastWheelTime = useRef(0);
+  const MIN_SWIPE_DISTANCE = 50;
+  const WHEEL_DEBOUNCE_MS = 300;
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX.current;
+    const deltaY = touchEndY - touchStartY.current;
+    
+    // Only trigger if horizontal swipe is dominant
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > MIN_SWIPE_DISTANCE) {
+      if (deltaX > 0) {
+        // Swipe right -> go to previous period
+        onPeriodNavigate(-1);
+      } else {
+        // Swipe left -> go to next period
+        onPeriodNavigate(1);
+      }
+    }
+    
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  // Mouse wheel horizontal scroll handling
+  const handleWheel = (e) => {
+    // Check for horizontal scroll (deltaX) or shift+scroll
+    const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+    
+    if (Math.abs(deltaX) > 30) {
+      const now = Date.now();
+      // Debounce to prevent rapid navigation
+      if (now - lastWheelTime.current > WHEEL_DEBOUNCE_MS) {
+        lastWheelTime.current = now;
+        if (deltaX > 0) {
+          // Scroll right -> go to next period
+          onPeriodNavigate(1);
+        } else {
+          // Scroll left -> go to previous period
+          onPeriodNavigate(-1);
+        }
+      }
+    }
+  };
+
   // Generate 4 days
   const days = useMemo(() => {
     const result = [];
@@ -231,7 +287,12 @@ function CalendarView({
         </div>
       </div>
 
-      <div className="calendar-grid">
+      <div 
+        className="calendar-grid"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
+      >
         <div className="time-column">
           <div className="month-label">
             {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
