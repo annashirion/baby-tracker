@@ -47,9 +47,3 @@
 .btn.back-button svg {
   display: block;
 }
-
-@media (max-width: 768px) {
-  .reports-view {
-    padding: 0;
-  }
-}

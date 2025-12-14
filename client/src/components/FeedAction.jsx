@@ -101,7 +101,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
                   step="1"
                 />
                 {mlError && (
-                  <div className="action-modal__error" style={{ marginTop: '0.5rem' }}>
+                  <div className="action-modal__error action-modal__error--top-margin">
                     {mlError}
                   </div>
                 )}

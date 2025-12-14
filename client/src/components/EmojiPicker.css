@@ -48,6 +48,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
+  padding: 0;
 }
 
 .emoji-picker-popup {
@@ -56,17 +57,17 @@
   left: 0;
   right: 0;
   background: var(--color-bg-primary);
-  border-radius: 12px;
+  border-radius: 20px 20px 0 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 1001;
-  max-width: 500px;
+  max-width: 100%;
   width: 100%;
-  max-height: 80vh;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: slideIn 0.2s ease-out;
-  margin: 0 auto;
+  animation: slideUp 0.3s ease-out;
+  margin: 0;
 }
 
 .emoji-picker-header {
@@ -106,12 +107,12 @@
 
 .emoji-picker-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 8px;
-  padding: 1rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  padding: 0.75rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  max-height: calc(80vh - 80px);
+  max-height: calc(90vh - 80px);
   flex: 1;
   min-height: 0;
 }
@@ -120,9 +121,9 @@
   background: none;
   border: 2px solid transparent;
   border-radius: 8px;
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -153,6 +154,11 @@
   font-size: 0.9rem;
 }
 
+.emoji-picker-popup .error-message {
+  margin: 1rem;
+  margin-bottom: 0;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -170,42 +176,6 @@
   }
   to {
     transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .emoji-picker-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .emoji-picker-popup {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100%;
-    border-radius: 20px 20px 0 0;
-    animation: slideUp 0.3s ease-out;
-    max-height: 90vh;
-    margin: 0;
-  }
-
-  .emoji-picker-header {
-    padding: 1rem;
-  }
-
-  .emoji-picker-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-    padding: 0.75rem;
-    max-height: calc(90vh - 80px);
-  }
-
-  .emoji-option {
-    font-size: 1.5rem;
-    padding: 6px;
   }
 }
 

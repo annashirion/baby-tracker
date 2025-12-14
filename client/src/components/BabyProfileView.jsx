@@ -143,28 +143,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     }
   };
 
-  const formatTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
-  };
-
-  const formatSleepDuration = (startTime, endTime) => {
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    const diffMs = end - start;
-    const diffMins = Math.floor(diffMs / 60000);
-    const hours = Math.floor(diffMins / 60);
-    const minutes = diffMins % 60;
-    return hours > 0 
-      ? `${hours}h ${minutes}m • `
-      : `${minutes}m • `;
-  };
-
-  const formatFeedDuration = (startTime, endTime) => {
+  const formatActionDuration = (startTime, endTime) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
     const diffMs = end - start;
@@ -310,7 +289,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               <div className="last-action-info">
                 {lastSleepAction.details?.endTime ? (
                     <div className="action-details">
-                      {formatSleepDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)}
+                      {formatActionDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)}
                       {formatTimeAgo(lastSleepAction.details.endTime)}
                       {lastSleepAction.details?.endUserEmoji && <span className="action-emoji"> • {lastSleepAction.details.endUserEmoji}</span>}
                     </div>
@@ -344,8 +323,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                   {lastFeedAction.details?.endTime ? (
                     <div className="action-details">
                       {lastFeedAction.details?.ml 
-                        ? `${lastFeedAction.details.ml} ml • ${formatFeedDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
-                        : formatFeedDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
+                        ? `${lastFeedAction.details.ml} ml • ${formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
+                        : formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
                       }
                       {formatTimeAgo(lastFeedAction.details.endTime)}
                       {lastFeedAction.details?.endUserEmoji && <span className="action-emoji"> • {lastFeedAction.details.endUserEmoji}</span>}

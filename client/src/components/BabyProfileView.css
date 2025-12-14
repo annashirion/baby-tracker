@@ -1,8 +1,8 @@
 .baby-profile-view {
   width: 100%;
-  max-width: 360px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   box-sizing: border-box;
   height: calc(100vh - 2rem);
   display: flex;
@@ -12,13 +12,12 @@
 
 .baby-profile-view-header {
   display: grid;
-  grid-template-columns: 2.5rem 1fr;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
   align-items: center;
   gap: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
   margin-bottom: 2rem;
-  flex-shrink: 0;
 }
 
 .baby-profile-view-header h2 {
@@ -74,11 +73,11 @@
 
 .action-button {
   width: 100%;
-  max-width: 360px;
-  padding: 1.5rem 2rem;
+  max-width: 100%;
+  padding: 1.25rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -95,13 +94,6 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-}
-
-.action-button-sleep {
-  .action-button-main {
-    width: 100%;
-    gap: 0.5rem;
-  }
 }
 
 .last-action-info {
@@ -199,7 +191,7 @@
 .today-button,
 .reports-button {
   width: 100%;
-  max-width: 360px;
+  max-width: 100%;
   padding: 1rem 2rem;
   border: 2px solid var(--color-primary);
   border-radius: 8px;
@@ -223,28 +215,5 @@
 .today-button:active,
 .reports-button:active {
   transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .baby-profile-view {
-    padding: 1rem;
-    max-width: 100%;
-  }
-
-  .baby-profile-view-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .action-button {
-    padding: 1.25rem 1.5rem;
-    font-size: 1.1rem;
-    max-width: 100%;
-  }
-
-  .today-button,
-  .reports-button {
-    max-width: 100%;
-  }
 }
 

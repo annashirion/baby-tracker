@@ -14,12 +14,12 @@
 
 .diaper-action-modal {
   background: var(--color-bg-primary);
-  border-radius: 12px;
+  border-radius: 20px 20px 0 0;
   width: 100%;
-  max-width: 500px;
+  max-width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  animation: slideIn 0.2s ease-out;
-  max-height: 80vh;
+  animation: slideUp 0.3s ease-out;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -40,7 +40,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: 1.5rem 1rem 1rem;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -72,7 +72,7 @@
 }
 
 .diaper-action-content {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex: 1;
@@ -93,13 +93,13 @@
 
 .diaper-type-buttons {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
 
 .diaper-type-btn {
-  flex: 1;
-  min-width: 100px;
+  width: 100%;
   padding: 1rem;
   border: 2px solid var(--color-action-diaper);
   border-radius: 8px;
@@ -269,33 +269,4 @@
   }
 }
 
-@media (max-width: 768px) {
-  .diaper-action-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .diaper-action-modal {
-    max-width: 100%;
-    border-radius: 20px 20px 0 0;
-    animation: slideUp 0.3s ease-out;
-    max-height: 90vh;
-  }
-
-  .diaper-action-header {
-    padding: 1.5rem 1rem 1rem;
-  }
-
-  .diaper-action-content {
-    padding: 1rem 1.5rem;
-  }
-
-  .diaper-type-buttons {
-    flex-direction: column;
-  }
-
-  .diaper-type-btn {
-    width: 100%;
-  }
-}
 

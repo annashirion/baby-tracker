@@ -355,7 +355,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   return (
     <>
       {showDeleteConfirm && (
-        <div className="action-modal__overlay" onClick={handleDeleteCancel} style={{ zIndex: 2000 }}>
+        <div className="action-modal__overlay action-modal__overlay--delete-confirm" onClick={handleDeleteCancel}>
           <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
             <div className="action-modal__header">
               <h3>Delete Action?</h3>
@@ -363,7 +363,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
             </div>
             
             <div className="action-modal__content">
-              <p style={{ marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
+              <p className="action-modal__delete-message">
                 Are you sure you want to delete this action? This cannot be undone.
               </p>
 

@@ -116,7 +116,7 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
               </button>
             </div>
             {error && (
-              <div className="error-message" style={{ margin: '1rem', marginBottom: '0' }}>
+              <div className="error-message">
                 {error}
               </div>
             )}
