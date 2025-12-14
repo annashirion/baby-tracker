@@ -89,6 +89,12 @@
   flex-wrap: wrap;
 }
 
+.user-emoji-small {
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-right: 0.25rem;
+}
+
 .blocked-badge {
   padding: 2px 8px;
   border-radius: 12px;
@@ -193,6 +199,9 @@
   padding: 0;
   text-align: center;
   width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .delete-confirmation-card h3 {
@@ -204,6 +213,8 @@
 .delete-confirmation-card p {
   margin: 0.75rem 0;
   color: var(--color-text-secondary);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .delete-warning {
@@ -234,31 +245,9 @@
   gap: 1rem;
   justify-content: center;
   margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.blocked-user-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  justify-content: space-between;
-}
-
-.blocked-user-card .user-info {
-  flex: 1;
-}
-
-.blocked-user-card .user-info-header {
-  margin-bottom: 0;
-}
-
-.blocked-user-card .user-info-header h3 {
-  margin: 0;
-}
-
-.unblock-btn {
-  padding: 0.5rem 1rem;
-  white-space: nowrap;
-}
 
 @media (max-width: 768px) {
   .admin-panel {
@@ -269,14 +258,23 @@
   .user-card {
     flex-direction: column;
     align-items: center;
-    text-align: center;
+    text-align: left;
     max-width: 100%;
     width: 100%;
   }
 
-  .blocked-user-card {
+
+  .delete-confirmation-card {
+    padding: 0 0.5rem;
+  }
+
+  .form-actions {
     flex-direction: column;
-    text-align: center;
+    width: 100%;
+  }
+
+  .form-actions .btn {
+    width: 100%;
   }
 }
 

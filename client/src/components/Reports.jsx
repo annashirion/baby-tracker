@@ -5,12 +5,21 @@ import CalendarView from './CalendarView';
 import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
 
-function Reports({ profile, onClose }) {
+function Reports({ profile, onClose, openToToday = false }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actions, setActions] = useState([]);
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [showDayList, setShowDayList] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(() => {
+    // If openToToday is true, set selectedDay to today
+    if (openToToday) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return today;
+    }
+    return null;
+  });
+  const [showDayList, setShowDayList] = useState(openToToday);
+  const [hasShownCalendar, setHasShownCalendar] = useState(!openToToday);
   const [actionToEdit, setActionToEdit] = useState(null);
   const [currentPeriodStart, setCurrentPeriodStart] = useState(() => {
     // Start with today minus 1 day (show yesterday, today, and 2 days ahead)
@@ -87,11 +96,17 @@ function Reports({ profile, onClose }) {
   const handleDayClick = (day) => {
     setSelectedDay(day);
     setShowDayList(true);
+    setHasShownCalendar(true); // Mark that we've shown calendar (user navigated from calendar)
   };
 
   const handleBackToCalendar = () => {
-    setShowDayList(false);
-    setSelectedDay(null);
+    // If we opened directly to today's list and haven't shown calendar, go back to BabyProfileView
+    if (openToToday && !hasShownCalendar) {
+      onClose();
+    } else {
+      setShowDayList(false);
+      setSelectedDay(null);
+    }
   };
 
   const handleNavigateDay = (direction) => {

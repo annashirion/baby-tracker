@@ -13,6 +13,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showSleepAction, setShowSleepAction] = useState(false);
   const [showFeedAction, setShowFeedAction] = useState(false);
   const [showReports, setShowReports] = useState(false);
+  const [openReportsToToday, setOpenReportsToToday] = useState(false);
   const [lastDiaperAction, setLastDiaperAction] = useState(null);
   const [lastOtherAction, setLastOtherAction] = useState(null);
   const [lastSleepAction, setLastSleepAction] = useState(null);
@@ -202,7 +203,11 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     return (
       <Reports
         profile={profile}
-        onClose={() => setShowReports(false)}
+        onClose={() => {
+          setShowReports(false);
+          setOpenReportsToToday(false);
+        }}
+        openToToday={openReportsToToday}
       />
     );
   }
@@ -275,14 +280,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
             </svg>
           </button>
           <h2>{profile.name}</h2>
-          <button 
-            className="btn btn-secondary" 
-            id="reports-icon-button"
-            title="Reports"
-            onClick={() => setShowReports(true)}
-          >
-            📊
-          </button>
         </div>
         <div className="action-buttons-container">
           <button 
@@ -387,6 +384,26 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                 </div>
               )}
             </div>
+          </button>
+        </div>
+        <div className="today-button-container">
+          <button 
+            className="btn btn-secondary today-button"
+            onClick={() => {
+              setOpenReportsToToday(true);
+              setShowReports(true);
+            }}
+          >
+            Today
+          </button>
+          <button 
+            className="btn btn-primary reports-button"
+            onClick={() => {
+              setOpenReportsToToday(false);
+              setShowReports(true);
+            }}
+          >
+            Reports
           </button>
         </div>
       </div>

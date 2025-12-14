@@ -5,7 +5,10 @@
   gap: 1rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-background);
 }
 
 .reports-header .back-button {

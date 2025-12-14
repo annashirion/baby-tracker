@@ -4,16 +4,21 @@
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
+  height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .baby-profile-view-header {
   display: grid;
-  grid-template-columns: 2.5rem 1fr 2.5rem;
+  grid-template-columns: 2.5rem 1fr;
   align-items: center;
   gap: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
   margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .baby-profile-view-header h2 {
@@ -56,32 +61,15 @@
   display: block;
 }
 
-#reports-icon-button {
-  padding: 0.5rem;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-#reports-icon-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-#reports-icon-button:active {
-  transform: translateY(0);
-}
 
 .action-buttons-container {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .action-button {
@@ -197,6 +185,46 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.today-button-container {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.today-button,
+.reports-button {
+  width: 100%;
+  max-width: 360px;
+  padding: 1rem 2rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  background-color: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.today-button:hover,
+.reports-button:hover {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.today-button:active,
+.reports-button:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 768px) {
   .baby-profile-view {
     padding: 1rem;
@@ -211,6 +239,11 @@
   .action-button {
     padding: 1.25rem 1.5rem;
     font-size: 1.1rem;
+    max-width: 100%;
+  }
+
+  .today-button,
+  .reports-button {
     max-width: 100%;
   }
 }

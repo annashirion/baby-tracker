@@ -120,6 +120,13 @@
   padding: 0 1rem;
 }
 
+.users-view-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .users-view-header {
   display: grid;

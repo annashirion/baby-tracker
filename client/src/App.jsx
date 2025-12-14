@@ -178,7 +178,7 @@ function App() {
 
   if (selectedProfile) {
     return (
-      <>
+      <div className="users-view-container">
         <div className="users-view-header">
           <button onClick={handleCloseUsers} className="btn back-button" title="Back">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -202,7 +202,7 @@ function App() {
             onRefreshReady={(refreshFn) => { adminPanelRefreshRef.current = refreshFn; }}
           />
         </div>
-      </>
+      </div>
     )
   }
 

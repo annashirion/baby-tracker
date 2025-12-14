@@ -580,11 +580,11 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         </div>
       )}
 
-      {profiles.length === 0 ? (
+      {profiles.length === 0 && !showCreateForm && !showJoinForm ? (
         <div className="empty-state">
           <p>No baby profiles yet. Create one or join an existing profile to get started!</p>
         </div>
-      ) : (
+      ) : profiles.length === 0 ? null : (
         <div className="profiles-grid">
           {profiles.map((profile) => (
             editingProfileId === profile.id ? (
@@ -756,7 +756,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                         }}
                         title={profile.joinCodeEnabled === false ? 'Join code is disabled' : 'Click to copy'}
                       >
-                        {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
+                        {copiedCodeId === profile.id ? 'Copied' : profile.joinCode}
                       </code>
                       {profile.role === 'admin' && (
                         <label

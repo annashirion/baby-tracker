@@ -51,7 +51,10 @@
 }
 
 .emoji-picker-popup {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: var(--color-bg-primary);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -63,6 +66,7 @@
   flex-direction: column;
   overflow: hidden;
   animation: slideIn 0.2s ease-out;
+  margin: 0 auto;
 }
 
 .emoji-picker-header {
@@ -176,11 +180,16 @@
   }
 
   .emoji-picker-popup {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     max-width: 100%;
     border-radius: 20px 20px 0 0;
     animation: slideUp 0.3s ease-out;
     max-height: 90vh;
+    margin: 0;
   }
 
   .emoji-picker-header {
