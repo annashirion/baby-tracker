@@ -1,37 +1,46 @@
 .reports-header {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   padding: 1rem;
-  background-color: transparent;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  margin-bottom: 1rem;
+  position: relative;
 }
 
-.reports-header h2 {
-  margin: 0;
-  color: var(--color-text-primary);
-  font-size: 1.5rem;
-  flex: 1;
-  text-align: center;
+.reports-header .back-button {
+  position: absolute;
+  left: 1rem;
 }
 
-.week-nav-btn {
+.reports-header-center {
+  display: flex;
+  align-items: center;
+}
+
+.reports-header .nav-btn {
   background-color: transparent;
   border: none;
   color: var(--color-text-primary);
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.25rem;
   border-radius: 4px;
   transition: background-color 0.2s;
-  margin: 0 0.25rem;
 }
 
-.week-nav-btn:hover {
+.reports-header .nav-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.reports-header .date-info {
+  text-align: center;
+}
+
+.reports-header .month-year {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 /* List View Styles */
@@ -58,11 +67,6 @@
 @media (max-width: 768px) {
   .reports-header {
     padding: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .reports-header h2 {
-    font-size: 1.25rem;
   }
 }
 

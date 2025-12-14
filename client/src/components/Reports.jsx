@@ -110,6 +110,15 @@ function Reports({ profile, onClose }) {
     setShowDayList(false);
   };
 
+  const goToToday = () => {
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    today.setHours(0, 0, 0, 0);
+    setCurrentPeriodStart(today);
+    setSelectedDay(null);
+    setShowDayList(false);
+  };
+
   // Show day list view when a day is selected
   if (showDayList && selectedDay) {
     return (
@@ -151,6 +160,7 @@ function Reports({ profile, onClose }) {
             onDayClick={handleDayClick}
             onActionClick={handleActionClick}
             onPeriodNavigate={navigatePeriod}
+            onGoToToday={goToToday}
             onClose={onClose}
           />
         )}

@@ -8,7 +8,8 @@ function CalendarView({
   currentPeriodStart, 
   onDayClick, 
   onActionClick,
-  onPeriodNavigate, 
+  onPeriodNavigate,
+  onGoToToday,
   onClose 
 }) {
   // Touch/swipe handling
@@ -77,6 +78,25 @@ function CalendarView({
     }
     return result;
   }, [currentPeriodStart]);
+
+  // Check if today is visible in the current period
+  const isTodayVisible = useMemo(() => {
+    const todayStr = new Date().toDateString();
+    return days.some(day => day.toDateString() === todayStr);
+  }, [days]);
+
+  // Handle Today button click
+  const handleTodayClick = () => {
+    if (isTodayVisible) {
+      // Today is visible, open day list view for today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      onDayClick(today);
+    } else {
+      // Navigate to today
+      onGoToToday();
+    }
+  };
 
   // Calculate date range for 4 days
   const dateRange = useMemo(() => {
@@ -277,13 +297,14 @@ function CalendarView({
           </svg>
         </button>
         <div className="calendar-header-center">
-          <button className="nav-btn" onClick={() => onPeriodNavigate(-1)}>‹</button>
           <div className="date-info">
             <span className="month-year">
               {dateRange}
             </span>
           </div>
-          <button className="nav-btn" onClick={() => onPeriodNavigate(1)}>›</button>
+          <button className="today-btn btn-secondary" onClick={handleTodayClick} title="Go to today">
+            Today
+          </button>
         </div>
       </div>
 
