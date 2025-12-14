@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import EmojiPicker from './EmojiPicker';
 import { API_URL } from '../constants/constants';
+import Spinner from './Spinner';
 import './AdminPanel.css';
 
 function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
@@ -23,14 +23,14 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
     try {
       setLoading(true);
       setError(null);
-      console.log('[CLIENT DEBUG] Fetching users for:', userId, babyProfileId);
-      const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`);
+      const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch users');
       }
       const data = await response.json();
-      console.log('[CLIENT DEBUG] Received users:', data.users?.length || 0, 'users');
       setUsers(data.users || []);
     } catch (err) {
       setError(err.message);
@@ -67,6 +67,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           babyProfileId,
@@ -121,6 +122,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           babyProfileId,
@@ -173,6 +175,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           babyProfileId,
@@ -202,7 +205,11 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
 
   if (loading) {
-    return <div className="admin-panel">Loading users...</div>;
+    return (
+      <div className="admin-panel">
+        <Spinner size="medium" />
+      </div>
+    );
   }
 
   if (error) {
@@ -251,25 +258,34 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         </div>
       </div>
     ) : (
-      <div key={user.id} className="user-card blocked-user-card">
-        <EmojiPicker
-          currentEmoji={user.emoji}
-          onEmojiChange={() => {}}
-          size="large"
-          readOnly={true}
-        />
+      <div key={user.id} className="user-card">
+        {user.id !== userId && (
+          <button
+            onClick={() => handleDeleteClick(user.id)}
+            disabled={blockingUsers[user.id] || confirmingDeleteUserId === user.id}
+            className="delete-user-btn"
+            title="Unblock user"
+          >
+            {blockingUsers[user.id] ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="31.416" strokeDashoffset="31.416">
+                  <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
+                  <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </button>
+        )}
         <div className="user-info">
           <div className="user-info-header">
-            <h3>{user.name}</h3>
+            <h3>{user.emoji && <span className="user-emoji-small">{user.emoji}</span>} {user.name}</h3>
           </div>
+          <p><strong>Email:</strong> {user.email}</p>
         </div>
-        <button
-          onClick={() => handleDeleteClick(user.id)}
-          disabled={blockingUsers[user.id] || confirmingDeleteUserId === user.id}
-          className="btn btn-primary unblock-btn"
-        >
-          {blockingUsers[user.id] ? 'Unblocking...' : 'Unblock'}
-        </button>
       </div>
     );
   };
@@ -362,15 +378,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
             )}
           </button>
         )}
-        <EmojiPicker
-          currentEmoji={user.emoji}
-          onEmojiChange={() => {}}
-          size="large"
-          readOnly={true}
-        />
         <div className="user-info">
           <div className="user-info-header">
-            <h3>{user.name} {user.blocked && <span className="blocked-badge">(Blocked)</span>}</h3>
+            <h3>{user.emoji && <span className="user-emoji-small">{user.emoji}</span>} {user.name} {user.blocked && <span className="blocked-badge">(Blocked)</span>}</h3>
           </div>
           {user.id === userId ? (
             <span className={`role-badge role-badge-${user.role || 'default'}`}>
@@ -389,8 +399,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
             </select>
           )}
           <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Joined:</strong> {new Date(user.joinedAt).toLocaleString()}</p>
-          <p><strong>Account Created:</strong> {new Date(user.createdAt).toLocaleString()}</p>
+          <p><strong>Joined:</strong> {new Date(user.joinedAt).toLocaleDateString()}</p>
         </div>
       </div>
     );

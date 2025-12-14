@@ -178,17 +178,14 @@
   scroll-behavior: smooth;
 }
 
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  .datetime-picker-modal {
-    border-radius: 20px 20px 0 0;
-  }
-  
-  .datetime-picker-item {
-    font-size: 1rem;
-  }
-  
-  .datetime-picker-item.selected {
-    font-size: 1.1rem;
-  }
+.datetime-picker-modal {
+  border-radius: 20px 20px 0 0;
+}
+
+.datetime-picker-item {
+  font-size: 1rem;
+}
+
+.datetime-picker-item.selected {
+  font-size: 1.1rem;
 }

@@ -44,10 +44,6 @@ router.get('/', async (req, res) => {
     })
       .populate('userId')
       .sort({ createdAt: -1 });
-
-    // Debug: Log the query results to verify filtering
-    console.log(`[DEBUG] Querying users for babyProfileId: ${babyProfileIdObj.toString()}`);
-    console.log(`[DEBUG] Found ${userRoles.length} user roles for this profile`);
     
     // Filter out any roles where the user was deleted (null)
     // Note: babyProfileId is NOT populated, so it's an ObjectId directly
@@ -63,7 +59,6 @@ router.get('/', async (req, res) => {
         const roleBabyProfileId = role.babyProfileId?.toString();
         const requestedBabyProfileId = babyProfileIdObj.toString();
         if (roleBabyProfileId && roleBabyProfileId !== requestedBabyProfileId) {
-          console.error(`[ERROR] Role ${role._id} has mismatched babyProfileId: ${roleBabyProfileId} vs ${requestedBabyProfileId}`);
           return false;
         }
         return true;

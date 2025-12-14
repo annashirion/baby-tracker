@@ -216,7 +216,6 @@ router.post('/join', async (req, res) => {
     // Check rate limit: if user had a failed attempt within last 3 seconds, block them
     const lastFailedAttempt = failedJoinAttempts.get(userIdStr);
     if (lastFailedAttempt && (Date.now() - lastFailedAttempt) < RATE_LIMIT_WAIT_MS) {
-      console.log(`[RATE LIMIT] User ${userIdStr} must wait before trying again`);
       return res.status(429).json({ 
         error: 'Please wait before trying again',
         message: 'You must wait 3 seconds before attempting to join again',
@@ -233,7 +232,6 @@ router.post('/join', async (req, res) => {
     if (!babyProfile) {
       // Record failed attempt timestamp
       failedJoinAttempts.set(userIdStr, Date.now());
-      console.log(`[RATE LIMIT] Recorded failed join attempt for user ${userIdStr}, joinCode: ${joinCode.toUpperCase()}`);
       return res.status(404).json({ error: 'Baby profile not found with this join code' });
     }
 
@@ -241,7 +239,6 @@ router.post('/join', async (req, res) => {
     if (babyProfile.joinCodeEnabled === false) {
       // Record failed attempt timestamp
       failedJoinAttempts.set(userIdStr, Date.now());
-      console.log(`[RATE LIMIT] Recorded failed join attempt for user ${userIdStr}, joinCode disabled: ${joinCode.toUpperCase()}`);
       return res.status(403).json({ error: 'Join code is disabled for this baby profile' });
     }
 
@@ -278,7 +275,6 @@ router.post('/join', async (req, res) => {
     // Clear any previous failed attempts on successful join
     if (failedJoinAttempts.has(userIdStr)) {
       failedJoinAttempts.delete(userIdStr);
-      console.log(`[RATE LIMIT] Cleared rate limit for user ${userIdStr} after successful join`);
     }
 
     res.json({

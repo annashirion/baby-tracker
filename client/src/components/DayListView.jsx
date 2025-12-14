@@ -2,6 +2,7 @@ import './Reports.css';
 import './DayListView.css';
 import ReportsActionItem from './ReportsActionItem';
 import ActionEditPopup from './ActionEditPopup';
+import Spinner from './Spinner';
 import { ACTION_TYPES } from '../constants/constants';
 
 function DayListView({ 
@@ -79,36 +80,40 @@ function DayListView({
             <path d="M14 8l-4 4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        <button 
-          onClick={() => onNavigateDay(-1)} 
-          className="week-nav-btn" 
-          title="Previous day"
-          aria-label="Previous day"
-        >
-          ‹
-        </button>
-        <h2>
-          {selectedDay.toLocaleDateString('en-US', { 
-            weekday: 'short',
-            month: 'short', 
-            day: 'numeric', 
-            year: 'numeric' 
-          })}
-        </h2>
-        <button 
-          onClick={() => onNavigateDay(1)} 
-          className="week-nav-btn" 
-          title="Next day"
-          aria-label="Next day"
-        >
-          ›
-        </button>
+        <div className="reports-header-center">
+          <button 
+            onClick={() => onNavigateDay(-1)} 
+            className="nav-btn" 
+            title="Previous day"
+            aria-label="Previous day"
+          >
+            ‹
+          </button>
+          <div className="date-info">
+            <span className="month-year">
+              {selectedDay.toLocaleDateString('en-US', { 
+                // weekday: 'short',
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+              })}
+            </span>
+          </div>
+          <button 
+            onClick={() => onNavigateDay(1)} 
+            className="nav-btn" 
+            title="Next day"
+            aria-label="Next day"
+          >
+            ›
+          </button>
+        </div>
       </div>
       
       <div className="reports-content">
         {loading && (
           <div className="reports-loading">
-            Loading reports...
+            <Spinner size="medium" />
           </div>
         )}
 

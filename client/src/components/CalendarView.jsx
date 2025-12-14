@@ -1,16 +1,75 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import './CalendarView.css';
 import { getActionDetails } from '../utils/actionHelpers';
 import { ACTION_TYPES } from '../constants/constants';
+import Spinner from './Spinner';
 
 function CalendarView({ 
   actions, 
   currentPeriodStart, 
   onDayClick, 
   onActionClick,
-  onPeriodNavigate, 
-  onClose 
+  onPeriodNavigate,
+  onGoToToday,
+  onClose,
+  loading = false
 }) {
+  // Touch/swipe handling
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const lastWheelTime = useRef(0);
+  const MIN_SWIPE_DISTANCE = 50;
+  const WHEEL_DEBOUNCE_MS = 300;
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX.current;
+    const deltaY = touchEndY - touchStartY.current;
+    
+    // Only trigger if horizontal swipe is dominant
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > MIN_SWIPE_DISTANCE) {
+      if (deltaX > 0) {
+        // Swipe right -> go to previous period
+        onPeriodNavigate(-1);
+      } else {
+        // Swipe left -> go to next period
+        onPeriodNavigate(1);
+      }
+    }
+    
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
+  // Mouse wheel horizontal scroll handling
+  const handleWheel = (e) => {
+    // Check for horizontal scroll (deltaX) or shift+scroll
+    const deltaX = e.deltaX || (e.shiftKey ? e.deltaY : 0);
+    
+    if (Math.abs(deltaX) > 30) {
+      const now = Date.now();
+      // Debounce to prevent rapid navigation
+      if (now - lastWheelTime.current > WHEEL_DEBOUNCE_MS) {
+        lastWheelTime.current = now;
+        if (deltaX > 0) {
+          // Scroll right -> go to next period
+          onPeriodNavigate(1);
+        } else {
+          // Scroll left -> go to previous period
+          onPeriodNavigate(-1);
+        }
+      }
+    }
+  };
+
   // Generate 4 days
   const days = useMemo(() => {
     const result = [];
@@ -21,6 +80,25 @@ function CalendarView({
     }
     return result;
   }, [currentPeriodStart]);
+
+  // Check if today is visible in the current period
+  const isTodayVisible = useMemo(() => {
+    const todayStr = new Date().toDateString();
+    return days.some(day => day.toDateString() === todayStr);
+  }, [days]);
+
+  // Handle Today button click
+  const handleTodayClick = () => {
+    if (isTodayVisible) {
+      // Today is visible, open day list view for today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      onDayClick(today);
+    } else {
+      // Navigate to today
+      onGoToToday();
+    }
+  };
 
   // Calculate date range for 4 days
   const dateRange = useMemo(() => {
@@ -221,66 +299,78 @@ function CalendarView({
           </svg>
         </button>
         <div className="calendar-header-center">
-          <button className="nav-btn" onClick={() => onPeriodNavigate(-1)}>‹</button>
           <div className="date-info">
             <span className="month-year">
               {dateRange}
             </span>
           </div>
-          <button className="nav-btn" onClick={() => onPeriodNavigate(1)}>›</button>
+          <button className="today-btn btn-secondary" onClick={handleTodayClick} title="Go to today">
+            Today
+          </button>
         </div>
       </div>
 
-      <div className="calendar-grid">
-        <div className="time-column">
-          <div className="month-label">
-            {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-          </div>
-          {timeSlots.map((slot, idx) => (
-            <div key={idx} className="time-slot">
-              {slot.label}
+      {loading ? (
+        <div className="calendar-loading">
+          <Spinner size="medium" />
+        </div>
+      ) : (
+        <div 
+          className="calendar-grid"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
+        >
+          <div className="time-column">
+            <div className="month-label">
+              {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
             </div>
-          ))}
-        </div>
-
-        <div className="days-container">
-          {days.map((day, dayIdx) => {
-            const dayActions = getActionsForDay(day);
-            const isToday = day.toDateString() === new Date().toDateString();
-            
-            return (
-              <div 
-                key={dayIdx} 
-                className={`day-column ${isToday ? 'today' : ''}`}
-                onClick={() => onDayClick(day)}
-              >
-                <div className="day-header">
-                  <div className="day-name">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                  <div className="day-number">{day.getDate()}</div>
-                </div>
-                <div className="day-bars">
-                  {dayActions.map((action) => {
-                    const style = getActionBarStyle(action, day);
-                    const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
-                    return (
-                      <div
-                        key={action.id}
-                        className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''}`}
-                        style={style}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onActionClick(action);
-                        }}
-                        title={`${getActionTypeLabel(action.actionType)}: ${getActionDetails(action)}`}
-                      />
-                    );
-                  })}
-                </div>
+            {timeSlots.map((slot, idx) => (
+              <div key={idx} className="time-slot">
+                {slot.label}
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="days-container">
+            {days.map((day, dayIdx) => {
+              const dayActions = getActionsForDay(day);
+              const isToday = day.toDateString() === new Date().toDateString();
+              
+              return (
+                <div 
+                  key={dayIdx} 
+                  className={`day-column ${isToday ? 'today' : ''}`}
+                  onClick={() => onDayClick(day)}
+                >
+                  <div className="day-header">
+                    <div className="day-name">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                    <div className="day-number">{day.getDate()}</div>
+                  </div>
+                  <div className="day-bars">
+                    {dayActions.map((action) => {
+                      const style = getActionBarStyle(action, day);
+                      const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
+                      return (
+                        <div
+                          key={action.id}
+                          className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''}`}
+                          style={style}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onActionClick(action);
+                          }}
+                          title={`${getActionTypeLabel(action.actionType)}: ${getActionDetails(action)}`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

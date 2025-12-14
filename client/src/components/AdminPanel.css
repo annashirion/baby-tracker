@@ -1,5 +1,10 @@
 .admin-panel {
-  max-width: 900px;
+  max-width: 100%;
+  width: 100%;
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px; */
 }
 
 .users-list {
@@ -10,16 +15,18 @@
 
 .user-card {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
   gap: 1.5rem;
   padding: 1.5rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-bg-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  text-align: left;
   position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -87,6 +94,12 @@
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.user-emoji-small {
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-right: 0.25rem;
 }
 
 .blocked-badge {
@@ -193,6 +206,9 @@
   padding: 0;
   text-align: center;
   width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .delete-confirmation-card h3 {
@@ -204,6 +220,8 @@
 .delete-confirmation-card p {
   margin: 0.75rem 0;
   color: var(--color-text-secondary);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .delete-warning {
@@ -234,49 +252,20 @@
   gap: 1rem;
   justify-content: center;
   margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.blocked-user-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  justify-content: space-between;
+
+.delete-confirmation-card {
+  padding: 0 0.5rem;
 }
 
-.blocked-user-card .user-info {
-  flex: 1;
+.form-actions {
+  flex-direction: column;
+  width: 100%;
 }
 
-.blocked-user-card .user-info-header {
-  margin-bottom: 0;
-}
-
-.blocked-user-card .user-info-header h3 {
-  margin: 0;
-}
-
-.unblock-btn {
-  padding: 0.5rem 1rem;
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .admin-panel {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .user-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .blocked-user-card {
-    flex-direction: column;
-    text-align: center;
-  }
+.form-actions .btn {
+  width: 100%;
 }
 

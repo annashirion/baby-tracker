@@ -4,36 +4,42 @@ import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
 import BabyProfileView from './components/BabyProfileView'
 import EmojiPicker from './components/EmojiPicker'
+import Spinner from './components/Spinner'
 import { API_URL } from './constants/constants'
 import './App.css'
-const USER_STORAGE_KEY = 'babyTracker_user'
 const OPEN_PROFILE_STORAGE_KEY = 'babyTracker_openProfile'
 
 function App() {
   const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true) // Start with loading true to check localStorage
+  const [loading, setLoading] = useState(true) // Start with loading true to check auth
   const [error, setError] = useState(null)
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [openProfile, setOpenProfile] = useState(null)
   const adminPanelRefreshRef = useRef(null)
 
-  // Load user and restore profile from localStorage on mount
+  // Load user from backend and restore profile from localStorage on mount
   useEffect(() => {
     const initializeApp = async () => {
-      const storedUser = localStorage.getItem(USER_STORAGE_KEY)
-      if (storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser)
-          setUser(parsedUser)
+      try {
+        // Check if user is authenticated by fetching from /auth/me
+        const response = await fetch(`${API_URL}/auth/me`, {
+          credentials: 'include',
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data.user)
           
           // Check if there's a stored profile to restore
           const storedProfileId = localStorage.getItem(OPEN_PROFILE_STORAGE_KEY)
-          if (storedProfileId) {
+          if (storedProfileId && data.user) {
             try {
-              const response = await fetch(`${API_URL}/baby-profiles?userId=${parsedUser.id}`)
-              if (response.ok) {
-                const data = await response.json()
-                const profile = data.profiles?.find(p => p.id === storedProfileId)
+              const profileResponse = await fetch(`${API_URL}/baby-profiles?userId=${data.user.id}`, {
+                credentials: 'include',
+              })
+              if (profileResponse.ok) {
+                const profileData = await profileResponse.json()
+                const profile = profileData.profiles?.find(p => p.id === storedProfileId)
                 if (profile) {
                   setOpenProfile(profile)
                 } else {
@@ -46,26 +52,20 @@ function App() {
               localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
             }
           }
-        } catch (err) {
-          console.error('Error parsing stored user:', err)
-          localStorage.removeItem(USER_STORAGE_KEY)
+        } else {
+          // Not authenticated, clear any stored profile
+          localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
         }
+      } catch (err) {
+        console.error('Error checking authentication:', err)
+        localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     
     initializeApp()
   }, [])
-
-  // Save user to localStorage whenever it changes
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
-    } else {
-      localStorage.removeItem(USER_STORAGE_KEY)
-      localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
-    }
-  }, [user])
 
   const handleLoginSuccess = async (tokenResponse) => {
     try {
@@ -93,6 +93,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           access_token: tokenResponse.access_token,
         }),
@@ -110,8 +111,17 @@ function App() {
         throw new Error(errorMessage)
       }
 
-      const data = await response.json()
-      setUser(data.user)
+      // Cookie is set, now fetch user data
+      const userResponse = await fetch(`${API_URL}/auth/me`, {
+        credentials: 'include',
+      })
+
+      if (!userResponse.ok) {
+        throw new Error('Failed to get user data after authentication')
+      }
+
+      const userData = await userResponse.json()
+      setUser(userData.user)
     } catch (err) {
       console.error('Error saving user:', err)
       const errorMessage = err.message || 'Unknown error occurred'
@@ -129,7 +139,9 @@ function App() {
   if (loading) {
     return (
       <div className="app-container">
-        <div className="loading">Just a second...</div>
+        <div className="loading">
+          <Spinner size="medium" />
+        </div>
       </div>
     )
   }
@@ -178,7 +190,7 @@ function App() {
 
   if (selectedProfile) {
     return (
-      <>
+      <div className="users-view-container">
         <div className="users-view-header">
           <button onClick={handleCloseUsers} className="btn back-button" title="Back">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -202,7 +214,7 @@ function App() {
             onRefreshReady={(refreshFn) => { adminPanelRefreshRef.current = refreshFn; }}
           />
         </div>
-      </>
+      </div>
     )
   }
 
@@ -221,10 +233,17 @@ function App() {
         </div>
         <button 
           className="logout-btn"
-          onClick={() => {
+          onClick={async () => {
+            try {
+              await fetch(`${API_URL}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include',
+              })
+            } catch (err) {
+              console.error('Error logging out:', err)
+            }
             setUser(null)
             setOpenProfile(null)
-            localStorage.removeItem(USER_STORAGE_KEY)
             localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
           }}
           title="Logout"

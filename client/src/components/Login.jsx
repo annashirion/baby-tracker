@@ -5,7 +5,6 @@ function Login({ onSuccess, onError }) {
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       // tokenResponse contains access_token
-      console.log('Login successful:', tokenResponse);
       if (onSuccess) {
         onSuccess(tokenResponse);
       }

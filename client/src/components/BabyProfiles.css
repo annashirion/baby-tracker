@@ -1,14 +1,21 @@
 .baby-profiles-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   color: var(--color-text-primary);
+}
+
+.baby-profiles-container--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
 }
 
 .baby-profiles-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
@@ -129,7 +136,7 @@
 
 .profiles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -143,7 +150,7 @@
   color: var(--color-text-primary);
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -215,6 +222,7 @@
 }
 
 .join-code {
+  font-size: 0.8rem;
   display: inline-block;
   background: var(--color-bg-secondary);
   padding: 0.25rem 0.5rem;
@@ -428,23 +436,4 @@
   width: 100%;
 }
 
-@media (max-width: 768px) {
-  .baby-profiles-container {
-    padding: 1rem;
-    max-width: 100%;
-  }
-
-  .baby-profiles-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .profiles-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-card {
-    max-width: 100%;
-  }
-}
 

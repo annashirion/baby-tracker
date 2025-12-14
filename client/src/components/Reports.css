@@ -15,7 +15,15 @@
   padding: 1rem;
 }
 
-.reports-loading,
+.reports-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 200px;
+  color: var(--color-text-secondary);
+}
+
 .reports-empty {
   text-align: center;
   padding: 2rem;
@@ -46,10 +54,4 @@
 
 .btn.back-button svg {
   display: block;
-}
-
-@media (max-width: 768px) {
-  .reports-view {
-    padding: 0;
-  }
 }

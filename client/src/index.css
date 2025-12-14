@@ -27,7 +27,8 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  justify-content: center;
+  align-items: flex-start;
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;
@@ -82,14 +83,12 @@ textarea {
   }
 }
 
-@media (max-width: 768px) {
-  body {
-    overflow-x: hidden;
-  }
+body {
+  overflow-x: hidden;
+}
 
-  #root {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }

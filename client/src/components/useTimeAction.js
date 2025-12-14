@@ -57,6 +57,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       const response = await fetch(`${API_URL}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           babyProfileId: profile?.id,
           userId: userId,
@@ -114,6 +115,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
         const response = await fetch(`${API_URL}/actions/${lastAction.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ details }),
         });
 
@@ -127,6 +129,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
         const response = await fetch(`${API_URL}/actions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             babyProfileId: profile?.id,
             userId: userId,
@@ -165,6 +168,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
 
       const response = await fetch(`${API_URL}/actions/${lastAction.id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {

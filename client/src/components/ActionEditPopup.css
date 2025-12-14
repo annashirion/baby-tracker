@@ -205,12 +205,21 @@
   background-color: var(--color-error-dark);
 }
 
-@media (max-width: 768px) {
-  .action-modal__content .diaper-type-buttons {
-    flex-direction: column;
-  }
+/* Delete confirmation overlay with higher z-index */
+.action-modal__overlay--delete-confirm {
+  z-index: 2000;
+}
 
-  .action-modal__content .diaper-type-btn {
-    width: 100%;
-  }
+/* Delete confirmation message styling */
+.action-modal__delete-message {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.action-modal__content .diaper-type-buttons {
+  flex-direction: column;
+}
+
+.action-modal__content .diaper-type-btn {
+  width: 100%;
 }

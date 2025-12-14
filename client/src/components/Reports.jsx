@@ -4,13 +4,23 @@ import { API_URL } from '../constants/constants';
 import CalendarView from './CalendarView';
 import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
+import Spinner from './Spinner';
 
-function Reports({ profile, onClose }) {
+function Reports({ profile, onClose, openToToday = false }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actions, setActions] = useState([]);
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [showDayList, setShowDayList] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(() => {
+    // If openToToday is true, set selectedDay to today
+    if (openToToday) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return today;
+    }
+    return null;
+  });
+  const [showDayList, setShowDayList] = useState(openToToday);
+  const [hasShownCalendar, setHasShownCalendar] = useState(!openToToday);
   const [actionToEdit, setActionToEdit] = useState(null);
   const [currentPeriodStart, setCurrentPeriodStart] = useState(() => {
     // Start with today minus 1 day (show yesterday, today, and 2 days ahead)
@@ -28,7 +38,9 @@ function Reports({ profile, onClose }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
+      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`, {
+        credentials: 'include',
+      });
       
       if (!response.ok) {
         throw new Error('Failed to fetch actions');
@@ -59,6 +71,7 @@ function Reports({ profile, onClose }) {
     try {
       const response = await fetch(`${API_URL}/actions/${actionId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -87,11 +100,17 @@ function Reports({ profile, onClose }) {
   const handleDayClick = (day) => {
     setSelectedDay(day);
     setShowDayList(true);
+    setHasShownCalendar(true); // Mark that we've shown calendar (user navigated from calendar)
   };
 
   const handleBackToCalendar = () => {
-    setShowDayList(false);
-    setSelectedDay(null);
+    // If we opened directly to today's list and haven't shown calendar, go back to BabyProfileView
+    if (openToToday && !hasShownCalendar) {
+      onClose();
+    } else {
+      setShowDayList(false);
+      setSelectedDay(null);
+    }
   };
 
   const handleNavigateDay = (direction) => {
@@ -106,6 +125,15 @@ function Reports({ profile, onClose }) {
     const newPeriodStart = new Date(currentPeriodStart);
     newPeriodStart.setDate(newPeriodStart.getDate() + direction);
     setCurrentPeriodStart(newPeriodStart);
+    setSelectedDay(null);
+    setShowDayList(false);
+  };
+
+  const goToToday = () => {
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    today.setHours(0, 0, 0, 0);
+    setCurrentPeriodStart(today);
     setSelectedDay(null);
     setShowDayList(false);
   };
@@ -132,28 +160,22 @@ function Reports({ profile, onClose }) {
   return (
     <div className="reports-view reports-calendar-view">
       <div className="reports-content">
-        {loading && (
-          <div className="reports-loading">
-            Loading reports...
-          </div>
-        )}
-
         {error && (
           <div className="error-message">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
-          <CalendarView
-            actions={actions}
-            currentPeriodStart={currentPeriodStart}
-            onDayClick={handleDayClick}
-            onActionClick={handleActionClick}
-            onPeriodNavigate={navigatePeriod}
-            onClose={onClose}
-          />
-        )}
+        <CalendarView
+          actions={actions}
+          currentPeriodStart={currentPeriodStart}
+          onDayClick={handleDayClick}
+          onActionClick={handleActionClick}
+          onPeriodNavigate={navigatePeriod}
+          onGoToToday={goToToday}
+          onClose={onClose}
+          loading={loading}
+        />
 
         {actionToEdit && (
           <ActionEditPopup

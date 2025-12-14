@@ -1,5 +1,6 @@
 import { useTimeAction } from './useTimeAction';
 import TimeInputPicker from './TimeInputPicker';
+import LoadingDots from './LoadingDots';
 import './ActionModal.css';
 import './TimeInput.css';
 import './SleepAction.css';
@@ -73,7 +74,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                 onClick={() => handleStart()}
                 disabled={saving || !startTime}
               >
-                Start Sleep
+                {saving ? <LoadingDots size="small" /> : 'Start Sleep'}
               </button>
             ) : (
               <>
@@ -83,7 +84,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                     onClick={() => handleCancel()}
                     disabled={saving}
                   >
-                    Reset
+                    {saving ? <LoadingDots size="small" /> : 'Reset'}
                   </button>
                 )}
                 <button
@@ -91,7 +92,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                   onClick={() => handleEnd()}
                   disabled={saving || !startTime || !endTime}
                 >
-                  End Sleep
+                  {saving ? <LoadingDots size="small" /> : 'End Sleep'}
                 </button>
               </>
             )}

@@ -14,12 +14,12 @@
 
 .action-modal__modal {
   background: var(--color-bg-primary);
-  border-radius: 12px;
+  border-radius: 20px 20px 0 0;
   width: 100%;
-  max-width: 500px;
+  max-width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  animation: slideIn 0.2s ease-out;
-  max-height: 80vh;
+  animation: slideUp 0.3s ease-out;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -29,7 +29,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
+  padding: 1.5rem 1rem 1rem;
   border-bottom: 1px solid #ddd;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .action-modal__content {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   flex: 1;
@@ -90,6 +90,11 @@
   font-size: 0.9rem;
 }
 
+.action-modal__error--top-margin {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
 .action-modal__buttons {
   display: flex;
   gap: 1rem;
@@ -104,6 +109,10 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .action-modal__button:disabled {
@@ -147,27 +156,5 @@
   }
   to {
     transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .action-modal__overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .action-modal__modal {
-    max-width: 100%;
-    border-radius: 20px 20px 0 0;
-    animation: slideUp 0.3s ease-out;
-    max-height: 90vh;
-  }
-
-  .action-modal__header {
-    padding: 1.5rem 1rem 1rem;
-  }
-
-  .action-modal__content {
-    padding: 1rem 1.5rem;
   }
 }

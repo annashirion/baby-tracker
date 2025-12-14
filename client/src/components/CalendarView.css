@@ -9,11 +9,14 @@
 .calendar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 0.75rem;
   margin-bottom: 1rem;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-background);
 }
 
 .calendar-header .back-button {
@@ -25,7 +28,20 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-left: auto;
+}
+
+.calendar-header .today-btn {
+  position: absolute;
+  right: 1rem;
+}
+
+.calendar-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+  color: var(--color-text-secondary);
 }
 
 .nav-btn {
@@ -44,12 +60,26 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+.today-btn {
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.375rem 0.75rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  margin-left: 0.5rem;
+}
+
+.today-btn:hover {
+  background-color: var(--color-success);
+}
+
 .date-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
   justify-content: center;
-  min-width: 140px;
+  min-width: 110px;
   text-align: center;
 }
 
@@ -62,13 +92,13 @@
 .calendar-grid {
   display: flex;
   gap: 0.5rem;
-  min-height: 600px;
+  min-height: 500px;
 }
 
 .time-column {
   display: flex;
   flex-direction: column;
-  min-width: 60px;
+  min-width: 50px;
   position: sticky;
   left: 0;
   background-color: transparent;
@@ -76,7 +106,7 @@
 }
 
 .month-label {
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,7 +119,7 @@
 }
 
 .time-slot {
-  height: calc(600px / 24);
+  height: calc(500px / 24);
   display: flex;
   align-items: center;
   padding-left: 0.5rem;
@@ -107,7 +137,7 @@
 
 .day-column {
   flex: 1;
-  min-width: 60px;
+  min-width: 50px;
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -133,21 +163,21 @@
 }
 
 .day-header {
-  padding: 0.5rem;
+  padding: 0.375rem;
   text-align: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   background-color: rgba(0, 0, 0, 0.03);
 }
 
 .day-name {
-  font-size: 0.75rem;
+  font-size: 0.625rem;
   color: var(--color-text-secondary);
   text-transform: uppercase;
   margin-bottom: 0.25rem;
 }
 
 .day-number {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -155,7 +185,7 @@
 .day-bars {
   flex: 1;
   position: relative;
-  min-height: 600px;
+  min-height: 500px;
 }
 
 .action-bar {
@@ -245,51 +275,4 @@
   color: var(--color-text-secondary);
 }
 
-@media (max-width: 768px) {
-  .calendar-container {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .calendar-header {
-    padding: 0.75rem;
-  }
-
-  .calendar-grid {
-    min-height: 500px;
-  }
-
-  .day-bars {
-    min-height: 500px;
-  }
-
-  .time-slot {
-    height: calc(500px / 24);
-  }
-
-  .month-label {
-    height: 50px;
-  }
-
-  .day-column {
-    min-width: 50px;
-  }
-
-  .day-header {
-    padding: 0.375rem;
-  }
-
-  .day-name {
-    font-size: 0.625rem;
-  }
-
-  .day-number {
-    font-size: 1rem;
-  }
-
-  .time-column {
-    min-width: 50px;
-  }
-}
 

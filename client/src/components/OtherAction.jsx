@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import TimeInputPicker from './TimeInputPicker';
+import LoadingDots from './LoadingDots';
 import './OtherAction.css';
 import './TimeInput.css';
 import { API_URL, ACTION_TYPES } from '../constants/constants';
@@ -37,6 +38,7 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           babyProfileId: profile.id,
           userId: userId,
@@ -133,7 +135,7 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
               onClick={handleSave}
               disabled={saving || !title.trim() || !timestamp}
             >
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? <LoadingDots size="small" /> : 'Save'}
             </button>
           </div>
         </div>

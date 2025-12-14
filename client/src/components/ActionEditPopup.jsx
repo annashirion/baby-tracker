@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import TimeInputPicker from './TimeInputPicker';
+import LoadingDots from './LoadingDots';
 import './ActionModal.css';
 import './TimeInput.css';
 import './DiaperAction.css';
@@ -117,6 +118,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ details }),
       });
 
@@ -355,7 +357,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   return (
     <>
       {showDeleteConfirm && (
-        <div className="action-modal__overlay" onClick={handleDeleteCancel} style={{ zIndex: 2000 }}>
+        <div className="action-modal__overlay action-modal__overlay--delete-confirm" onClick={handleDeleteCancel}>
           <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
             <div className="action-modal__header">
               <h3>Delete Action?</h3>
@@ -363,7 +365,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
             </div>
             
             <div className="action-modal__content">
-              <p style={{ marginBottom: '1.5rem', color: 'var(--color-text-primary)' }}>
+              <p className="action-modal__delete-message">
                 Are you sure you want to delete this action? This cannot be undone.
               </p>
 
@@ -380,7 +382,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
                   onClick={handleDeleteConfirm}
                   disabled={deleting}
                 >
-                  {deleting ? 'Deleting...' : 'Delete'}
+                  {deleting ? <LoadingDots size="small" /> : 'Delete'}
                 </button>
               </div>
             </div>
@@ -424,7 +426,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
                   (action.actionType === ACTION_TYPES.SLEEP && !sleepStartTime) ||
                   (action.actionType === ACTION_TYPES.OTHER && !otherTitle.trim())}
               >
-                {saving ? 'Saving...' : 'Save'}
+                {saving ? <LoadingDots size="small" /> : 'Save'}
               </button>
             </div>
           </div>

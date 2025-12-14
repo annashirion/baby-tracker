@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './BabyProfiles.css';
+import Spinner from './Spinner';
 import { ALLOWED_JOIN_CODE_CHARS, API_URL } from '../constants/constants';
 
 function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
@@ -79,7 +80,9 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/baby-profiles?userId=${userId}`);
+      const response = await fetch(`${API_URL}/baby-profiles?userId=${userId}`, {
+        credentials: 'include',
+      });
       
       if (!response.ok) {
         let errorMessage = `Failed to fetch baby profiles (${response.status})`;
@@ -114,6 +117,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           name: createForm.name,
@@ -156,6 +160,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           joinCode: joinCode.trim().toUpperCase(),
@@ -284,6 +289,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
         }),
@@ -342,6 +348,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
           name: editForm.name,
@@ -391,6 +398,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
         }),
@@ -440,6 +448,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           userId,
         }),
@@ -471,7 +480,11 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   };
 
   if (loading) {
-    return <div className="baby-profiles-container">Loading baby profiles...</div>;
+    return (
+      <div className="baby-profiles-container baby-profiles-container--loading">
+        <Spinner size="medium" />
+      </div>
+    );
   }
 
   return (
@@ -580,11 +593,11 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
         </div>
       )}
 
-      {profiles.length === 0 ? (
+      {profiles.length === 0 && !showCreateForm && !showJoinForm ? (
         <div className="empty-state">
           <p>No baby profiles yet. Create one or join an existing profile to get started!</p>
         </div>
-      ) : (
+      ) : profiles.length === 0 ? null : (
         <div className="profiles-grid">
           {profiles.map((profile) => (
             editingProfileId === profile.id ? (
@@ -756,7 +769,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
                         }}
                         title={profile.joinCodeEnabled === false ? 'Join code is disabled' : 'Click to copy'}
                       >
-                        {copiedCodeId === profile.id ? 'Copied!' : profile.joinCode}
+                        {copiedCodeId === profile.id ? 'Copied' : profile.joinCode}
                       </code>
                       {profile.role === 'admin' && (
                         <label
