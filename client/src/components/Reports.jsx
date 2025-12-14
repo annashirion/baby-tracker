@@ -157,29 +157,22 @@ function Reports({ profile, onClose, openToToday = false }) {
   return (
     <div className="reports-view reports-calendar-view">
       <div className="reports-content">
-        {loading && (
-          <div className="reports-loading">
-            <Spinner size="medium" />
-          </div>
-        )}
-
         {error && (
           <div className="error-message">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
-          <CalendarView
-            actions={actions}
-            currentPeriodStart={currentPeriodStart}
-            onDayClick={handleDayClick}
-            onActionClick={handleActionClick}
-            onPeriodNavigate={navigatePeriod}
-            onGoToToday={goToToday}
-            onClose={onClose}
-          />
-        )}
+        <CalendarView
+          actions={actions}
+          currentPeriodStart={currentPeriodStart}
+          onDayClick={handleDayClick}
+          onActionClick={handleActionClick}
+          onPeriodNavigate={navigatePeriod}
+          onGoToToday={goToToday}
+          onClose={onClose}
+          loading={loading}
+        />
 
         {actionToEdit && (
           <ActionEditPopup

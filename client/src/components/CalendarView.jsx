@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import './CalendarView.css';
 import { getActionDetails } from '../utils/actionHelpers';
 import { ACTION_TYPES } from '../constants/constants';
+import Spinner from './Spinner';
 
 function CalendarView({ 
   actions, 
@@ -10,7 +11,8 @@ function CalendarView({
   onActionClick,
   onPeriodNavigate,
   onGoToToday,
-  onClose 
+  onClose,
+  loading = false
 }) {
   // Touch/swipe handling
   const touchStartX = useRef(null);
@@ -308,61 +310,67 @@ function CalendarView({
         </div>
       </div>
 
-      <div 
-        className="calendar-grid"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onWheel={handleWheel}
-      >
-        <div className="time-column">
-          <div className="month-label">
-            {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-          </div>
-          {timeSlots.map((slot, idx) => (
-            <div key={idx} className="time-slot">
-              {slot.label}
+      {loading ? (
+        <div className="calendar-loading">
+          <Spinner size="medium" />
+        </div>
+      ) : (
+        <div 
+          className="calendar-grid"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
+        >
+          <div className="time-column">
+            <div className="month-label">
+              {currentPeriodStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
             </div>
-          ))}
-        </div>
-
-        <div className="days-container">
-          {days.map((day, dayIdx) => {
-            const dayActions = getActionsForDay(day);
-            const isToday = day.toDateString() === new Date().toDateString();
-            
-            return (
-              <div 
-                key={dayIdx} 
-                className={`day-column ${isToday ? 'today' : ''}`}
-                onClick={() => onDayClick(day)}
-              >
-                <div className="day-header">
-                  <div className="day-name">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                  <div className="day-number">{day.getDate()}</div>
-                </div>
-                <div className="day-bars">
-                  {dayActions.map((action) => {
-                    const style = getActionBarStyle(action, day);
-                    const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
-                    return (
-                      <div
-                        key={action.id}
-                        className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''}`}
-                        style={style}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onActionClick(action);
-                        }}
-                        title={`${getActionTypeLabel(action.actionType)}: ${getActionDetails(action)}`}
-                      />
-                    );
-                  })}
-                </div>
+            {timeSlots.map((slot, idx) => (
+              <div key={idx} className="time-slot">
+                {slot.label}
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="days-container">
+            {days.map((day, dayIdx) => {
+              const dayActions = getActionsForDay(day);
+              const isToday = day.toDateString() === new Date().toDateString();
+              
+              return (
+                <div 
+                  key={dayIdx} 
+                  className={`day-column ${isToday ? 'today' : ''}`}
+                  onClick={() => onDayClick(day)}
+                >
+                  <div className="day-header">
+                    <div className="day-name">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                    <div className="day-number">{day.getDate()}</div>
+                  </div>
+                  <div className="day-bars">
+                    {dayActions.map((action) => {
+                      const style = getActionBarStyle(action, day);
+                      const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
+                      return (
+                        <div
+                          key={action.id}
+                          className={`action-bar ${action.actionType} ${diaperType ? `diaper-${diaperType}` : ''}`}
+                          style={style}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onActionClick(action);
+                          }}
+                          title={`${getActionTypeLabel(action.actionType)}: ${getActionDetails(action)}`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

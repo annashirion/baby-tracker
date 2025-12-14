@@ -35,6 +35,15 @@
   right: 1rem;
 }
 
+.calendar-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+}
+
 .nav-btn {
   background-color: transparent;
   border: none;
