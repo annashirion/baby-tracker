@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
 import request from 'supertest';
-import { createTestApp } from './helpers.js';
+import jwt from 'jsonwebtoken';
+import { createTestApp, generateAuthToken } from './helpers.js';
 import { setupTestDB, teardownTestDB, clearDatabase } from './setup.js';
 import User from '../models/User.js';
 
@@ -167,11 +168,8 @@ describe('Auth Routes', () => {
         emoji: '😀',
       });
 
-      // Generate a valid token
-      const jwt = require('jsonwebtoken');
-      // Use the same JWT_SECRET as the auth route (or a test secret)
-      const JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-testing-only';
-      const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET);
+      // Generate a valid token using helper function
+      const token = generateAuthToken(user._id);
 
       const response = await request(app)
         .get('/api/auth/me')

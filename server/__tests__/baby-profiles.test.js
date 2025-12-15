@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
 import mongoose from 'mongoose';
-import { createTestApp } from './helpers.js';
+import { createTestApp, generateAuthToken } from './helpers.js';
 import { setupTestDB, teardownTestDB, clearDatabase } from './setup.js';
 import User from '../models/User.js';
 import BabyProfile from '../models/BabyProfile.js';
@@ -44,16 +44,17 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('GET /api/baby-profiles', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app).get('/api/baby-profiles');
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId is required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
     it('should return empty array if user has no profiles', async () => {
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .get('/api/baby-profiles')
-        .query({ userId: testUser1._id.toString() });
+        .set('Cookie', `token=${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -85,9 +86,10 @@ describe('Baby Profiles Routes', () => {
         role: 'viewer',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .get('/api/baby-profiles')
-        .query({ userId: testUser1._id.toString() });
+        .set('Cookie', `token=${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -111,9 +113,10 @@ describe('Baby Profiles Routes', () => {
       // Delete the profile
       await BabyProfile.deleteOne({ _id: profile._id });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .get('/api/baby-profiles')
-        .query({ userId: testUser1._id.toString() });
+        .set('Cookie', `token=${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.profiles).toHaveLength(0);
@@ -121,29 +124,32 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('POST /api/baby-profiles', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .post('/api/baby-profiles')
         .send({ name: 'Baby 1' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId and name are required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
     it('should return 400 if name is missing', async () => {
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles')
-        .send({ userId: testUser1._id.toString() });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId and name are required');
+      expect(response.body.error).toBe('name is required');
     });
 
     it('should create a new baby profile and assign admin role to creator', async () => {
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Baby 1',
           birthDate: '2023-01-01',
           gender: 'male',
@@ -170,10 +176,11 @@ describe('Baby Profiles Routes', () => {
     });
 
     it('should create profile with optional fields', async () => {
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Baby 2',
         });
 
@@ -184,29 +191,32 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('POST /api/baby-profiles/join', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .post('/api/baby-profiles/join')
         .send({ joinCode: 'ABC123' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId and joinCode are required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
     it('should return 400 if joinCode is missing', async () => {
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
-        .send({ userId: testUser1._id.toString() });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId and joinCode are required');
+      expect(response.body.error).toBe('joinCode is required');
     });
 
     it('should return 404 if join code does not exist', async () => {
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           joinCode: 'INVALID',
         });
 
@@ -220,10 +230,11 @@ describe('Baby Profiles Routes', () => {
         joinCode: 'ABC123',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -247,10 +258,11 @@ describe('Baby Profiles Routes', () => {
         joinCode: 'ABC123',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           joinCode: 'abc123', // lowercase
         });
 
@@ -270,10 +282,11 @@ describe('Baby Profiles Routes', () => {
         role: 'viewer',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -283,7 +296,7 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('PUT /api/baby-profiles/:id', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
@@ -292,24 +305,25 @@ describe('Baby Profiles Routes', () => {
         .put(`/api/baby-profiles/${profile._id.toString()}`)
         .send({ name: 'Updated Baby' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId is required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 404 if user does not have access to profile', async () => {
+    it('should return 403 if user does not have access to profile', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Updated Baby',
         });
 
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Baby profile not found or you do not have access');
+      expect(response.status).toBe(403);
+      expect(response.body.error).toContain('do not have access');
     });
 
     it('should return 403 if user is not admin', async () => {
@@ -323,15 +337,16 @@ describe('Baby Profiles Routes', () => {
         role: 'viewer',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Updated Baby',
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can update baby profiles');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should return 403 if user is editor (not admin)', async () => {
@@ -345,15 +360,16 @@ describe('Baby Profiles Routes', () => {
         role: 'editor',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Updated Baby',
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can update baby profiles');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should successfully update profile name by admin', async () => {
@@ -368,10 +384,11 @@ describe('Baby Profiles Routes', () => {
         role: 'admin',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Updated Baby',
         });
 
@@ -397,10 +414,11 @@ describe('Baby Profiles Routes', () => {
         role: 'admin',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           birthDate: '2023-06-15',
         });
 
@@ -425,10 +443,11 @@ describe('Baby Profiles Routes', () => {
         role: 'admin',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Updated Baby',
           birthDate: '2023-06-15',
         });
@@ -453,10 +472,11 @@ describe('Baby Profiles Routes', () => {
         role: 'admin',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${fakeId.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: testUser1._id.toString(),
           name: 'Updated Baby',
         });
 
@@ -466,7 +486,7 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('DELETE /api/baby-profiles/:id', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
@@ -475,23 +495,23 @@ describe('Baby Profiles Routes', () => {
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
         .send({});
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId is required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 404 if user does not have access to profile', async () => {
+    it('should return 403 if user does not have access to profile', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Baby profile not found or you do not have access');
+      expect(response.status).toBe(403);
+      expect(response.body.error).toContain('do not have access');
     });
 
     it('should return 403 if user is not admin', async () => {
@@ -505,14 +525,14 @@ describe('Baby Profiles Routes', () => {
         role: 'viewer',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can delete baby profiles');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should return 403 if user is editor (not admin)', async () => {
@@ -526,14 +546,14 @@ describe('Baby Profiles Routes', () => {
         role: 'editor',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can delete baby profiles');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should successfully delete profile and all user roles by admin', async () => {
@@ -553,11 +573,11 @@ describe('Baby Profiles Routes', () => {
         role: 'viewer',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -581,11 +601,11 @@ describe('Baby Profiles Routes', () => {
         role: 'admin',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${fakeId.toString()}`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('Baby profile not found');
@@ -593,7 +613,7 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('POST /api/baby-profiles/:id/leave', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
@@ -602,23 +622,23 @@ describe('Baby Profiles Routes', () => {
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
         .send({});
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId is required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 404 if user does not have access to profile', async () => {
+    it('should return 403 if user does not have access to profile', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Baby profile not found or you do not have access');
+      expect(response.status).toBe(403);
+      expect(response.body.error).toContain('do not have access');
     });
 
     it('should return 403 if user is admin', async () => {
@@ -632,11 +652,11 @@ describe('Baby Profiles Routes', () => {
         role: 'admin',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('Admins cannot leave a profile. Please delete the profile instead.');
@@ -654,11 +674,11 @@ describe('Baby Profiles Routes', () => {
         role: 'viewer',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -688,11 +708,11 @@ describe('Baby Profiles Routes', () => {
         role: 'editor',
       });
 
+      const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -727,11 +747,11 @@ describe('Baby Profiles Routes', () => {
       expect(role.role).toBe('viewer');
 
       // User leaves
+      const token1 = generateAuthToken(testUser1._id);
       const leaveResponse = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser1._id.toString(),
-        });
+        .set('Cookie', `token=${token1}`)
+        .send({});
 
       expect(leaveResponse.status).toBe(200);
       expect(leaveResponse.body.success).toBe(true);
@@ -744,10 +764,11 @@ describe('Baby Profiles Routes', () => {
       expect(role).toBeNull();
 
       // User joins again using join code
+      const token2 = generateAuthToken(testUser1._id);
       const joinResponse = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2}`)
         .send({
-          userId: testUser1._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -786,11 +807,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // User 2 leaves
+      const token = generateAuthToken(testUser2._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser2._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .send({});
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -827,10 +848,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // User 2 joins
+      const token2a = generateAuthToken(testUser2._id);
       const joinResponse1 = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2a}`)
         .send({
-          userId: testUser2._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -838,10 +860,11 @@ describe('Baby Profiles Routes', () => {
       expect(joinResponse1.body.success).toBe(true);
 
       // Admin blocks User 2
+      const token1a = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token1a}`)
         .send({
-          userId: testUser1._id.toString(),
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
           blocked: true,
@@ -865,10 +888,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // User 2 tries to join again
+      const token2b = generateAuthToken(testUser2._id);
       const joinResponse2 = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2b}`)
         .send({
-          userId: testUser2._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -898,10 +922,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // User 2 tries to join (should fail)
+      const token2c = generateAuthToken(testUser2._id);
       const joinResponse1 = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2c}`)
         .send({
-          userId: testUser2._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -909,10 +934,11 @@ describe('Baby Profiles Routes', () => {
       expect(joinResponse1.body.error).toBe('You have been blocked from accessing this baby profile');
 
       // Admin unblocks User 2
+      const token1b = generateAuthToken(testUser1._id);
       const unblockResponse = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token1b}`)
         .send({
-          userId: testUser1._id.toString(),
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
           blocked: false,
@@ -922,10 +948,11 @@ describe('Baby Profiles Routes', () => {
       expect(unblockResponse.body.success).toBe(true);
 
       // User 2 tries to join again (should say they already have access since unblocking gives them access)
+      const token2d = generateAuthToken(testUser2._id);
       const joinResponse2 = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2d}`)
         .send({
-          userId: testUser2._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -955,10 +982,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // Admin removes User 2
+      const token1c = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
         .delete('/api/users')
+        .set('Cookie', `token=${token1c}`)
         .send({
-          userId: testUser1._id.toString(),
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
         });
@@ -974,10 +1002,11 @@ describe('Baby Profiles Routes', () => {
       expect(role).toBeNull();
 
       // User 2 tries to join again (should succeed)
+      const token2e = generateAuthToken(testUser2._id);
       const joinResponse = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2e}`)
         .send({
-          userId: testUser2._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -1017,10 +1046,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // Admin blocks User 2
+      const token1d = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token1d}`)
         .send({
-          userId: testUser1._id.toString(),
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
           blocked: true,
@@ -1029,10 +1059,11 @@ describe('Baby Profiles Routes', () => {
       expect(blockResponse.status).toBe(200);
 
       // Admin removes User 2
+      const token1e = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
         .delete('/api/users')
+        .set('Cookie', `token=${token1e}`)
         .send({
-          userId: testUser1._id.toString(),
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
         });
@@ -1048,10 +1079,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // User 2 tries to join again (should fail)
+      const token2f = generateAuthToken(testUser2._id);
       const joinResponse = await request(app)
         .post('/api/baby-profiles/join')
+        .set('Cookie', `token=${token2f}`)
         .send({
-          userId: testUser2._id.toString(),
           joinCode: 'ABC123',
         });
 
@@ -1081,10 +1113,11 @@ describe('Baby Profiles Routes', () => {
       });
 
       // User 2 tries to update profile (should fail)
+      const token2g = generateAuthToken(testUser2._id);
       const updateResponse = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .set('Cookie', `token=${token2g}`)
         .send({
-          userId: testUser2._id.toString(),
           name: 'Updated Name',
         });
 
@@ -1092,19 +1125,20 @@ describe('Baby Profiles Routes', () => {
       expect(updateResponse.body.error).toBe('You have been blocked from accessing this baby profile');
 
       // User 2 tries to leave profile (should fail)
+      const token2h = generateAuthToken(testUser2._id);
       const leaveResponse = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .send({
-          userId: testUser2._id.toString(),
-        });
+        .set('Cookie', `token=${token2h}`)
+        .send({});
 
       expect(leaveResponse.status).toBe(403);
       expect(leaveResponse.body.error).toBe('You have been blocked from accessing this baby profile');
 
       // User 2 should not see profile in GET /api/baby-profiles list
+      const token2i = generateAuthToken(testUser2._id);
       const getResponse = await request(app)
         .get('/api/baby-profiles')
-        .query({ userId: testUser2._id.toString() });
+        .set('Cookie', `token=${token2i}`);
 
       expect(getResponse.status).toBe(200);
       expect(getResponse.body.success).toBe(true);
@@ -1136,19 +1170,21 @@ describe('Baby Profiles Routes', () => {
           role: 'admin',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .get('/api/baby-profiles')
-          .query({ userId: testUser1._id.toString() });
+          .set('Cookie', `token=${token}`);
 
         expect(response.status).toBe(200);
         expect(response.body.profiles[0].joinCodeEnabled).toBe(true);
       });
 
       it('should return joinCodeEnabled in create response', async () => {
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles')
+          .set('Cookie', `token=${token}`)
           .send({
-            userId: testUser1._id.toString(),
             name: 'Baby 1',
           });
 
@@ -1165,10 +1201,11 @@ describe('Baby Profiles Routes', () => {
           joinCodeEnabled: false,
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token}`)
           .send({
-            userId: testUser1._id.toString(),
             joinCode: 'ABC123',
           });
 
@@ -1183,10 +1220,11 @@ describe('Baby Profiles Routes', () => {
           joinCodeEnabled: true,
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token}`)
           .send({
-            userId: testUser1._id.toString(),
             joinCode: 'ABC123',
           });
 
@@ -1202,10 +1240,11 @@ describe('Baby Profiles Routes', () => {
           // joinCodeEnabled not set, should default to true
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token}`)
           .send({
-            userId: testUser1._id.toString(),
             joinCode: 'ABC123',
           });
 
@@ -1215,7 +1254,7 @@ describe('Baby Profiles Routes', () => {
     });
 
     describe('PUT /api/baby-profiles/:id/toggle-join-code', () => {
-      it('should return 400 if userId is missing', async () => {
+      it('should return 401 if not authenticated', async () => {
         const profile = await BabyProfile.create({
           name: 'Baby 1',
           joinCode: 'ABC123',
@@ -1225,24 +1264,24 @@ describe('Baby Profiles Routes', () => {
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .send({});
 
-        expect(response.status).toBe(400);
-        expect(response.body.error).toBe('userId is required');
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe('Authentication required');
       });
 
-      it('should return 404 if user does not have access to profile', async () => {
+      it('should return 403 if user does not have access to profile', async () => {
         const profile = await BabyProfile.create({
           name: 'Baby 1',
           joinCode: 'ABC123',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
-        expect(response.status).toBe(404);
-        expect(response.body.error).toBe('Baby profile not found or you do not have access');
+        expect(response.status).toBe(403);
+        expect(response.body.error).toContain('do not have access');
       });
 
       it('should return 403 if user is not admin (viewer)', async () => {
@@ -1257,14 +1296,14 @@ describe('Baby Profiles Routes', () => {
           role: 'viewer',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response.status).toBe(403);
-        expect(response.body.error).toBe('Only admins can toggle join code status');
+        expect(response.body.error).toContain('Access denied');
       });
 
       it('should return 403 if user is not admin (editor)', async () => {
@@ -1279,14 +1318,14 @@ describe('Baby Profiles Routes', () => {
           role: 'editor',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response.status).toBe(403);
-        expect(response.body.error).toBe('Only admins can toggle join code status');
+        expect(response.body.error).toContain('Access denied');
       });
 
       it('should return 403 if user is blocked', async () => {
@@ -1302,11 +1341,11 @@ describe('Baby Profiles Routes', () => {
           blocked: true,
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response.status).toBe(403);
         expect(response.body.error).toBe('You have been blocked from accessing this baby profile');
@@ -1325,11 +1364,11 @@ describe('Baby Profiles Routes', () => {
           role: 'admin',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -1353,11 +1392,11 @@ describe('Baby Profiles Routes', () => {
           role: 'admin',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -1381,12 +1420,12 @@ describe('Baby Profiles Routes', () => {
           role: 'admin',
         });
 
+        const token = generateAuthToken(testUser1._id);
         // Toggle to disabled
         const response1 = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response1.status).toBe(200);
         expect(response1.body.profile.joinCodeEnabled).toBe(false);
@@ -1394,9 +1433,8 @@ describe('Baby Profiles Routes', () => {
         // Toggle back to enabled
         const response2 = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response2.status).toBe(200);
         expect(response2.body.profile.joinCodeEnabled).toBe(true);
@@ -1404,9 +1442,8 @@ describe('Baby Profiles Routes', () => {
         // Toggle to disabled again
         const response3 = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response3.status).toBe(200);
         expect(response3.body.profile.joinCodeEnabled).toBe(false);
@@ -1426,11 +1463,11 @@ describe('Baby Profiles Routes', () => {
           role: 'admin',
         });
 
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token}`)
+          .send({});
 
         expect(response.status).toBe(200);
         expect(response.body.profile).toHaveProperty('id');
@@ -1456,20 +1493,21 @@ describe('Baby Profiles Routes', () => {
         });
 
         // Admin disables join code
+        const token1 = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token1}`)
+          .send({});
 
         expect(toggleResponse.status).toBe(200);
         expect(toggleResponse.body.profile.joinCodeEnabled).toBe(false);
 
         // User 2 tries to join - should fail
+        const token2 = generateAuthToken(testUser2._id);
         const joinResponse = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token2}`)
           .send({
-            userId: testUser2._id.toString(),
             joinCode: 'ABC123',
           });
 
@@ -1491,21 +1529,22 @@ describe('Baby Profiles Routes', () => {
         });
 
         // User 2 tries to join - should fail
+        const token2a = generateAuthToken(testUser2._id);
         const joinResponse1 = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token2a}`)
           .send({
-            userId: testUser2._id.toString(),
             joinCode: 'ABC123',
           });
 
         expect(joinResponse1.status).toBe(403);
 
         // Admin enables join code
+        const token1a = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({
-            userId: testUser1._id.toString(),
-          });
+          .set('Cookie', `token=${token1a}`)
+          .send({});
 
         expect(toggleResponse.status).toBe(200);
         expect(toggleResponse.body.profile.joinCodeEnabled).toBe(true);
@@ -1514,10 +1553,11 @@ describe('Baby Profiles Routes', () => {
         await new Promise(resolve => setTimeout(resolve, 3100));
 
         // User 2 tries to join again - should succeed
+        const token2b = generateAuthToken(testUser2._id);
         const joinResponse2 = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token2b}`)
           .send({
-            userId: testUser2._id.toString(),
             joinCode: 'ABC123',
           });
 
@@ -1530,10 +1570,11 @@ describe('Baby Profiles Routes', () => {
   describe('Additional edge cases', () => {
     describe('POST /api/baby-profiles', () => {
       it('should handle invalid birthDate format gracefully', async () => {
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles')
+          .set('Cookie', `token=${token}`)
           .send({
-            userId: testUser1._id.toString(),
             name: 'Baby 1',
             birthDate: 'invalid-date',
           });
@@ -1569,10 +1610,11 @@ describe('Baby Profiles Routes', () => {
         });
 
         // Try to join again - should be caught by the existing check, but test error handling
+        const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
+          .set('Cookie', `token=${token}`)
           .send({
-            userId: testUser1._id.toString(),
             joinCode: 'ABC123',
           });
 
@@ -1582,14 +1624,14 @@ describe('Baby Profiles Routes', () => {
     });
 
     describe('GET /api/baby-profiles', () => {
-      it('should handle invalid userId format', async () => {
+      it('should handle invalid token format', async () => {
         const response = await request(app)
           .get('/api/baby-profiles')
-          .query({ userId: 'invalid-id' });
+          .set('Cookie', 'token=invalid-token');
 
-        // Invalid ObjectId format will cause Mongoose CastError, which returns 500
-        expect(response.status).toBe(500);
-        expect(response.body.error).toBe('Failed to fetch baby profiles');
+        // Invalid token should return 401
+        expect(response.status).toBe(401);
+        expect(response.body.error).toBe('Invalid or expired token');
       });
     });
   });

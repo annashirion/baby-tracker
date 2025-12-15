@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
-import { createTestApp } from './helpers.js';
+import { createTestApp, generateAuthToken } from './helpers.js';
 import { setupTestDB, teardownTestDB, clearDatabase } from './setup.js';
 import User from '../models/User.js';
 import BabyProfile from '../models/BabyProfile.js';
@@ -70,67 +70,64 @@ describe('Users Routes', () => {
   });
 
   describe('GET /api/users', () => {
-    it('should return 400 if userId is missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .get('/api/users')
         .query({ babyProfileId: babyProfile._id.toString() });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId and babyProfileId are required');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
     it('should return 400 if babyProfileId is missing', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .query({ userId: adminUser._id.toString() });
+        .set('Cookie', `token=${token}`);
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId and babyProfileId are required');
+      expect(response.body.error).toBe('babyProfileId is required');
     });
 
-    it('should return 400 if userId format is invalid', async () => {
+    it('should return 400 if babyProfileId format is invalid', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .query({
-          userId: 'invalid',
-          babyProfileId: babyProfile._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: 'invalid' });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Invalid userId or babyProfileId format');
+      expect(response.body.error).toBe('Invalid babyProfileId format');
     });
 
     it('should return 403 if user is not an admin', async () => {
+      const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .get('/api/users')
-        .query({
-          userId: viewerUser._id.toString(),
-          babyProfileId: babyProfile._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('You do not have access to this baby profile');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should return 403 if user has no access', async () => {
+      const token = generateAuthToken(otherUser._id);
       const response = await request(app)
         .get('/api/users')
-        .query({
-          userId: otherUser._id.toString(),
-          babyProfileId: babyProfile._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('You do not have access to this baby profile');
     });
 
     it('should return all users for a baby profile if user is admin', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .query({
-          userId: adminUser._id.toString(),
-          babyProfileId: babyProfile._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -148,12 +145,11 @@ describe('Users Routes', () => {
       // Delete a user
       await User.deleteOne({ _id: viewerUser._id });
 
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .query({
-          userId: adminUser._id.toString(),
-          babyProfileId: babyProfile._id.toString(),
-        });
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBe(2);
@@ -182,23 +178,38 @@ describe('Users Routes', () => {
   });
 
   describe('PUT /api/users/role', () => {
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .put('/api/users/role')
         .send({
-          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+          newRole: 'editor',
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return 400 if required fields are missing', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .put('/api/users/role')
+        .set('Cookie', `token=${token}`)
+        .send({
           babyProfileId: babyProfile._id.toString(),
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId, babyProfileId, targetUserId, and newRole are required');
+      expect(response.body.error).toBe('targetUserId and newRole are required');
     });
 
     it('should return 400 if role is invalid', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
           newRole: 'invalid_role',
@@ -209,24 +220,26 @@ describe('Users Routes', () => {
     });
 
     it('should return 403 if user is not an admin', async () => {
+      const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .put('/api/users/role')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: viewerUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: editorUser._id.toString(),
           newRole: 'viewer',
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can change user roles');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should return 400 if admin tries to change their own role', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: adminUser._id.toString(),
           newRole: 'viewer',
@@ -237,10 +250,11 @@ describe('Users Routes', () => {
     });
 
     it('should return 404 if target user is not part of baby profile', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
           newRole: 'viewer',
@@ -251,10 +265,11 @@ describe('Users Routes', () => {
     });
 
     it('should update user role successfully', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
           newRole: 'editor',
@@ -274,36 +289,51 @@ describe('Users Routes', () => {
   });
 
   describe('DELETE /api/users', () => {
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .delete('/api/users')
         .send({
-          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return 400 if required fields are missing', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .delete('/api/users')
+        .set('Cookie', `token=${token}`)
+        .send({
           babyProfileId: babyProfile._id.toString(),
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId, babyProfileId, and targetUserId are required');
+      expect(response.body.error).toBe('targetUserId is required');
     });
 
     it('should return 403 if user is not an admin', async () => {
+      const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .delete('/api/users')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: viewerUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: editorUser._id.toString(),
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can remove users');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should return 400 if admin tries to remove themselves', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: adminUser._id.toString(),
         });
@@ -313,10 +343,11 @@ describe('Users Routes', () => {
     });
 
     it('should return 404 if target user is not part of baby profile', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
         });
@@ -326,10 +357,11 @@ describe('Users Routes', () => {
     });
 
     it('should remove user from baby profile successfully', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
         });
@@ -348,52 +380,69 @@ describe('Users Routes', () => {
   });
 
   describe('PUT /api/users/block', () => {
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .put('/api/users/block')
         .send({
-          userId: adminUser._id.toString(),
+          babyProfileId: babyProfile._id.toString(),
+          targetUserId: viewerUser._id.toString(),
+          blocked: true,
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return 400 if required fields are missing', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
+        .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId, babyProfileId, targetUserId, and blocked (boolean) are required');
+      expect(response.body.error).toBe('targetUserId and blocked (boolean) are required');
     });
 
     it('should return 400 if blocked is not a boolean', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
           blocked: 'true',
         });
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('userId, babyProfileId, targetUserId, and blocked (boolean) are required');
+      expect(response.body.error).toBe('targetUserId and blocked (boolean) are required');
     });
 
     it('should return 403 if user is not an admin', async () => {
+      const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: viewerUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: editorUser._id.toString(),
           blocked: true,
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Only admins can block/unblock users');
+      expect(response.body.error).toContain('Access denied');
     });
 
     it('should return 400 if admin tries to block themselves', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: adminUser._id.toString(),
           blocked: true,
@@ -404,10 +453,11 @@ describe('Users Routes', () => {
     });
 
     it('should block a user successfully', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
           blocked: true,
@@ -436,10 +486,11 @@ describe('Users Routes', () => {
         { blocked: true }
       );
 
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
           blocked: false,
@@ -465,10 +516,11 @@ describe('Users Routes', () => {
         babyProfileId: babyProfile._id,
       });
 
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
           blocked: true,
@@ -493,10 +545,11 @@ describe('Users Routes', () => {
         babyProfileId: babyProfile._id,
       });
 
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
           blocked: false,
@@ -516,10 +569,11 @@ describe('Users Routes', () => {
         { blocked: false }
       );
 
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
+        .set('Cookie', `token=${token}`)
         .send({
-          userId: adminUser._id.toString(),
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
           blocked: false,

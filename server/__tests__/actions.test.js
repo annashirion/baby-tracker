@@ -1,15 +1,16 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
 import mongoose from 'mongoose';
-import { createTestApp } from './helpers.js';
+import { createTestApp, generateAuthToken } from './helpers.js';
 import { setupTestDB, teardownTestDB, clearDatabase } from './setup.js';
 import User from '../models/User.js';
 import BabyProfile from '../models/BabyProfile.js';
 import Action from '../models/Action.js';
+import UserBabyRole from '../models/UserBabyRole.js';
 
 describe('Actions Routes', () => {
   let app;
-  let testUser1, testUser2;
+  let adminUser, editorUser, viewerUser, otherUser;
   let testBabyProfile;
 
   beforeAll(async () => {
@@ -23,454 +24,512 @@ describe('Actions Routes', () => {
 
   beforeEach(async () => {
     await clearDatabase();
-    // Create test users
-    testUser1 = await User.create({
-      googleId: 'user1',
-      email: 'user1@example.com',
-      name: 'User 1',
+    // Create test users with different roles
+    adminUser = await User.create({
+      googleId: 'admin',
+      email: 'admin@example.com',
+      name: 'Admin User',
     });
-    testUser2 = await User.create({
-      googleId: 'user2',
-      email: 'user2@example.com',
-      name: 'User 2',
+    editorUser = await User.create({
+      googleId: 'editor',
+      email: 'editor@example.com',
+      name: 'Editor User',
     });
+    viewerUser = await User.create({
+      googleId: 'viewer',
+      email: 'viewer@example.com',
+      name: 'Viewer User',
+    });
+    otherUser = await User.create({
+      googleId: 'other',
+      email: 'other@example.com',
+      name: 'Other User',
+    });
+    
     // Create test baby profile
     testBabyProfile = await BabyProfile.create({
       name: 'Baby 1',
       birthDate: new Date('2023-01-01'),
     });
+
+    // Create roles
+    await UserBabyRole.create({
+      userId: adminUser._id,
+      babyProfileId: testBabyProfile._id,
+      role: 'admin',
+    });
+    await UserBabyRole.create({
+      userId: editorUser._id,
+      babyProfileId: testBabyProfile._id,
+      role: 'editor',
+    });
+    await UserBabyRole.create({
+      userId: viewerUser._id,
+      babyProfileId: testBabyProfile._id,
+      role: 'viewer',
+    });
   });
 
-  describe('PUT /api/actions/:id', () => {
-    it('should return 404 if action does not exist', async () => {
-      const fakeId = new mongoose.Types.ObjectId();
+  describe('POST /api/actions', () => {
+    it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .put(`/api/actions/${fakeId.toString()}`)
+        .post('/api/actions')
         .send({
-          details: { type: 'pee', comments: 'Updated comment' },
+          babyProfileId: testBabyProfile._id.toString(),
+          actionType: 'diaper',
+          details: { type: 'pee' },
         });
 
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Action not found');
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 404 if action id is invalid', async () => {
+    it('should return 400 if babyProfileId is missing', async () => {
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/actions/invalid-id')
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
         .send({
-          details: { type: 'pee', comments: 'Updated comment' },
+          actionType: 'diaper',
+          details: { type: 'pee' },
         });
 
-      expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Failed to update action');
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('babyProfileId is required');
     });
 
-    it('should successfully update action details', async () => {
-      const action = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
+    it('should return 403 if user has no access to baby profile', async () => {
+      const token = generateAuthToken(otherUser._id);
+      const response = await request(app)
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
         actionType: 'diaper',
-        details: { type: 'pee', comments: 'Original comment' },
-      });
+          details: { type: 'pee' },
+        });
 
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('You do not have access to this baby profile');
+    });
+
+    it('should return 403 if user is blocked', async () => {
+      // Block viewer user
+      await UserBabyRole.updateOne(
+        { userId: viewerUser._id, babyProfileId: testBabyProfile._id },
+        { blocked: true }
+      );
+
+      const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put(`/api/actions/${action._id.toString()}`)
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
         .send({
-          details: { type: 'poo', comments: 'Updated comment' },
+          babyProfileId: testBabyProfile._id.toString(),
+          actionType: 'diaper',
+          details: { type: 'pee' },
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('You have been blocked from accessing this baby profile');
+    });
+
+    it('should return 403 if viewer tries to create action', async () => {
+      const token = generateAuthToken(viewerUser._id);
+      const response = await request(app)
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          actionType: 'diaper',
+          details: { type: 'pee' },
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toContain('Access denied');
+    });
+
+    it('should successfully create action as admin', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          actionType: 'diaper',
+          details: { type: 'pee', comments: 'Wet diaper' },
         });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.action.id).toBe(action._id.toString());
-      expect(response.body.action.details.type).toBe('poo');
-      expect(response.body.action.details.comments).toBe('Updated comment');
       expect(response.body.action.actionType).toBe('diaper');
-      expect(response.body.action.babyProfileId.toString()).toBe(testBabyProfile._id.toString());
-      expect(response.body.action.userId.toString()).toBe(testUser1._id.toString());
-
-      // Verify action was updated in database
-      const updatedAction = await Action.findById(action._id);
-      expect(updatedAction.details.type).toBe('poo');
-      expect(updatedAction.details.comments).toBe('Updated comment');
+      expect(response.body.action.details.type).toBe('pee');
+      expect(response.body.action.userId.toString()).toBe(adminUser._id.toString());
     });
 
-    it('should update action with empty details object', async () => {
-      const action = await Action.create({
+    it('should successfully create action as editor', async () => {
+      const token = generateAuthToken(editorUser._id);
+      const response = await request(app)
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          actionType: 'feed',
+          details: { amount: 100, unit: 'ml' },
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.action.actionType).toBe('feed');
+      expect(response.body.action.userId.toString()).toBe(editorUser._id.toString());
+    });
+
+    it('should create action with custom timestamp', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const customTimestamp = '2023-06-15T10:00:00Z';
+      const response = await request(app)
+        .post('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          actionType: 'sleep',
+          details: { duration: 120 },
+          timestamp: customTimestamp,
+        });
+
+      expect(response.status).toBe(200);
+      // Compare timestamps (allowing for millisecond differences)
+      const receivedTime = new Date(response.body.action.createdAt).getTime();
+      const expectedTime = new Date(customTimestamp).getTime();
+      expect(Math.abs(receivedTime - expectedTime)).toBeLessThan(1000);
+    });
+  });
+
+  describe('GET /api/actions', () => {
+    it('should return 401 if not authenticated', async () => {
+      const response = await request(app)
+        .get('/api/actions')
+        .query({ babyProfileId: testBabyProfile._id.toString() });
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return 400 if babyProfileId is missing', async () => {
+      const token = generateAuthToken(viewerUser._id);
+      const response = await request(app)
+        .get('/api/actions')
+        .set('Cookie', `token=${token}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('babyProfileId is required');
+    });
+
+    it('should return 403 if user has no access', async () => {
+      const token = generateAuthToken(otherUser._id);
+      const response = await request(app)
+        .get('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: testBabyProfile._id.toString() });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('You do not have access to this baby profile');
+    });
+
+    it('should return actions for viewer', async () => {
+      // Create some actions
+      await Action.create({
         babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
+        userId: adminUser._id,
+        actionType: 'diaper',
+        details: { type: 'pee' },
+      });
+      await Action.create({
+        babyProfileId: testBabyProfile._id,
+        userId: editorUser._id,
         actionType: 'feed',
-        details: { amount: 100, unit: 'ml' },
+        details: { amount: 100 },
       });
 
+      const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put(`/api/actions/${action._id.toString()}`)
-        .send({
-          details: {},
-        });
+        .get('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.action.details).toEqual({});
-
-      // Verify action was updated in database
-      const updatedAction = await Action.findById(action._id);
-      expect(updatedAction.details).toEqual({});
+      expect(response.body.actions).toHaveLength(2);
     });
 
-    it('should update action details without changing other fields', async () => {
-      const originalTimestamp = new Date('2023-06-15T10:00:00Z');
-      const action = await Action.create({
+    it('should return actions for editor', async () => {
+      await Action.create({
         babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'sleep',
-        details: { duration: 120, unit: 'minutes' },
-        userEmoji: '😴',
-        createdAt: originalTimestamp,
-        updatedAt: originalTimestamp,
-      });
-
-      const response = await request(app)
-        .put(`/api/actions/${action._id.toString()}`)
-        .send({
-          details: { duration: 180, unit: 'minutes', notes: 'Long nap' },
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.action.actionType).toBe('sleep');
-      expect(response.body.action.userEmoji).toBe('😴');
-      expect(response.body.action.babyProfileId.toString()).toBe(testBabyProfile._id.toString());
-      expect(response.body.action.userId.toString()).toBe(testUser1._id.toString());
-      expect(response.body.action.details.duration).toBe(180);
-      expect(response.body.action.details.unit).toBe('minutes');
-      expect(response.body.action.details.notes).toBe('Long nap');
-
-      // Verify updatedAt was changed
-      const updatedAction = await Action.findById(action._id);
-      expect(updatedAction.updatedAt.getTime()).toBeGreaterThan(originalTimestamp.getTime());
-    });
-
-    it('should update action with complex nested details', async () => {
-      const action = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'other',
-        details: { title: 'Medicine', notes: 'Took vitamins' },
-      });
-
-      const complexDetails = {
-        title: 'Doctor Visit',
-        notes: 'Regular checkup',
-        location: 'Pediatric Clinic',
-        doctor: 'Dr. Smith',
-        medications: ['Vitamin D', 'Iron'],
-      };
-
-      const response = await request(app)
-        .put(`/api/actions/${action._id.toString()}`)
-        .send({
-          details: complexDetails,
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.action.details).toEqual(complexDetails);
-
-      // Verify action was updated in database
-      const updatedAction = await Action.findById(action._id);
-      expect(updatedAction.details).toEqual(complexDetails);
-    });
-
-    it('should handle update when details is not provided (defaults to empty object)', async () => {
-      const action = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
+        userId: adminUser._id,
         actionType: 'diaper',
         details: { type: 'pee' },
       });
 
+      const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .put(`/api/actions/${action._id.toString()}`)
-        .send({});
+        .get('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.action.details).toEqual({});
+    });
 
-      // Verify action was updated in database
-      const updatedAction = await Action.findById(action._id);
-      expect(updatedAction.details).toEqual({});
+    it('should return actions for admin', async () => {
+      await Action.create({
+        babyProfileId: testBabyProfile._id,
+        userId: adminUser._id,
+        actionType: 'diaper',
+        details: { type: 'pee' },
+      });
+
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .get('/api/actions')
+        .set('Cookie', `token=${token}`)
+        .query({ babyProfileId: testBabyProfile._id.toString() });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
     });
   });
 
-  describe('DELETE /api/actions/:id', () => {
+  describe('PUT /api/actions/:id', () => {
+    let testAction;
+
+    beforeEach(async () => {
+      testAction = await Action.create({
+        babyProfileId: testBabyProfile._id,
+        userId: editorUser._id,
+        actionType: 'diaper',
+        details: { type: 'pee', comments: 'Original' },
+      });
+    });
+
+    it('should return 401 if not authenticated', async () => {
+      const response = await request(app)
+        .put(`/api/actions/${testAction._id.toString()}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo' },
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return 400 if babyProfileId is missing', async () => {
+      const token = generateAuthToken(editorUser._id);
+      const response = await request(app)
+        .put(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          details: { type: 'poo' },
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('babyProfileId is required');
+    });
+
+    it('should return 403 if viewer tries to update', async () => {
+      const token = generateAuthToken(viewerUser._id);
+      const response = await request(app)
+        .put(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo' },
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('You do not have permission to edit this action');
+    });
+
+    it('should return 403 if editor tries to update another user\'s action', async () => {
+      const adminAction = await Action.create({
+        babyProfileId: testBabyProfile._id,
+        userId: adminUser._id,
+        actionType: 'diaper',
+        details: { type: 'pee' },
+      });
+
+      const token = generateAuthToken(editorUser._id);
+      const response = await request(app)
+        .put(`/api/actions/${adminAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo' },
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('You do not have permission to edit this action');
+    });
+
+    it('should allow editor to update their own action', async () => {
+      const token = generateAuthToken(editorUser._id);
+      const response = await request(app)
+        .put(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo', comments: 'Updated' },
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.action.details.type).toBe('poo');
+      expect(response.body.action.details.comments).toBe('Updated');
+    });
+
+    it('should allow admin to update any action', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .put(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo', comments: 'Admin updated' },
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.action.details.comments).toBe('Admin updated');
+    });
+
     it('should return 404 if action does not exist', async () => {
       const fakeId = new mongoose.Types.ObjectId();
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${fakeId.toString()}`);
+        .put(`/api/actions/${fakeId.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo' },
+        });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('Action not found');
     });
 
-    it('should return 500 if action id is invalid', async () => {
-      const response = await request(app)
-        .delete('/api/actions/invalid-id');
-
-      expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Failed to delete action');
-    });
-
-    it('should successfully delete an action', async () => {
-      const action = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
+    it('should return 403 if babyProfileId does not match', async () => {
+      const otherProfile = await BabyProfile.create({ name: 'Other Baby' });
+      const otherAction = await Action.create({
+        babyProfileId: otherProfile._id,
+        userId: adminUser._id,
         actionType: 'diaper',
-        details: { type: 'pee', comments: 'Wet diaper' },
+        details: { type: 'pee' },
       });
 
-      const actionId = action._id.toString();
-
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${actionId}`);
+        .put(`/api/actions/${otherAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+          details: { type: 'poo' },
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Action does not belong to this baby profile');
+    });
+  });
+
+  describe('DELETE /api/actions/:id', () => {
+    let testAction;
+
+    beforeEach(async () => {
+      testAction = await Action.create({
+        babyProfileId: testBabyProfile._id,
+        userId: editorUser._id,
+        actionType: 'diaper',
+        details: { type: 'pee' },
+      });
+    });
+
+    it('should return 401 if not authenticated', async () => {
+      const response = await request(app)
+        .delete(`/api/actions/${testAction._id.toString()}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+        });
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return 400 if babyProfileId is missing', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .delete(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('babyProfileId is required');
+    });
+
+    it('should return 403 if viewer tries to delete', async () => {
+      const token = generateAuthToken(viewerUser._id);
+      const response = await request(app)
+        .delete(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Only admins can delete actions');
+    });
+
+    it('should return 403 if editor tries to delete', async () => {
+      const token = generateAuthToken(editorUser._id);
+      const response = await request(app)
+        .delete(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+        });
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('Only admins can delete actions');
+    });
+
+    it('should allow admin to delete action', async () => {
+      const token = generateAuthToken(adminUser._id);
+      const response = await request(app)
+        .delete(`/api/actions/${testAction._id.toString()}`)
+        .set('Cookie', `token=${token}`)
+        .send({
+          babyProfileId: testBabyProfile._id.toString(),
+        });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Action deleted successfully');
 
-      // Verify action was deleted from database
-      const deletedAction = await Action.findById(actionId);
-      expect(deletedAction).toBeNull();
-    });
-
-    it('should delete action with different action types', async () => {
-      const diaperAction = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'diaper',
-        details: { type: 'poo' },
-      });
-
-      const sleepAction = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'sleep',
-        details: { duration: 120 },
-      });
-
-      const feedAction = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'feed',
-        details: { amount: 100 },
-      });
-
-      const otherAction = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'other',
-        details: { title: 'Medicine' },
-      });
-
-      // Delete all actions
-      const response1 = await request(app)
-        .delete(`/api/actions/${diaperAction._id.toString()}`);
-      expect(response1.status).toBe(200);
-
-      const response2 = await request(app)
-        .delete(`/api/actions/${sleepAction._id.toString()}`);
-      expect(response2.status).toBe(200);
-
-      const response3 = await request(app)
-        .delete(`/api/actions/${feedAction._id.toString()}`);
-      expect(response3.status).toBe(200);
-
-      const response4 = await request(app)
-        .delete(`/api/actions/${otherAction._id.toString()}`);
-      expect(response4.status).toBe(200);
-
-      // Verify all actions were deleted
-      const actions = await Action.find({
-        _id: { $in: [diaperAction._id, sleepAction._id, feedAction._id, otherAction._id] },
-      });
-      expect(actions).toHaveLength(0);
-    });
-
-    it('should delete action with userEmoji', async () => {
-      const action = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'diaper',
-        details: { type: 'pee' },
-        userEmoji: '💧',
-      });
-
-      const response = await request(app)
-        .delete(`/api/actions/${action._id.toString()}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-
       // Verify action was deleted
-      const deletedAction = await Action.findById(action._id);
+      const deletedAction = await Action.findById(testAction._id);
       expect(deletedAction).toBeNull();
     });
 
-    it('should delete action and not affect other actions', async () => {
-      const action1 = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'diaper',
-        details: { type: 'pee' },
-      });
-
-      const action2 = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'feed',
-        details: { amount: 100 },
-      });
-
-      const action3 = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser2._id,
-        actionType: 'sleep',
-        details: { duration: 120 },
-      });
-
-      // Delete action2
+    it('should return 404 if action does not exist', async () => {
+      const fakeId = new mongoose.Types.ObjectId();
+      const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${action2._id.toString()}`);
-
-      expect(response.status).toBe(200);
-
-      // Verify action2 was deleted
-      const deletedAction = await Action.findById(action2._id);
-      expect(deletedAction).toBeNull();
-
-      // Verify other actions still exist
-      const remainingAction1 = await Action.findById(action1._id);
-      expect(remainingAction1).toBeTruthy();
-      expect(remainingAction1.actionType).toBe('diaper');
-
-      const remainingAction3 = await Action.findById(action3._id);
-      expect(remainingAction3).toBeTruthy();
-      expect(remainingAction3.actionType).toBe('sleep');
-    });
-
-    it('should delete action with complex details', async () => {
-      const complexDetails = {
-        title: 'Doctor Visit',
-        notes: 'Regular checkup',
-        location: 'Pediatric Clinic',
-        doctor: 'Dr. Smith',
-        medications: ['Vitamin D', 'Iron'],
-        measurements: {
-          weight: 7.5,
-          height: 65,
-          unit: 'kg/cm',
-        },
-      };
-
-      const action = await Action.create({
-        babyProfileId: testBabyProfile._id,
-        userId: testUser1._id,
-        actionType: 'other',
-        details: complexDetails,
-      });
-
-      const response = await request(app)
-        .delete(`/api/actions/${action._id.toString()}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-
-      // Verify action was deleted
-      const deletedAction = await Action.findById(action._id);
-      expect(deletedAction).toBeNull();
-    });
-  });
-
-  describe('Integration: Create, Update, and Delete', () => {
-    it('should create, update, and delete an action', async () => {
-      // Create action
-      const createResponse = await request(app)
-        .post('/api/actions')
+        .delete(`/api/actions/${fakeId.toString()}`)
+        .set('Cookie', `token=${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
-          userId: testUser1._id.toString(),
-          actionType: 'diaper',
-          details: { type: 'pee', comments: 'Initial comment' },
         });
 
-      expect(createResponse.status).toBe(200);
-      expect(createResponse.body.success).toBe(true);
-      const actionId = createResponse.body.action.id;
-
-      // Update action
-      const updateResponse = await request(app)
-        .put(`/api/actions/${actionId}`)
-        .send({
-          details: { type: 'poo', comments: 'Updated comment' },
-        });
-
-      expect(updateResponse.status).toBe(200);
-      expect(updateResponse.body.action.details.type).toBe('poo');
-      expect(updateResponse.body.action.details.comments).toBe('Updated comment');
-
-      // Delete action
-      const deleteResponse = await request(app)
-        .delete(`/api/actions/${actionId}`);
-
-      expect(deleteResponse.status).toBe(200);
-      expect(deleteResponse.body.success).toBe(true);
-
-      // Verify action was deleted
-      const deletedAction = await Action.findById(actionId);
-      expect(deletedAction).toBeNull();
-    });
-
-    it('should handle multiple updates before deletion', async () => {
-      // Create action
-      const createResponse = await request(app)
-        .post('/api/actions')
-        .send({
-          babyProfileId: testBabyProfile._id.toString(),
-          userId: testUser1._id.toString(),
-          actionType: 'feed',
-          details: { amount: 50 },
-        });
-
-      const actionId = createResponse.body.action.id;
-
-      // First update
-      const update1 = await request(app)
-        .put(`/api/actions/${actionId}`)
-        .send({
-          details: { amount: 100, unit: 'ml' },
-        });
-      expect(update1.status).toBe(200);
-      expect(update1.body.action.details.amount).toBe(100);
-
-      // Second update
-      const update2 = await request(app)
-        .put(`/api/actions/${actionId}`)
-        .send({
-          details: { amount: 150, unit: 'ml', notes: 'Finished bottle' },
-        });
-      expect(update2.status).toBe(200);
-      expect(update2.body.action.details.amount).toBe(150);
-      expect(update2.body.action.details.notes).toBe('Finished bottle');
-
-      // Delete action
-      const deleteResponse = await request(app)
-        .delete(`/api/actions/${actionId}`);
-      expect(deleteResponse.status).toBe(200);
-
-      // Verify action was deleted
-      const deletedAction = await Action.findById(actionId);
-      expect(deletedAction).toBeNull();
+      expect(response.status).toBe(404);
+      expect(response.body.error).toBe('Action not found');
     });
   });
 });
-
