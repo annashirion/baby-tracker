@@ -1,6 +1,7 @@
 import express from 'express';
 import BabyProfile from '../models/BabyProfile.js';
 import UserBabyRole from '../models/UserBabyRole.js';
+import { authenticate, checkBabyProfileAccess } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -14,13 +15,9 @@ router.get('/test', (req, res) => {
 });
 
 // Get all baby profiles for a user (with their roles)
-router.get('/', async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   try {
-    const { userId } = req.query;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
-    }
+    const userId = req.user.id;
 
     // Find all roles for this user
     const userRoles = await UserBabyRole.find({ userId }).populate('babyProfileId');
@@ -51,12 +48,13 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new baby profile
-router.post('/', async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
   try {
-    const { userId, name, birthDate } = req.body;
+    const { name, birthDate } = req.body;
+    const userId = req.user.id;
 
-    if (!userId || !name) {
-      return res.status(400).json({ error: 'userId and name are required' });
+    if (!name) {
+      return res.status(400).json({ error: 'name is required' });
     }
 
     // Create the baby profile
@@ -93,32 +91,10 @@ router.post('/', async (req, res) => {
 });
 
 // Update a baby profile (admin only)
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticate, checkBabyProfileAccess(['admin'], 'params'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, name, birthDate } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
-    }
-
-    // Check if user is admin for this profile
-    const userRole = await UserBabyRole.findOne({
-      userId,
-      babyProfileId: id,
-    });
-
-    if (!userRole) {
-      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
-    }
-
-    if (userRole.blocked) {
-      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
-    }
-
-    if (userRole.role !== 'admin') {
-      return res.status(403).json({ error: 'Only admins can update baby profiles' });
-    }
+    const { name, birthDate } = req.body;
 
     // Update the baby profile
     const babyProfile = await BabyProfile.findByIdAndUpdate(
@@ -142,7 +118,7 @@ router.put('/:id', async (req, res) => {
         birthDate: babyProfile.birthDate,
         joinCode: babyProfile.joinCode,
         joinCodeEnabled: babyProfile.joinCodeEnabled !== false, // Default to true if undefined
-        role: userRole.role,
+        role: req.userRole.role,
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
       },
@@ -154,32 +130,9 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a baby profile (admin only)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticate, checkBabyProfileAccess(['admin'], 'params'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
-    }
-
-    // Check if user is admin for this profile
-    const userRole = await UserBabyRole.findOne({
-      userId,
-      babyProfileId: id,
-    });
-
-    if (!userRole) {
-      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
-    }
-
-    if (userRole.blocked) {
-      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
-    }
-
-    if (userRole.role !== 'admin') {
-      return res.status(403).json({ error: 'Only admins can delete baby profiles' });
-    }
 
     // Delete all user-baby-role relationships for this profile
     await UserBabyRole.deleteMany({ babyProfileId: id });
@@ -202,12 +155,13 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Join a baby profile using join code
-router.post('/join', async (req, res) => {
+router.post('/join', authenticate, async (req, res) => {
   try {
-    const { userId, joinCode } = req.body;
+    const { joinCode } = req.body;
+    const userId = req.user.id;
 
-    if (!userId || !joinCode) {
-      return res.status(400).json({ error: 'userId and joinCode are required' });
+    if (!joinCode) {
+      return res.status(400).json({ error: 'joinCode is required' });
     }
 
     // Normalize userId to string for consistent Map key usage
@@ -304,32 +258,9 @@ router.post('/join', async (req, res) => {
 });
 
 // Toggle join code enabled/disabled (admin only)
-router.put('/:id/toggle-join-code', async (req, res) => {
+router.put('/:id/toggle-join-code', authenticate, checkBabyProfileAccess(['admin'], 'params'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
-    }
-
-    // Check if user is admin for this profile
-    const userRole = await UserBabyRole.findOne({
-      userId,
-      babyProfileId: id,
-    });
-
-    if (!userRole) {
-      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
-    }
-
-    if (userRole.blocked) {
-      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
-    }
-
-    if (userRole.role !== 'admin') {
-      return res.status(403).json({ error: 'Only admins can toggle join code status' });
-    }
 
     // Get the current baby profile
     const babyProfile = await BabyProfile.findById(id);
@@ -350,7 +281,7 @@ router.put('/:id/toggle-join-code', async (req, res) => {
         birthDate: babyProfile.birthDate,
         joinCode: babyProfile.joinCode,
         joinCodeEnabled: babyProfile.joinCodeEnabled,
-        role: userRole.role,
+        role: req.userRole.role,
         createdAt: babyProfile.createdAt,
         updatedAt: babyProfile.updatedAt,
       },
@@ -362,31 +293,13 @@ router.put('/:id/toggle-join-code', async (req, res) => {
 });
 
 // Leave a baby profile (remove user's access)
-router.post('/:id/leave', async (req, res) => {
+router.post('/:id/leave', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer'], 'params'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
-    }
-
-    // Check if user has a role for this profile
-    const userRole = await UserBabyRole.findOne({
-      userId,
-      babyProfileId: id,
-    });
-
-    if (!userRole) {
-      return res.status(404).json({ error: 'Baby profile not found or you do not have access' });
-    }
-
-    if (userRole.blocked) {
-      return res.status(403).json({ error: 'You have been blocked from accessing this baby profile' });
-    }
+    const userId = req.user.id;
 
     // Prevent admins from leaving (they should delete the profile instead)
-    if (userRole.role === 'admin') {
+    if (req.userRole.role === 'admin') {
       return res.status(403).json({ error: 'Admins cannot leave a profile. Please delete the profile instead.' });
     }
 

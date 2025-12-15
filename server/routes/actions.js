@@ -1,15 +1,19 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import Action from '../models/Action.js';
+import { authenticate, checkBabyProfileAccess } from '../middleware/auth.js';
+import UserBabyRole from '../models/UserBabyRole.js';
 
 const router = express.Router();
 
-// Create a new action
-router.post('/', async (req, res) => {
+// Create a new action (editors and admins only)
+router.post('/', authenticate, checkBabyProfileAccess(['admin', 'editor'], 'body'), async (req, res) => {
   try {
-    const { babyProfileId, userId, actionType, details, userEmoji, timestamp } = req.body;
+    const { actionType, details, userEmoji, timestamp } = req.body;
+    const { babyProfileId, userId } = req.userRole;
 
-    if (!babyProfileId || !userId || !actionType) {
-      return res.status(400).json({ error: 'babyProfileId, userId, and actionType are required' });
+    if (!actionType) {
+      return res.status(400).json({ error: 'actionType is required' });
     }
 
     // If a custom timestamp is provided, create the action with custom timestamps
@@ -56,14 +60,10 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get all actions for a baby profile
-router.get('/', async (req, res) => {
+// Get all actions for a baby profile (all roles can read)
+router.get('/', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer'], 'query'), async (req, res) => {
   try {
-    const { babyProfileId } = req.query;
-
-    if (!babyProfileId) {
-      return res.status(400).json({ error: 'babyProfileId is required' });
-    }
+    const { babyProfileId } = req.userRole;
 
     const actions = await Action.find({ babyProfileId })
       .sort({ createdAt: -1 }) // Most recent first
@@ -89,13 +89,50 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Update an action
-router.put('/:id', async (req, res) => {
+// Update an action (editors and admins only, and only their own actions unless admin)
+router.put('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { details } = req.body;
+    const { details, babyProfileId } = req.body;
 
-    const action = await Action.findByIdAndUpdate(
+    if (!babyProfileId) {
+      return res.status(400).json({ error: 'babyProfileId is required' });
+    }
+
+    // Get the action first to check ownership
+    const action = await Action.findById(id);
+    if (!action) {
+      return res.status(404).json({ error: 'Action not found' });
+    }
+
+    // Verify babyProfileId matches
+    if (action.babyProfileId.toString() !== babyProfileId) {
+      return res.status(403).json({ error: 'Action does not belong to this baby profile' });
+    }
+
+    // Check user's role for this baby profile
+    const userIdObj = new mongoose.Types.ObjectId(req.user.id);
+    const babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
+    
+    const userRole = await UserBabyRole.findOne({
+      userId: userIdObj,
+      babyProfileId: babyProfileIdObj,
+    });
+
+    if (!userRole || userRole.blocked) {
+      return res.status(403).json({ error: 'You do not have access to this baby profile' });
+    }
+
+    // Check if user can edit: admins can edit any action, editors can only edit their own
+    const isOwnAction = action.userId.toString() === req.user.id;
+    const canEdit = userRole.role === 'admin' || (userRole.role === 'editor' && isOwnAction);
+
+    if (!canEdit) {
+      return res.status(403).json({ error: 'You do not have permission to edit this action' });
+    }
+
+    // Update the action
+    const updatedAction = await Action.findByIdAndUpdate(
       id,
       { 
         details: details || {},
@@ -104,21 +141,17 @@ router.put('/:id', async (req, res) => {
       { new: true }
     );
 
-    if (!action) {
-      return res.status(404).json({ error: 'Action not found' });
-    }
-
     res.json({
       success: true,
       action: {
-        id: action._id,
-        babyProfileId: action.babyProfileId,
-        userId: action.userId,
-        actionType: action.actionType,
-        details: action.details,
-        userEmoji: action.userEmoji,
-        createdAt: action.createdAt,
-        updatedAt: action.updatedAt,
+        id: updatedAction._id,
+        babyProfileId: updatedAction.babyProfileId,
+        userId: updatedAction.userId,
+        actionType: updatedAction.actionType,
+        details: updatedAction.details,
+        userEmoji: updatedAction.userEmoji,
+        createdAt: updatedAction.createdAt,
+        updatedAt: updatedAction.updatedAt,
       },
     });
   } catch (error) {
@@ -127,16 +160,45 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete an action
-router.delete('/:id', async (req, res) => {
+// Delete an action (admins only)
+router.delete('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
+    const { babyProfileId } = req.body;
 
-    const action = await Action.findByIdAndDelete(id);
+    if (!babyProfileId) {
+      return res.status(400).json({ error: 'babyProfileId is required' });
+    }
 
+    // Get the action first
+    const action = await Action.findById(id);
     if (!action) {
       return res.status(404).json({ error: 'Action not found' });
     }
+
+    // Verify babyProfileId matches
+    if (action.babyProfileId.toString() !== babyProfileId) {
+      return res.status(403).json({ error: 'Action does not belong to this baby profile' });
+    }
+
+    // Check if user is admin for this baby profile
+    const userIdObj = new mongoose.Types.ObjectId(req.user.id);
+    const babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
+    
+    const userRole = await UserBabyRole.findOne({
+      userId: userIdObj,
+      babyProfileId: babyProfileIdObj,
+    });
+
+    if (!userRole || userRole.blocked) {
+      return res.status(403).json({ error: 'You do not have access to this baby profile' });
+    }
+
+    if (userRole.role !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can delete actions' });
+    }
+
+    await Action.findByIdAndDelete(id);
 
     res.json({
       success: true,

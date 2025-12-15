@@ -2,40 +2,22 @@ import express from 'express';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import UserBabyRole from '../models/UserBabyRole.js';
+import { authenticate, checkBabyProfileAccess } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Get users for a specific baby profile (only admins can access)
-router.get('/', async (req, res) => {
+router.get('/', authenticate, checkBabyProfileAccess(['admin'], 'query'), async (req, res) => {
   try {
-    const { userId, babyProfileId } = req.query;
-
-    if (!userId || !babyProfileId) {
-      return res.status(400).json({ 
-        error: 'userId and babyProfileId are required' 
-      });
-    }
+    const { babyProfileId } = req.userRole;
 
     // Convert to ObjectId for proper querying
-    let userIdObj, babyProfileIdObj;
+    let babyProfileIdObj;
     try {
-      userIdObj = new mongoose.Types.ObjectId(userId);
       babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
     } catch (error) {
       return res.status(400).json({ 
-        error: 'Invalid userId or babyProfileId format' 
-      });
-    }
-
-    // Check if the requesting user is an admin of this baby profile
-    const userRole = await UserBabyRole.findOne({
-      userId: userIdObj,
-      babyProfileId: babyProfileIdObj,
-    });
-
-    if (!userRole || userRole.role !== 'admin') {
-      return res.status(403).json({ 
-        error: 'You do not have access to this baby profile' 
+        error: 'Invalid babyProfileId format' 
       });
     }
 
@@ -90,13 +72,14 @@ router.get('/', async (req, res) => {
 });
 
 // Update a user's role in a baby profile (only admins can do this)
-router.put('/role', async (req, res) => {
+router.put('/role', authenticate, checkBabyProfileAccess(['admin'], 'body'), async (req, res) => {
   try {
-    const { userId, babyProfileId, targetUserId, newRole } = req.body;
+    const { targetUserId, newRole } = req.body;
+    const { userId, babyProfileId } = req.userRole;
 
-    if (!userId || !babyProfileId || !targetUserId || !newRole) {
+    if (!targetUserId || !newRole) {
       return res.status(400).json({ 
-        error: 'userId, babyProfileId, targetUserId, and newRole are required' 
+        error: 'targetUserId and newRole are required' 
       });
     }
 
@@ -108,37 +91,18 @@ router.put('/role', async (req, res) => {
     }
 
     // Convert to ObjectId for proper querying
-    let userIdObj, babyProfileIdObj, targetUserIdObj;
+    let targetUserIdObj, babyProfileIdObj;
     try {
-      userIdObj = new mongoose.Types.ObjectId(userId);
       babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
       targetUserIdObj = new mongoose.Types.ObjectId(targetUserId);
     } catch (error) {
       return res.status(400).json({ 
-        error: 'Invalid userId, babyProfileId, or targetUserId format' 
-      });
-    }
-
-    // Check if the requesting user is an admin of this baby profile
-    const adminRole = await UserBabyRole.findOne({
-      userId: userIdObj,
-      babyProfileId: babyProfileIdObj,
-    });
-
-    if (!adminRole) {
-      return res.status(403).json({ 
-        error: 'You do not have access to this baby profile' 
-      });
-    }
-
-    if (adminRole.role !== 'admin') {
-      return res.status(403).json({ 
-        error: 'Only admins can change user roles' 
+        error: 'Invalid targetUserId format' 
       });
     }
 
     // Prevent admins from changing their own role
-    if (userIdObj.toString() === targetUserIdObj.toString()) {
+    if (userId === targetUserId) {
       return res.status(400).json({ 
         error: 'You cannot change your own role' 
       });
@@ -176,48 +140,30 @@ router.put('/role', async (req, res) => {
 });
 
 // Remove a user from a baby profile (only admins can do this)
-router.delete('/', async (req, res) => {
+router.delete('/', authenticate, checkBabyProfileAccess(['admin'], 'body'), async (req, res) => {
   try {
-    const { userId, babyProfileId, targetUserId } = req.body;
+    const { targetUserId } = req.body;
+    const { userId, babyProfileId } = req.userRole;
 
-    if (!userId || !babyProfileId || !targetUserId) {
+    if (!targetUserId) {
       return res.status(400).json({ 
-        error: 'userId, babyProfileId, and targetUserId are required' 
+        error: 'targetUserId is required' 
       });
     }
 
     // Convert to ObjectId for proper querying
-    let userIdObj, babyProfileIdObj, targetUserIdObj;
+    let babyProfileIdObj, targetUserIdObj;
     try {
-      userIdObj = new mongoose.Types.ObjectId(userId);
       babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
       targetUserIdObj = new mongoose.Types.ObjectId(targetUserId);
     } catch (error) {
       return res.status(400).json({ 
-        error: 'Invalid userId, babyProfileId, or targetUserId format' 
-      });
-    }
-
-    // Check if the requesting user is an admin of this baby profile
-    const adminRole = await UserBabyRole.findOne({
-      userId: userIdObj,
-      babyProfileId: babyProfileIdObj,
-    });
-
-    if (!adminRole) {
-      return res.status(403).json({ 
-        error: 'You do not have access to this baby profile' 
-      });
-    }
-
-    if (adminRole.role !== 'admin') {
-      return res.status(403).json({ 
-        error: 'Only admins can remove users' 
+        error: 'Invalid targetUserId format' 
       });
     }
 
     // Prevent admins from removing themselves
-    if (userIdObj.toString() === targetUserIdObj.toString()) {
+    if (userId === targetUserId) {
       return res.status(400).json({ 
         error: 'You cannot remove yourself from the baby profile' 
       });
@@ -279,48 +225,30 @@ router.get('/:id', async (req, res) => {
 });
 
 // Block or unblock a user from a baby profile (only admins can do this)
-router.put('/block', async (req, res) => {
+router.put('/block', authenticate, checkBabyProfileAccess(['admin'], 'body'), async (req, res) => {
   try {
-    const { userId, babyProfileId, targetUserId, blocked } = req.body;
+    const { targetUserId, blocked } = req.body;
+    const { userId, babyProfileId } = req.userRole;
 
-    if (!userId || !babyProfileId || !targetUserId || typeof blocked !== 'boolean') {
+    if (!targetUserId || typeof blocked !== 'boolean') {
       return res.status(400).json({ 
-        error: 'userId, babyProfileId, targetUserId, and blocked (boolean) are required' 
+        error: 'targetUserId and blocked (boolean) are required' 
       });
     }
 
     // Convert to ObjectId for proper querying
-    let userIdObj, babyProfileIdObj, targetUserIdObj;
+    let babyProfileIdObj, targetUserIdObj;
     try {
-      userIdObj = new mongoose.Types.ObjectId(userId);
       babyProfileIdObj = new mongoose.Types.ObjectId(babyProfileId);
       targetUserIdObj = new mongoose.Types.ObjectId(targetUserId);
     } catch (error) {
       return res.status(400).json({ 
-        error: 'Invalid userId, babyProfileId, or targetUserId format' 
-      });
-    }
-
-    // Check if the requesting user is an admin of this baby profile
-    const adminRole = await UserBabyRole.findOne({
-      userId: userIdObj,
-      babyProfileId: babyProfileIdObj,
-    });
-
-    if (!adminRole) {
-      return res.status(403).json({ 
-        error: 'You do not have access to this baby profile' 
-      });
-    }
-
-    if (adminRole.role !== 'admin') {
-      return res.status(403).json({ 
-        error: 'Only admins can block/unblock users' 
+        error: 'Invalid targetUserId format' 
       });
     }
 
     // Prevent admins from blocking themselves
-    if (userIdObj.toString() === targetUserIdObj.toString()) {
+    if (userId === targetUserId) {
       return res.status(400).json({ 
         error: 'You cannot block yourself' 
       });
@@ -381,8 +309,8 @@ router.put('/block', async (req, res) => {
   }
 });
 
-// Update user emoji
-router.put('/:id/emoji', async (req, res) => {
+// Update user emoji (users can only update their own emoji)
+router.put('/:id/emoji', authenticate, async (req, res) => {
   try {
     const { emoji } = req.body;
     const { id } = req.params;
@@ -394,6 +322,11 @@ router.put('/:id/emoji', async (req, res) => {
     // Validate emoji (basic check - should be a single emoji character)
     if (emoji.length === 0 || emoji.length > 10) {
       return res.status(400).json({ error: 'Invalid emoji format' });
+    }
+
+    // Users can only update their own emoji
+    if (req.user.id !== id) {
+      return res.status(403).json({ error: 'You can only update your own emoji' });
     }
 
     const user = await User.findById(id);
