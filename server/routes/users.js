@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
     })
       .populate('userId')
       .sort({ createdAt: -1 });
-    
+
     // Filter out any roles where the user was deleted (null)
     // Note: babyProfileId is NOT populated, so it's an ObjectId directly
     // The query above should already filter correctly, but we add an extra safety check

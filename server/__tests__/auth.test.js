@@ -64,10 +64,9 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.user.email).toBe('test@example.com');
-      expect(response.body.user.name).toBe('Test User');
-      expect(response.body.user.googleId).toBe('google123');
-      expect(response.body.user.emoji).toBeTruthy(); // Should have a random emoji
+      // Verify cookie is set
+      expect(response.headers['set-cookie']).toBeDefined();
+      expect(response.headers['set-cookie'][0]).toContain('token=');
 
       // Verify user was created in database
       const user = await User.findOne({ googleId: 'google123' });
@@ -104,8 +103,9 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.user.email).toBe('new@example.com');
-      expect(response.body.user.name).toBe('New Name');
+      // Verify cookie is set
+      expect(response.headers['set-cookie']).toBeDefined();
+      expect(response.headers['set-cookie'][0]).toContain('token=');
 
       // Verify user was updated in database
       const updatedUser = await User.findById(existingUser._id);
@@ -146,6 +146,57 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Authentication failed');
+    });
+  });
+
+  describe('GET /api/auth/me', () => {
+    it('should return 401 if no token cookie is provided', async () => {
+      const response = await request(app)
+        .get('/api/auth/me');
+
+      expect(response.status).toBe(401);
+      expect(response.body.error).toBe('Authentication required');
+    });
+
+    it('should return user data when valid token cookie is provided', async () => {
+      // Create a user first
+      const user = await User.create({
+        googleId: 'google123',
+        email: 'test@example.com',
+        name: 'Test User',
+        emoji: '😀',
+      });
+
+      // Generate a valid token
+      const jwt = require('jsonwebtoken');
+      // Use the same JWT_SECRET as the auth route (or a test secret)
+      const JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-testing-only';
+      const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET);
+
+      const response = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', `token=${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.user.id).toBe(user._id.toString());
+      expect(response.body.user.email).toBe('test@example.com');
+      expect(response.body.user.name).toBe('Test User');
+      expect(response.body.user.emoji).toBe('😀');
+    });
+  });
+
+  describe('POST /api/auth/logout', () => {
+    it('should clear the token cookie', async () => {
+      const response = await request(app)
+        .post('/api/auth/logout');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      // Verify cookie is cleared (maxAge: 0)
+      expect(response.headers['set-cookie']).toBeDefined();
+      expect(response.headers['set-cookie'][0]).toContain('token=');
+      expect(response.headers['set-cookie'][0]).toContain('Max-Age=0');
     });
   });
 });

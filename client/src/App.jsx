@@ -56,11 +56,11 @@ function App() {
           // Not authenticated, clear any stored profile
           localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
         }
-      } catch (err) {
+        } catch (err) {
         console.error('Error checking authentication:', err)
         localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
       } finally {
-        setLoading(false)
+      setLoading(false)
       }
     }
     
