@@ -6,6 +6,7 @@ import BabyProfileView from './components/BabyProfileView'
 import EmojiPicker from './components/EmojiPicker'
 import Spinner from './components/Spinner'
 import { API_URL } from './constants/constants'
+import { getAuthToken, setAuthToken, removeAuthToken, apiFetch } from './utils/api'
 import './App.css'
 const OPEN_PROFILE_STORAGE_KEY = 'babyTracker_openProfile'
 
@@ -21,10 +22,16 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        const token = getAuthToken()
+        if (!token) {
+          // No token, user is not authenticated
+          localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
+          setLoading(false)
+          return
+        }
+
         // Check if user is authenticated by fetching from /auth/me
-        const response = await fetch(`${API_URL}/auth/me`, {
-          credentials: 'include',
-        })
+        const response = await apiFetch(`${API_URL}/auth/me`)
         
         if (response.ok) {
           const data = await response.json()
@@ -34,9 +41,7 @@ function App() {
           const storedProfileId = localStorage.getItem(OPEN_PROFILE_STORAGE_KEY)
           if (storedProfileId && data.user) {
             try {
-              const profileResponse = await fetch(`${API_URL}/baby-profiles?userId=${data.user.id}`, {
-                credentials: 'include',
-              })
+              const profileResponse = await apiFetch(`${API_URL}/baby-profiles`)
               if (profileResponse.ok) {
                 const profileData = await profileResponse.json()
                 const profile = profileData.profiles?.find(p => p.id === storedProfileId)
@@ -53,11 +58,13 @@ function App() {
             }
           }
         } else {
-          // Not authenticated, clear any stored profile
+          // Token is invalid, clear it and stored profile
+          removeAuthToken()
           localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
         }
         } catch (err) {
         console.error('Error checking authentication:', err)
+        removeAuthToken()
         localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
       } finally {
       setLoading(false)
@@ -111,17 +118,18 @@ function App() {
         throw new Error(errorMessage)
       }
 
-      // Cookie is set, now fetch user data
-      const userResponse = await fetch(`${API_URL}/auth/me`, {
-        credentials: 'include',
-      })
-
-      if (!userResponse.ok) {
-        throw new Error('Failed to get user data after authentication')
+      // Get token and user data from response
+      const authData = await response.json()
+      
+      if (!authData.token || !authData.user) {
+        throw new Error('Invalid response from server: missing token or user data')
       }
 
-      const userData = await userResponse.json()
-      setUser(userData.user)
+      // Store the token
+      setAuthToken(authData.token)
+      
+      // Set user data
+      setUser(authData.user)
     } catch (err) {
       console.error('Error saving user:', err)
       const errorMessage = err.message || 'Unknown error occurred'
@@ -235,13 +243,14 @@ function App() {
           className="logout-btn"
           onClick={async () => {
             try {
-              await fetch(`${API_URL}/auth/logout`, {
+              await apiFetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
-                credentials: 'include',
               })
             } catch (err) {
               console.error('Error logging out:', err)
             }
+            // Clear token and user data
+            removeAuthToken()
             setUser(null)
             setOpenProfile(null)
             localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)

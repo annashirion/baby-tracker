@@ -70,16 +70,17 @@ router.post('/google', async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    // Set HTTP-only cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
+    // Return token in response (client will store it and send in Authorization header)
     res.json({
       success: true,
+      token,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        emoji: user.emoji,
+        googleId: user.googleId,
+      },
     });
   } catch (error) {
     console.error('Auth error:', error.message);
@@ -122,14 +123,8 @@ router.get('/me', authenticate, async (req, res) => {
   }
 });
 
-// Logout - clear cookie
+// Logout - no server-side action needed (client removes token)
 router.post('/logout', (req, res) => {
-  res.cookie('token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 0,
-  });
   res.json({ success: true });
 });
 

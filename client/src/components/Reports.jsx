@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './Reports.css';
 import { API_URL } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 import CalendarView from './CalendarView';
 import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
@@ -38,9 +39,7 @@ function Reports({ profile, onClose, openToToday = false }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`, {
-        credentials: 'include',
-      });
+      const response = await apiFetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch actions');
@@ -69,9 +68,8 @@ function Reports({ profile, onClose, openToToday = false }) {
 
   const handleDeleteAction = async (actionId) => {
     try {
-      const response = await fetch(`${API_URL}/actions/${actionId}`, {
+      const response = await apiFetch(`${API_URL}/actions/${actionId}`, {
         method: 'DELETE',
-        credentials: 'include',
       });
 
       if (!response.ok) {

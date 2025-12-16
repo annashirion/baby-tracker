@@ -4,6 +4,7 @@ import LoadingDots from './LoadingDots';
 import './DiaperAction.css';
 import './TimeInput.css';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
   const [diaperType, setDiaperType] = useState(DIAPER_TYPES.PEE);
@@ -33,15 +34,10 @@ function DiaperAction({ profile, userId, userEmoji, onClose, onSuccess }) {
       setSaving(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/actions`, {
+      const response = await apiFetch(`${API_URL}/actions`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
           babyProfileId: profile.id,
-          userId: userId,
           actionType: ACTION_TYPES.DIAPER,
           details: {
             type: diaperType,

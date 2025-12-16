@@ -3,6 +3,7 @@ import './EmojiPicker.css';
 import Spinner from './Spinner';
 import LoadingDots from './LoadingDots';
 import { API_URL } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', readOnly = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,12 +62,8 @@ function EmojiPicker({ currentEmoji, onEmojiChange, userId, size = 'medium', rea
     setUpdating(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/users/${userId}/emoji`, {
+      const response = await apiFetch(`${API_URL}/users/${userId}/emoji`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ emoji }),
       });
 

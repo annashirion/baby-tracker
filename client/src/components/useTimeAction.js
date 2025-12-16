@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 export function useTimeAction({ actionType, lastAction, profile, userId, userEmoji, onSuccess, onClose }) {
   const [startTime, setStartTime] = useState('');
@@ -54,13 +55,10 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       setSaving(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/actions`, {
+      const response = await apiFetch(`${API_URL}/actions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
           babyProfileId: profile?.id,
-          userId: userId,
           actionType: actionType,
           details: {
             startTime: new Date(startTime).toISOString(),
@@ -112,10 +110,8 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       };
 
       if (lastAction && lastAction.id && !lastAction.details?.endTime) {
-        const response = await fetch(`${API_URL}/actions/${lastAction.id}`, {
+        const response = await apiFetch(`${API_URL}/actions/${lastAction.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ details }),
         });
 
@@ -126,13 +122,10 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
         const data = await response.json();
         if (onSuccess) onSuccess(data.action);
       } else {
-        const response = await fetch(`${API_URL}/actions`, {
+        const response = await apiFetch(`${API_URL}/actions`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({
             babyProfileId: profile?.id,
-            userId: userId,
             actionType: actionType,
             details: details,
             userEmoji: userEmoji || null,
@@ -166,9 +159,8 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       setSaving(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/actions/${lastAction.id}`, {
+      const response = await apiFetch(`${API_URL}/actions/${lastAction.id}`, {
         method: 'DELETE',
-        credentials: 'include',
       });
 
       if (!response.ok) {

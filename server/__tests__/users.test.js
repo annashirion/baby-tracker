@@ -83,7 +83,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .set('Cookie', `token=${token}`);
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('babyProfileId is required');
@@ -93,7 +93,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: 'invalid' });
 
       expect(response.status).toBe(400);
@@ -104,7 +104,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .get('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(403);
@@ -115,7 +115,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
         .get('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(403);
@@ -126,7 +126,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(200);
@@ -148,7 +148,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(200);
@@ -195,7 +195,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
         });
@@ -208,7 +208,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -223,7 +223,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .put('/api/users/role')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: editorUser._id.toString(),
@@ -238,7 +238,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: adminUser._id.toString(),
@@ -253,7 +253,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
@@ -268,7 +268,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/role')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -305,7 +305,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
         });
@@ -318,7 +318,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: editorUser._id.toString(),
@@ -332,7 +332,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: adminUser._id.toString(),
@@ -346,7 +346,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
@@ -360,7 +360,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -397,7 +397,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -411,7 +411,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -426,7 +426,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: editorUser._id.toString(),
@@ -441,7 +441,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: adminUser._id.toString(),
@@ -456,7 +456,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -489,7 +489,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -519,7 +519,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
@@ -548,7 +548,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: otherUser._id.toString(),
@@ -572,7 +572,7 @@ describe('Users Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),

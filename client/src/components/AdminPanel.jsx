@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../constants/constants';
 import Spinner from './Spinner';
+import { apiFetch } from '../utils/api';
 import './AdminPanel.css';
 
 function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
@@ -23,9 +24,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/users?userId=${userId}&babyProfileId=${babyProfileId}`, {
-        credentials: 'include',
-      });
+      const response = await apiFetch(`${API_URL}/users?babyProfileId=${babyProfileId}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch users');
@@ -62,14 +61,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
     try {
       setError(null);
-      const response = await fetch(`${API_URL}/users/role`, {
+      const response = await apiFetch(`${API_URL}/users/role`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
-          userId,
           babyProfileId,
           targetUserId,
           newRole,
@@ -117,14 +111,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
     try {
       setError(null);
-      const response = await fetch(`${API_URL}/users/block`, {
+      const response = await apiFetch(`${API_URL}/users/block`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
-          userId,
           babyProfileId,
           targetUserId,
           blocked: shouldBlock,
@@ -170,14 +159,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
     try {
       setError(null);
-      const response = await fetch(`${API_URL}/users`, {
+      const response = await apiFetch(`${API_URL}/users`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
-          userId,
           babyProfileId,
           targetUserId,
         }),

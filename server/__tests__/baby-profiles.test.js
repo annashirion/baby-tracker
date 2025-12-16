@@ -54,7 +54,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .get('/api/baby-profiles')
-        .set('Cookie', `token=${token}`);
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -89,7 +89,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .get('/api/baby-profiles')
-        .set('Cookie', `token=${token}`);
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -116,7 +116,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .get('/api/baby-profiles')
-        .set('Cookie', `token=${token}`);
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.profiles).toHaveLength(0);
@@ -137,7 +137,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(400);
@@ -148,7 +148,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Baby 1',
           birthDate: '2023-01-01',
@@ -179,7 +179,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Baby 2',
         });
@@ -204,7 +204,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(400);
@@ -215,7 +215,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'INVALID',
         });
@@ -233,7 +233,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -261,7 +261,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'abc123', // lowercase
         });
@@ -285,7 +285,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -317,7 +317,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
         });
@@ -340,7 +340,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
         });
@@ -363,7 +363,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
         });
@@ -387,7 +387,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
         });
@@ -417,7 +417,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           birthDate: '2023-06-15',
         });
@@ -446,7 +446,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
           birthDate: '2023-06-15',
@@ -475,7 +475,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .put(`/api/baby-profiles/${fakeId.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
         });
@@ -507,7 +507,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(403);
@@ -528,7 +528,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(403);
@@ -549,7 +549,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(403);
@@ -576,7 +576,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(200);
@@ -604,7 +604,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/api/baby-profiles/${fakeId.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(404);
@@ -634,7 +634,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(403);
@@ -655,7 +655,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(403);
@@ -677,7 +677,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(200);
@@ -711,7 +711,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(200);
@@ -750,7 +750,7 @@ describe('Baby Profiles Routes', () => {
       const token1 = generateAuthToken(testUser1._id);
       const leaveResponse = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token1}`)
+        .set('Authorization', `Bearer ${token1}`)
         .send({});
 
       expect(leaveResponse.status).toBe(200);
@@ -767,7 +767,7 @@ describe('Baby Profiles Routes', () => {
       const token2 = generateAuthToken(testUser1._id);
       const joinResponse = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2}`)
+        .set('Authorization', `Bearer ${token2}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -810,7 +810,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser2._id);
       const response = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(200);
@@ -851,7 +851,7 @@ describe('Baby Profiles Routes', () => {
       const token2a = generateAuthToken(testUser2._id);
       const joinResponse1 = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2a}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -863,7 +863,7 @@ describe('Baby Profiles Routes', () => {
       const token1a = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token1a}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -891,7 +891,7 @@ describe('Baby Profiles Routes', () => {
       const token2b = generateAuthToken(testUser2._id);
       const joinResponse2 = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2b}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -925,7 +925,7 @@ describe('Baby Profiles Routes', () => {
       const token2c = generateAuthToken(testUser2._id);
       const joinResponse1 = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2c}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -937,7 +937,7 @@ describe('Baby Profiles Routes', () => {
       const token1b = generateAuthToken(testUser1._id);
       const unblockResponse = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token1b}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -951,7 +951,7 @@ describe('Baby Profiles Routes', () => {
       const token2d = generateAuthToken(testUser2._id);
       const joinResponse2 = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2d}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -985,7 +985,7 @@ describe('Baby Profiles Routes', () => {
       const token1c = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token1c}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -1005,7 +1005,7 @@ describe('Baby Profiles Routes', () => {
       const token2e = generateAuthToken(testUser2._id);
       const joinResponse = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2e}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -1049,7 +1049,7 @@ describe('Baby Profiles Routes', () => {
       const token1d = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
         .put('/api/users/block')
-        .set('Cookie', `token=${token1d}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -1062,7 +1062,7 @@ describe('Baby Profiles Routes', () => {
       const token1e = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
         .delete('/api/users')
-        .set('Cookie', `token=${token1e}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -1082,7 +1082,7 @@ describe('Baby Profiles Routes', () => {
       const token2f = generateAuthToken(testUser2._id);
       const joinResponse = await request(app)
         .post('/api/baby-profiles/join')
-        .set('Cookie', `token=${token2f}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -1116,7 +1116,7 @@ describe('Baby Profiles Routes', () => {
       const token2g = generateAuthToken(testUser2._id);
       const updateResponse = await request(app)
         .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Cookie', `token=${token2g}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({
           name: 'Updated Name',
         });
@@ -1128,7 +1128,7 @@ describe('Baby Profiles Routes', () => {
       const token2h = generateAuthToken(testUser2._id);
       const leaveResponse = await request(app)
         .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Cookie', `token=${token2h}`)
+        .set('Authorization', `Bearer ${1}`)
         .send({});
 
       expect(leaveResponse.status).toBe(403);
@@ -1138,7 +1138,7 @@ describe('Baby Profiles Routes', () => {
       const token2i = generateAuthToken(testUser2._id);
       const getResponse = await request(app)
         .get('/api/baby-profiles')
-        .set('Cookie', `token=${token2i}`);
+        .set('Authorization', `Bearer ${1}`);
 
       expect(getResponse.status).toBe(200);
       expect(getResponse.body.success).toBe(true);
@@ -1173,7 +1173,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .get('/api/baby-profiles')
-          .set('Cookie', `token=${token}`);
+          .set('Authorization', `Bearer ${token}`);
 
         expect(response.status).toBe(200);
         expect(response.body.profiles[0].joinCodeEnabled).toBe(true);
@@ -1183,7 +1183,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles')
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({
             name: 'Baby 1',
           });
@@ -1204,7 +1204,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1223,7 +1223,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1243,7 +1243,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1277,7 +1277,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(403);
@@ -1299,7 +1299,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(403);
@@ -1321,7 +1321,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(403);
@@ -1344,7 +1344,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(403);
@@ -1367,7 +1367,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(200);
@@ -1395,7 +1395,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(200);
@@ -1424,7 +1424,7 @@ describe('Baby Profiles Routes', () => {
         // Toggle to disabled
         const response1 = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response1.status).toBe(200);
@@ -1433,7 +1433,7 @@ describe('Baby Profiles Routes', () => {
         // Toggle back to enabled
         const response2 = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response2.status).toBe(200);
@@ -1442,7 +1442,7 @@ describe('Baby Profiles Routes', () => {
         // Toggle to disabled again
         const response3 = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response3.status).toBe(200);
@@ -1466,7 +1466,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({});
 
         expect(response.status).toBe(200);
@@ -1496,7 +1496,7 @@ describe('Baby Profiles Routes', () => {
         const token1 = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token1}`)
+          .set('Authorization', `Bearer ${token1}`)
           .send({});
 
         expect(toggleResponse.status).toBe(200);
@@ -1506,7 +1506,7 @@ describe('Baby Profiles Routes', () => {
         const token2 = generateAuthToken(testUser2._id);
         const joinResponse = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token2}`)
+          .set('Authorization', `Bearer ${token2}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1532,7 +1532,7 @@ describe('Baby Profiles Routes', () => {
         const token2a = generateAuthToken(testUser2._id);
         const joinResponse1 = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token2a}`)
+          .set('Authorization', `Bearer ${1}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1543,7 +1543,7 @@ describe('Baby Profiles Routes', () => {
         const token1a = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
           .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Cookie', `token=${token1a}`)
+          .set('Authorization', `Bearer ${1}`)
           .send({});
 
         expect(toggleResponse.status).toBe(200);
@@ -1556,7 +1556,7 @@ describe('Baby Profiles Routes', () => {
         const token2b = generateAuthToken(testUser2._id);
         const joinResponse2 = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token2b}`)
+          .set('Authorization', `Bearer ${1}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1573,7 +1573,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles')
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({
             name: 'Baby 1',
             birthDate: 'invalid-date',
@@ -1613,7 +1613,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
           .post('/api/baby-profiles/join')
-          .set('Cookie', `token=${token}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1627,7 +1627,7 @@ describe('Baby Profiles Routes', () => {
       it('should handle invalid token format', async () => {
         const response = await request(app)
           .get('/api/baby-profiles')
-          .set('Cookie', 'token=invalid-token');
+          .set('Authorization', 'Bearer invalid-token');
 
         // Invalid token should return 401
         expect(response.status).toBe(401);

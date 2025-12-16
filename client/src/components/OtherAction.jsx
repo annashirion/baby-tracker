@@ -33,15 +33,10 @@ function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
       setSaving(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/actions`, {
+      const response = await apiFetch(`${API_URL}/actions`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
           babyProfileId: profile.id,
-          userId: userId,
           actionType: ACTION_TYPES.OTHER,
           details: {
             title: title.trim(),

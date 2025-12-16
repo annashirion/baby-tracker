@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './BabyProfiles.css';
 import Spinner from './Spinner';
 import { ALLOWED_JOIN_CODE_CHARS, API_URL } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
   const [profiles, setProfiles] = useState([]);
@@ -80,9 +81,7 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/baby-profiles?userId=${userId}`, {
-        credentials: 'include',
-      });
+      const response = await apiFetch(`${API_URL}/baby-profiles`);
       
       if (!response.ok) {
         let errorMessage = `Failed to fetch baby profiles (${response.status})`;
@@ -112,14 +111,9 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setCreating(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/baby-profiles`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
-          userId,
           name: createForm.name,
           birthDate: createForm.birthDate || null,
         }),
@@ -155,14 +149,9 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setJoining(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/baby-profiles/join`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/join`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
-          userId,
           joinCode: joinCode.trim().toUpperCase(),
         }),
       });
@@ -284,15 +273,8 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setTogglingJoinCode(prev => ({ ...prev, [profileId]: true }));
       setError(null);
 
-      const response = await fetch(`${API_URL}/baby-profiles/${profileId}/toggle-join-code`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}/toggle-join-code`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userId,
-        }),
       });
 
       if (!response.ok) {
@@ -343,14 +325,9 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setUpdating(true);
       setError(null);
 
-      const response = await fetch(`${API_URL}/baby-profiles/${editingProfileId}`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/${editingProfileId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({
-          userId,
           name: editForm.name,
           birthDate: editForm.birthDate || null,
         }),
@@ -393,15 +370,8 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setDeleting(prev => ({ ...prev, [profileId]: true }));
       setError(null);
 
-      const response = await fetch(`${API_URL}/baby-profiles/${profileId}`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userId,
-        }),
       });
 
       if (!response.ok) {
@@ -443,15 +413,8 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setLeaving(prev => ({ ...prev, [profileId]: true }));
       setError(null);
 
-      const response = await fetch(`${API_URL}/baby-profiles/${profileId}/leave`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}/leave`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          userId,
-        }),
       });
 
       if (!response.ok) {

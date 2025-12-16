@@ -173,7 +173,7 @@ describe('Auth Routes', () => {
 
       const response = await request(app)
         .get('/api/auth/me')
-        .set('Cookie', `token=${token}`);
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

@@ -88,7 +88,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           actionType: 'diaper',
           details: { type: 'pee' },
@@ -102,7 +102,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
         actionType: 'diaper',
@@ -123,7 +123,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
@@ -138,7 +138,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
@@ -153,7 +153,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
@@ -171,7 +171,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           actionType: 'feed',
@@ -189,7 +189,7 @@ describe('Actions Routes', () => {
       const customTimestamp = '2023-06-15T10:00:00Z';
       const response = await request(app)
         .post('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           actionType: 'sleep',
@@ -219,7 +219,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .get('/api/actions')
-        .set('Cookie', `token=${token}`);
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('babyProfileId is required');
@@ -229,7 +229,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
         .get('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(403);
@@ -254,7 +254,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .get('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(200);
@@ -273,7 +273,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .get('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(200);
@@ -291,7 +291,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .get('/api/actions')
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(200);
@@ -327,7 +327,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .put(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           details: { type: 'poo' },
         });
@@ -340,7 +340,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .put(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo' },
@@ -361,7 +361,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .put(`/api/actions/${adminAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo' },
@@ -375,7 +375,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .put(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo', comments: 'Updated' },
@@ -391,7 +391,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo', comments: 'Admin updated' },
@@ -407,7 +407,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put(`/api/actions/${fakeId.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo' },
@@ -429,7 +429,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .put(`/api/actions/${otherAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo' },
@@ -467,7 +467,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({});
 
       expect(response.status).toBe(400);
@@ -478,7 +478,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
         .delete(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
         });
@@ -491,7 +491,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .delete(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
         });
@@ -504,7 +504,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete(`/api/actions/${testAction._id.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
         });
@@ -523,7 +523,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete(`/api/actions/${fakeId.toString()}`)
-        .set('Cookie', `token=${token}`)
+        .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
         });

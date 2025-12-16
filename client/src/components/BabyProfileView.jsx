@@ -7,6 +7,7 @@ import FeedAction from './FeedAction';
 import Reports from './Reports';
 import LoadingDots from './LoadingDots';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
@@ -53,9 +54,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const fetchLastActions = async () => {
     try {
       setLoadingAction(true);
-      const response = await fetch(`${API_URL}/actions?babyProfileId=${profile.id}`, {
-        credentials: 'include',
-      });
+      const response = await apiFetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
       
       if (response.ok) {
         const data = await response.json();

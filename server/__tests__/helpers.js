@@ -30,7 +30,7 @@ export const generateAuthToken = (userId) => {
 export const authenticatedRequest = (request, app, method, path, userId, options = {}) => {
   const token = generateAuthToken(userId);
   const req = request(app)[method.toLowerCase()](path);
-  req.set('Cookie', `token=${token}`);
+  req.set('Authorization', `Bearer ${token}`);
   
   if (options.body) {
     req.send(options.body);

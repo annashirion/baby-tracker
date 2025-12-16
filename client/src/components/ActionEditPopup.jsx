@@ -9,6 +9,7 @@ import './SleepAction.css';
 import './OtherAction.css';
 import './ActionEditPopup.css';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
   const [saving, setSaving] = useState(false);
@@ -113,12 +114,8 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
         };
       }
 
-      const response = await fetch(`${API_URL}/actions/${action.id}`, {
+      const response = await apiFetch(`${API_URL}/actions/${action.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
         body: JSON.stringify({ details }),
       });
 
