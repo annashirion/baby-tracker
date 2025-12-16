@@ -35,17 +35,17 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('GET /api/baby-profiles/test', () => {
+  describe('GET /baby-profiles/test', () => {
     it('should return test message', async () => {
-      const response = await request(app).get('/api/baby-profiles/test');
+      const response = await request(app).get('/baby-profiles/test');
       expect(response.status).toBe(200);
       expect(response.body.message).toBe('Baby profiles router is working!');
     });
   });
 
-  describe('GET /api/baby-profiles', () => {
+  describe('GET /baby-profiles', () => {
     it('should return 401 if not authenticated', async () => {
-      const response = await request(app).get('/api/baby-profiles');
+      const response = await request(app).get('/baby-profiles');
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
@@ -53,7 +53,7 @@ describe('Baby Profiles Routes', () => {
     it('should return empty array if user has no profiles', async () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .get('/api/baby-profiles')
+        .get('/baby-profiles')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -88,7 +88,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .get('/api/baby-profiles')
+        .get('/baby-profiles')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -115,7 +115,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .get('/api/baby-profiles')
+        .get('/baby-profiles')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -123,10 +123,10 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('POST /api/baby-profiles', () => {
+  describe('POST /baby-profiles', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .post('/api/baby-profiles')
+        .post('/baby-profiles')
         .send({ name: 'Baby 1' });
 
       expect(response.status).toBe(401);
@@ -136,7 +136,7 @@ describe('Baby Profiles Routes', () => {
     it('should return 400 if name is missing', async () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles')
+        .post('/baby-profiles')
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -147,7 +147,7 @@ describe('Baby Profiles Routes', () => {
     it('should create a new baby profile and assign admin role to creator', async () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles')
+        .post('/baby-profiles')
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Baby 1',
@@ -178,7 +178,7 @@ describe('Baby Profiles Routes', () => {
     it('should create profile with optional fields', async () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles')
+        .post('/baby-profiles')
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Baby 2',
@@ -190,10 +190,10 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('POST /api/baby-profiles/join', () => {
+  describe('POST /baby-profiles/join', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .send({ joinCode: 'ABC123' });
 
       expect(response.status).toBe(401);
@@ -203,7 +203,7 @@ describe('Baby Profiles Routes', () => {
     it('should return 400 if joinCode is missing', async () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -214,7 +214,7 @@ describe('Baby Profiles Routes', () => {
     it('should return 404 if join code does not exist', async () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'INVALID',
@@ -232,7 +232,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'ABC123',
@@ -260,7 +260,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'abc123', // lowercase
@@ -284,7 +284,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .set('Authorization', `Bearer ${token}`)
         .send({
           joinCode: 'ABC123',
@@ -295,14 +295,14 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('PUT /api/baby-profiles/:id', () => {
+  describe('PUT /baby-profiles/:id', () => {
     it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .send({ name: 'Updated Baby' });
 
       expect(response.status).toBe(401);
@@ -316,7 +316,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
@@ -339,7 +339,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
@@ -362,7 +362,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
@@ -386,7 +386,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
@@ -416,7 +416,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           birthDate: '2023-06-15',
@@ -445,7 +445,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
@@ -474,7 +474,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .put(`/api/baby-profiles/${fakeId.toString()}`)
+        .put(`/baby-profiles/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           name: 'Updated Baby',
@@ -485,14 +485,14 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('DELETE /api/baby-profiles/:id', () => {
+  describe('DELETE /baby-profiles/:id', () => {
     it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
       const response = await request(app)
-        .delete(`/api/baby-profiles/${profile._id.toString()}`)
+        .delete(`/baby-profiles/${profile._id.toString()}`)
         .send({});
 
       expect(response.status).toBe(401);
@@ -506,7 +506,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .delete(`/api/baby-profiles/${profile._id.toString()}`)
+        .delete(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -527,7 +527,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .delete(`/api/baby-profiles/${profile._id.toString()}`)
+        .delete(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -548,7 +548,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .delete(`/api/baby-profiles/${profile._id.toString()}`)
+        .delete(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -575,7 +575,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .delete(`/api/baby-profiles/${profile._id.toString()}`)
+        .delete(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -603,7 +603,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .delete(`/api/baby-profiles/${fakeId.toString()}`)
+        .delete(`/baby-profiles/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -612,14 +612,14 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('POST /api/baby-profiles/:id/leave', () => {
+  describe('POST /baby-profiles/:id/leave', () => {
     it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
       const response = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .send({});
 
       expect(response.status).toBe(401);
@@ -633,7 +633,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -654,7 +654,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -676,7 +676,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -710,7 +710,7 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -749,7 +749,7 @@ describe('Baby Profiles Routes', () => {
       // User leaves
       const token1 = generateAuthToken(testUser1._id);
       const leaveResponse = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .set('Authorization', `Bearer ${token1}`)
         .send({});
 
@@ -766,7 +766,7 @@ describe('Baby Profiles Routes', () => {
       // User joins again using join code
       const token2 = generateAuthToken(testUser1._id);
       const joinResponse = await request(app)
-        .post('/api/baby-profiles/join')
+        .post('/baby-profiles/join')
         .set('Authorization', `Bearer ${token2}`)
         .send({
           joinCode: 'ABC123',
@@ -809,7 +809,7 @@ describe('Baby Profiles Routes', () => {
       // User 2 leaves
       const token = generateAuthToken(testUser2._id);
       const response = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -850,8 +850,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 joins
       const token2a = generateAuthToken(testUser2._id);
       const joinResponse1 = await request(app)
-        .post('/api/baby-profiles/join')
-        .set('Authorization', `Bearer ${1}`)
+        .post('/baby-profiles/join')
+        .set('Authorization', `Bearer ${token2a}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -862,8 +862,8 @@ describe('Baby Profiles Routes', () => {
       // Admin blocks User 2
       const token1a = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
-        .put('/api/users/block')
-        .set('Authorization', `Bearer ${1}`)
+        .put('/users/block')
+        .set('Authorization', `Bearer ${token1a}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -890,8 +890,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to join again
       const token2b = generateAuthToken(testUser2._id);
       const joinResponse2 = await request(app)
-        .post('/api/baby-profiles/join')
-        .set('Authorization', `Bearer ${1}`)
+        .post('/baby-profiles/join')
+        .set('Authorization', `Bearer ${token2b}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -924,8 +924,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to join (should fail)
       const token2c = generateAuthToken(testUser2._id);
       const joinResponse1 = await request(app)
-        .post('/api/baby-profiles/join')
-        .set('Authorization', `Bearer ${1}`)
+        .post('/baby-profiles/join')
+        .set('Authorization', `Bearer ${token2c}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -936,8 +936,8 @@ describe('Baby Profiles Routes', () => {
       // Admin unblocks User 2
       const token1b = generateAuthToken(testUser1._id);
       const unblockResponse = await request(app)
-        .put('/api/users/block')
-        .set('Authorization', `Bearer ${1}`)
+        .put('/users/block')
+        .set('Authorization', `Bearer ${token1b}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -950,8 +950,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to join again (should say they already have access since unblocking gives them access)
       const token2d = generateAuthToken(testUser2._id);
       const joinResponse2 = await request(app)
-        .post('/api/baby-profiles/join')
-        .set('Authorization', `Bearer ${1}`)
+        .post('/baby-profiles/join')
+        .set('Authorization', `Bearer ${token2d}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -984,8 +984,8 @@ describe('Baby Profiles Routes', () => {
       // Admin removes User 2
       const token1c = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
-        .delete('/api/users')
-        .set('Authorization', `Bearer ${1}`)
+        .delete('/users')
+        .set('Authorization', `Bearer ${token1c}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -1004,8 +1004,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to join again (should succeed)
       const token2e = generateAuthToken(testUser2._id);
       const joinResponse = await request(app)
-        .post('/api/baby-profiles/join')
-        .set('Authorization', `Bearer ${1}`)
+        .post('/baby-profiles/join')
+        .set('Authorization', `Bearer ${token2e}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -1048,8 +1048,8 @@ describe('Baby Profiles Routes', () => {
       // Admin blocks User 2
       const token1d = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
-        .put('/api/users/block')
-        .set('Authorization', `Bearer ${1}`)
+        .put('/users/block')
+        .set('Authorization', `Bearer ${token1d}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -1061,8 +1061,8 @@ describe('Baby Profiles Routes', () => {
       // Admin removes User 2
       const token1e = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
-        .delete('/api/users')
-        .set('Authorization', `Bearer ${1}`)
+        .delete('/users')
+        .set('Authorization', `Bearer ${token1e}`)
         .send({
           babyProfileId: profile._id.toString(),
           targetUserId: testUser2._id.toString(),
@@ -1081,8 +1081,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to join again (should fail)
       const token2f = generateAuthToken(testUser2._id);
       const joinResponse = await request(app)
-        .post('/api/baby-profiles/join')
-        .set('Authorization', `Bearer ${1}`)
+        .post('/baby-profiles/join')
+        .set('Authorization', `Bearer ${token2f}`)
         .send({
           joinCode: 'ABC123',
         });
@@ -1115,8 +1115,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to update profile (should fail)
       const token2g = generateAuthToken(testUser2._id);
       const updateResponse = await request(app)
-        .put(`/api/baby-profiles/${profile._id.toString()}`)
-        .set('Authorization', `Bearer ${1}`)
+        .put(`/baby-profiles/${profile._id.toString()}`)
+        .set('Authorization', `Bearer ${token2g}`)
         .send({
           name: 'Updated Name',
         });
@@ -1127,18 +1127,18 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to leave profile (should fail)
       const token2h = generateAuthToken(testUser2._id);
       const leaveResponse = await request(app)
-        .post(`/api/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${1}`)
+        .post(`/baby-profiles/${profile._id.toString()}/leave`)
+        .set('Authorization', `Bearer ${token2h}`)
         .send({});
 
       expect(leaveResponse.status).toBe(403);
       expect(leaveResponse.body.error).toBe('You have been blocked from accessing this baby profile');
 
-      // User 2 should not see profile in GET /api/baby-profiles list
+      // User 2 should not see profile in GET /baby-profiles list
       const token2i = generateAuthToken(testUser2._id);
       const getResponse = await request(app)
-        .get('/api/baby-profiles')
-        .set('Authorization', `Bearer ${1}`);
+        .get('/baby-profiles')
+        .set('Authorization', `Bearer ${token2i}`);
 
       expect(getResponse.status).toBe(200);
       expect(getResponse.body.success).toBe(true);
@@ -1172,7 +1172,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .get('/api/baby-profiles')
+          .get('/baby-profiles')
           .set('Authorization', `Bearer ${token}`);
 
         expect(response.status).toBe(200);
@@ -1182,7 +1182,7 @@ describe('Baby Profiles Routes', () => {
       it('should return joinCodeEnabled in create response', async () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .post('/api/baby-profiles')
+          .post('/baby-profiles')
           .set('Authorization', `Bearer ${token}`)
           .send({
             name: 'Baby 1',
@@ -1193,7 +1193,7 @@ describe('Baby Profiles Routes', () => {
       });
     });
 
-    describe('POST /api/baby-profiles/join with disabled join code', () => {
+    describe('POST /baby-profiles/join with disabled join code', () => {
       it('should return 403 if join code is disabled', async () => {
         const profile = await BabyProfile.create({
           name: 'Baby 1',
@@ -1203,7 +1203,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .post('/api/baby-profiles/join')
+          .post('/baby-profiles/join')
           .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
@@ -1222,7 +1222,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .post('/api/baby-profiles/join')
+          .post('/baby-profiles/join')
           .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
@@ -1242,7 +1242,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .post('/api/baby-profiles/join')
+          .post('/baby-profiles/join')
           .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
@@ -1253,7 +1253,7 @@ describe('Baby Profiles Routes', () => {
       });
     });
 
-    describe('PUT /api/baby-profiles/:id/toggle-join-code', () => {
+    describe('PUT /baby-profiles/:id/toggle-join-code', () => {
       it('should return 401 if not authenticated', async () => {
         const profile = await BabyProfile.create({
           name: 'Baby 1',
@@ -1261,7 +1261,7 @@ describe('Baby Profiles Routes', () => {
         });
 
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .send({});
 
         expect(response.status).toBe(401);
@@ -1276,7 +1276,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1298,7 +1298,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1320,7 +1320,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1343,7 +1343,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1366,7 +1366,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1394,7 +1394,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1423,7 +1423,7 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         // Toggle to disabled
         const response1 = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1432,7 +1432,7 @@ describe('Baby Profiles Routes', () => {
 
         // Toggle back to enabled
         const response2 = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1441,7 +1441,7 @@ describe('Baby Profiles Routes', () => {
 
         // Toggle to disabled again
         const response3 = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1465,7 +1465,7 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token}`)
           .send({});
 
@@ -1495,7 +1495,7 @@ describe('Baby Profiles Routes', () => {
         // Admin disables join code
         const token1 = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
           .set('Authorization', `Bearer ${token1}`)
           .send({});
 
@@ -1505,7 +1505,7 @@ describe('Baby Profiles Routes', () => {
         // User 2 tries to join - should fail
         const token2 = generateAuthToken(testUser2._id);
         const joinResponse = await request(app)
-          .post('/api/baby-profiles/join')
+          .post('/baby-profiles/join')
           .set('Authorization', `Bearer ${token2}`)
           .send({
             joinCode: 'ABC123',
@@ -1531,8 +1531,8 @@ describe('Baby Profiles Routes', () => {
         // User 2 tries to join - should fail
         const token2a = generateAuthToken(testUser2._id);
         const joinResponse1 = await request(app)
-          .post('/api/baby-profiles/join')
-          .set('Authorization', `Bearer ${1}`)
+          .post('/baby-profiles/join')
+          .set('Authorization', `Bearer ${token2a}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1542,8 +1542,8 @@ describe('Baby Profiles Routes', () => {
         // Admin enables join code
         const token1a = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
-          .put(`/api/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .set('Authorization', `Bearer ${1}`)
+          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .set('Authorization', `Bearer ${token1a}`)
           .send({});
 
         expect(toggleResponse.status).toBe(200);
@@ -1555,8 +1555,8 @@ describe('Baby Profiles Routes', () => {
         // User 2 tries to join again - should succeed
         const token2b = generateAuthToken(testUser2._id);
         const joinResponse2 = await request(app)
-          .post('/api/baby-profiles/join')
-          .set('Authorization', `Bearer ${1}`)
+          .post('/baby-profiles/join')
+          .set('Authorization', `Bearer ${token2b}`)
           .send({
             joinCode: 'ABC123',
           });
@@ -1568,11 +1568,11 @@ describe('Baby Profiles Routes', () => {
   });
 
   describe('Additional edge cases', () => {
-    describe('POST /api/baby-profiles', () => {
+    describe('POST /baby-profiles', () => {
       it('should handle invalid birthDate format gracefully', async () => {
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .post('/api/baby-profiles')
+          .post('/baby-profiles')
           .set('Authorization', `Bearer ${token}`)
           .send({
             name: 'Baby 1',
@@ -1595,7 +1595,7 @@ describe('Baby Profiles Routes', () => {
       });
     });
 
-    describe('POST /api/baby-profiles/join', () => {
+    describe('POST /baby-profiles/join', () => {
       it('should handle database errors gracefully', async () => {
         const profile = await BabyProfile.create({
           name: 'Baby 1',
@@ -1612,7 +1612,7 @@ describe('Baby Profiles Routes', () => {
         // Try to join again - should be caught by the existing check, but test error handling
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .post('/api/baby-profiles/join')
+          .post('/baby-profiles/join')
           .set('Authorization', `Bearer ${token}`)
           .send({
             joinCode: 'ABC123',
@@ -1623,10 +1623,10 @@ describe('Baby Profiles Routes', () => {
       });
     });
 
-    describe('GET /api/baby-profiles', () => {
+    describe('GET /baby-profiles', () => {
       it('should handle invalid token format', async () => {
         const response = await request(app)
-          .get('/api/baby-profiles')
+          .get('/baby-profiles')
           .set('Authorization', 'Bearer invalid-token');
 
         // Invalid token should return 401

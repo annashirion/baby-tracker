@@ -70,10 +70,10 @@ describe('Actions Routes', () => {
     });
   });
 
-  describe('POST /api/actions', () => {
+  describe('POST /actions', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
@@ -87,7 +87,7 @@ describe('Actions Routes', () => {
     it('should return 400 if babyProfileId is missing', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           actionType: 'diaper',
@@ -101,7 +101,7 @@ describe('Actions Routes', () => {
     it('should return 403 if user has no access to baby profile', async () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -122,7 +122,7 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -137,7 +137,7 @@ describe('Actions Routes', () => {
     it('should return 403 if viewer tries to create action', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -152,7 +152,7 @@ describe('Actions Routes', () => {
     it('should successfully create action as admin', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -170,7 +170,7 @@ describe('Actions Routes', () => {
     it('should successfully create action as editor', async () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -188,7 +188,7 @@ describe('Actions Routes', () => {
       const token = generateAuthToken(adminUser._id);
       const customTimestamp = '2023-06-15T10:00:00Z';
       const response = await request(app)
-        .post('/api/actions')
+        .post('/actions')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -205,10 +205,10 @@ describe('Actions Routes', () => {
     });
   });
 
-  describe('GET /api/actions', () => {
+  describe('GET /actions', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .get('/api/actions')
+        .get('/actions')
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
       expect(response.status).toBe(401);
@@ -218,7 +218,7 @@ describe('Actions Routes', () => {
     it('should return 400 if babyProfileId is missing', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .get('/api/actions')
+        .get('/actions')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
@@ -228,7 +228,7 @@ describe('Actions Routes', () => {
     it('should return 403 if user has no access', async () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
-        .get('/api/actions')
+        .get('/actions')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
@@ -253,7 +253,7 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .get('/api/actions')
+        .get('/actions')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
@@ -272,7 +272,7 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .get('/api/actions')
+        .get('/actions')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
@@ -290,7 +290,7 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/api/actions')
+        .get('/actions')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: testBabyProfile._id.toString() });
 
@@ -299,7 +299,7 @@ describe('Actions Routes', () => {
     });
   });
 
-  describe('PUT /api/actions/:id', () => {
+  describe('PUT /actions/:id', () => {
     let testAction;
 
     beforeEach(async () => {
@@ -313,7 +313,7 @@ describe('Actions Routes', () => {
 
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .put(`/api/actions/${testAction._id.toString()}`)
+        .put(`/actions/${testAction._id.toString()}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo' },
@@ -326,7 +326,7 @@ describe('Actions Routes', () => {
     it('should return 400 if babyProfileId is missing', async () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .put(`/api/actions/${testAction._id.toString()}`)
+        .put(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           details: { type: 'poo' },
@@ -339,7 +339,7 @@ describe('Actions Routes', () => {
     it('should return 403 if viewer tries to update', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put(`/api/actions/${testAction._id.toString()}`)
+        .put(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -360,7 +360,7 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .put(`/api/actions/${adminAction._id.toString()}`)
+        .put(`/actions/${adminAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -374,7 +374,7 @@ describe('Actions Routes', () => {
     it('should allow editor to update their own action', async () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .put(`/api/actions/${testAction._id.toString()}`)
+        .put(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -390,7 +390,7 @@ describe('Actions Routes', () => {
     it('should allow admin to update any action', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put(`/api/actions/${testAction._id.toString()}`)
+        .put(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -406,7 +406,7 @@ describe('Actions Routes', () => {
       const fakeId = new mongoose.Types.ObjectId();
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put(`/api/actions/${fakeId.toString()}`)
+        .put(`/actions/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -428,7 +428,7 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put(`/api/actions/${otherAction._id.toString()}`)
+        .put(`/actions/${otherAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -440,7 +440,7 @@ describe('Actions Routes', () => {
     });
   });
 
-  describe('DELETE /api/actions/:id', () => {
+  describe('DELETE /actions/:id', () => {
     let testAction;
 
     beforeEach(async () => {
@@ -454,7 +454,7 @@ describe('Actions Routes', () => {
 
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .delete(`/api/actions/${testAction._id.toString()}`)
+        .delete(`/actions/${testAction._id.toString()}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
         });
@@ -466,7 +466,7 @@ describe('Actions Routes', () => {
     it('should return 400 if babyProfileId is missing', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${testAction._id.toString()}`)
+        .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
@@ -477,7 +477,7 @@ describe('Actions Routes', () => {
     it('should return 403 if viewer tries to delete', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${testAction._id.toString()}`)
+        .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -490,7 +490,7 @@ describe('Actions Routes', () => {
     it('should return 403 if editor tries to delete', async () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${testAction._id.toString()}`)
+        .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -503,7 +503,7 @@ describe('Actions Routes', () => {
     it('should allow admin to delete action', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${testAction._id.toString()}`)
+        .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),
@@ -522,7 +522,7 @@ describe('Actions Routes', () => {
       const fakeId = new mongoose.Types.ObjectId();
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete(`/api/actions/${fakeId.toString()}`)
+        .delete(`/actions/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: testBabyProfile._id.toString(),

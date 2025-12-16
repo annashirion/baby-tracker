@@ -13,10 +13,10 @@ export const createTestApp = () => {
   app.use(cors());
   app.use(cookieParser());
   app.use(express.json());
-  app.use('/api/auth', authRoutes);
-  app.use('/api/users', userRoutes);
-  app.use('/api/baby-profiles', babyProfileRoutes);
-  app.use('/api/actions', actionRoutes);
+  app.use('/auth', authRoutes);
+  app.use('/users', userRoutes);
+  app.use('/baby-profiles', babyProfileRoutes);
+  app.use('/actions', actionRoutes);
   return app;
 };
 

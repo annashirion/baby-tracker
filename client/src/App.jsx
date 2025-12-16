@@ -80,9 +80,8 @@ function App() {
       setError(null)
       
       // Check if server is reachable first
-      const baseUrl = API_URL.replace('/api', '')
       try {
-        const healthCheck = await fetch(`${baseUrl}/api/health`)
+        const healthCheck = await fetch(`${API_URL}/health`)
         if (!healthCheck.ok) {
           throw new Error('Server is not responding')
         }

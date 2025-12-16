@@ -34,10 +34,10 @@ describe('Auth Routes', () => {
     console.error.mockClear();
   });
 
-  describe('POST /api/auth/google', () => {
+  describe('POST /auth/google', () => {
     it('should return 400 if access_token is missing', async () => {
       const response = await request(app)
-        .post('/api/auth/google')
+        .post('/auth/google')
         .send({});
 
       expect(response.status).toBe(400);
@@ -60,14 +60,20 @@ describe('Auth Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/auth/google')
+        .post('/auth/google')
         .send({ access_token: 'mocked_token' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      // Verify cookie is set
-      expect(response.headers['set-cookie']).toBeDefined();
-      expect(response.headers['set-cookie'][0]).toContain('token=');
+      // Verify token is returned in response body
+      expect(response.body.token).toBeDefined();
+      expect(typeof response.body.token).toBe('string');
+      // Verify user data is returned
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.id).toBeDefined();
+      expect(response.body.user.email).toBe('test@example.com');
+      expect(response.body.user.name).toBe('Test User');
+      expect(response.body.user.emoji).toBeTruthy(); // Should have a random emoji
 
       // Verify user was created in database
       const user = await User.findOne({ googleId: 'google123' });
@@ -99,14 +105,19 @@ describe('Auth Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/auth/google')
+        .post('/auth/google')
         .send({ access_token: 'mocked_token' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      // Verify cookie is set
-      expect(response.headers['set-cookie']).toBeDefined();
-      expect(response.headers['set-cookie'][0]).toContain('token=');
+      // Verify token is returned in response body
+      expect(response.body.token).toBeDefined();
+      expect(typeof response.body.token).toBe('string');
+      // Verify user data is returned
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.id).toBe(existingUser._id.toString());
+      expect(response.body.user.email).toBe('new@example.com');
+      expect(response.body.user.name).toBe('New Name');
 
       // Verify user was updated in database
       const updatedUser = await User.findById(existingUser._id);
@@ -127,7 +138,7 @@ describe('Auth Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/auth/google')
+        .post('/auth/google')
         .send({ access_token: 'invalid_mocked_token' });
 
       expect(response.status).toBe(401);
@@ -142,7 +153,7 @@ describe('Auth Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/auth/google')
+        .post('/auth/google')
         .send({ access_token: 'mocked_token' });
 
       expect(response.status).toBe(500);
@@ -150,10 +161,10 @@ describe('Auth Routes', () => {
     });
   });
 
-  describe('GET /api/auth/me', () => {
+  describe('GET /auth/me', () => {
     it('should return 401 if no token cookie is provided', async () => {
       const response = await request(app)
-        .get('/api/auth/me');
+        .get('/auth/me');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
@@ -172,7 +183,7 @@ describe('Auth Routes', () => {
       const token = generateAuthToken(user._id);
 
       const response = await request(app)
-        .get('/api/auth/me')
+        .get('/auth/me')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -184,17 +195,14 @@ describe('Auth Routes', () => {
     });
   });
 
-  describe('POST /api/auth/logout', () => {
-    it('should clear the token cookie', async () => {
+  describe('POST /auth/logout', () => {
+    it('should return success (client removes token from storage)', async () => {
       const response = await request(app)
-        .post('/api/auth/logout');
+        .post('/auth/logout');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      // Verify cookie is cleared (maxAge: 0)
-      expect(response.headers['set-cookie']).toBeDefined();
-      expect(response.headers['set-cookie'][0]).toContain('token=');
-      expect(response.headers['set-cookie'][0]).toContain('Max-Age=0');
+      // No server-side action needed - client removes token from localStorage
     });
   });
 });

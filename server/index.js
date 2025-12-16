@@ -34,13 +34,13 @@ mongoose.connect(MONGODB_URI)
   });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/baby-profiles', babyProfileRoutes);
-app.use('/api/actions', actionRoutes);
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/baby-profiles', babyProfileRoutes);
+app.use('/actions', actionRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.json({ 
     status: 'ok', 
@@ -50,7 +50,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Get available emojis (no auth required, public endpoint)
-app.get('/api/emojis', (req, res) => {
+app.get('/emojis', (req, res) => {
   res.json({
     success: true,
     emojis: EMOJIS
@@ -59,7 +59,10 @@ app.get('/api/emojis', (req, res) => {
 
 // 404 handler for API routes (must be last)
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
+  // Check if it's an API route (not a static file)
+  if (req.path.startsWith('/auth') || req.path.startsWith('/users') || 
+      req.path.startsWith('/baby-profiles') || req.path.startsWith('/actions') ||
+      req.path.startsWith('/health') || req.path.startsWith('/emojis')) {
     return res.status(404).json({ 
       error: 'Route not found', 
       path: req.originalUrl,

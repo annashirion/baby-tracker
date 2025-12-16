@@ -69,10 +69,10 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('GET /api/users', () => {
+  describe('GET /users', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .query({ babyProfileId: babyProfile._id.toString() });
 
       expect(response.status).toBe(401);
@@ -82,7 +82,7 @@ describe('Users Routes', () => {
     it('should return 400 if babyProfileId is missing', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
@@ -92,7 +92,7 @@ describe('Users Routes', () => {
     it('should return 400 if babyProfileId format is invalid', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: 'invalid' });
 
@@ -103,7 +103,7 @@ describe('Users Routes', () => {
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
@@ -114,7 +114,7 @@ describe('Users Routes', () => {
     it('should return 403 if user has no access', async () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
@@ -125,7 +125,7 @@ describe('Users Routes', () => {
     it('should return all users for a baby profile if user is admin', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
@@ -147,7 +147,7 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/api/users')
+        .get('/users')
         .set('Authorization', `Bearer ${token}`)
         .query({ babyProfileId: babyProfile._id.toString() });
 
@@ -157,17 +157,17 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('GET /api/users/:id', () => {
+  describe('GET /users/:id', () => {
     it('should return 404 if user not found', async () => {
       const fakeId = '507f1f77bcf86cd799439011';
-      const response = await request(app).get(`/api/users/${fakeId}`);
+      const response = await request(app).get(`/users/${fakeId}`);
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('User not found');
     });
 
     it('should return user by id', async () => {
-      const response = await request(app).get(`/api/users/${adminUser._id.toString()}`);
+      const response = await request(app).get(`/users/${adminUser._id.toString()}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -177,10 +177,10 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('PUT /api/users/role', () => {
+  describe('PUT /users/role', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -194,7 +194,7 @@ describe('Users Routes', () => {
     it('should return 400 if required fields are missing', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -207,7 +207,7 @@ describe('Users Routes', () => {
     it('should return 400 if role is invalid', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -222,7 +222,7 @@ describe('Users Routes', () => {
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -237,7 +237,7 @@ describe('Users Routes', () => {
     it('should return 400 if admin tries to change their own role', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -252,7 +252,7 @@ describe('Users Routes', () => {
     it('should return 404 if target user is not part of baby profile', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -267,7 +267,7 @@ describe('Users Routes', () => {
     it('should update user role successfully', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/role')
+        .put('/users/role')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -288,10 +288,10 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('DELETE /api/users', () => {
+  describe('DELETE /users', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .delete('/api/users')
+        .delete('/users')
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -304,7 +304,7 @@ describe('Users Routes', () => {
     it('should return 400 if required fields are missing', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/api/users')
+        .delete('/users')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -317,7 +317,7 @@ describe('Users Routes', () => {
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .delete('/api/users')
+        .delete('/users')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -331,7 +331,7 @@ describe('Users Routes', () => {
     it('should return 400 if admin tries to remove themselves', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/api/users')
+        .delete('/users')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -345,7 +345,7 @@ describe('Users Routes', () => {
     it('should return 404 if target user is not part of baby profile', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/api/users')
+        .delete('/users')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -359,7 +359,7 @@ describe('Users Routes', () => {
     it('should remove user from baby profile successfully', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/api/users')
+        .delete('/users')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -379,10 +379,10 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('PUT /api/users/block', () => {
+  describe('PUT /users/block', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .send({
           babyProfileId: babyProfile._id.toString(),
           targetUserId: viewerUser._id.toString(),
@@ -396,7 +396,7 @@ describe('Users Routes', () => {
     it('should return 400 if required fields are missing', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -410,7 +410,7 @@ describe('Users Routes', () => {
     it('should return 400 if blocked is not a boolean', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -425,7 +425,7 @@ describe('Users Routes', () => {
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -440,7 +440,7 @@ describe('Users Routes', () => {
     it('should return 400 if admin tries to block themselves', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -455,7 +455,7 @@ describe('Users Routes', () => {
     it('should block a user successfully', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -488,7 +488,7 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -518,7 +518,7 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -547,7 +547,7 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
@@ -571,7 +571,7 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/api/users/block')
+        .put('/users/block')
         .set('Authorization', `Bearer ${token}`)
         .send({
           babyProfileId: babyProfile._id.toString(),
