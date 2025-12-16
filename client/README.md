@@ -1,16 +1,43 @@
-# React + Vite
+# Baby Tracker - Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend application for the Baby Tracker project.
 
-Currently, two official plugins are available:
+## 🛠️ Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React** 19.1.1
+- **Vite** 7.1.7
+- **React OAuth Google** - For Google authentication
 
-## React Compiler
+## 📦 Installation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+## 🚀 Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173` (or the next available port).
+
+## 📁 Project Structure
+
+- `src/` - Source code
+  - `components/` - React components
+  - `utils/` - Utility functions and API helpers
+  - `constants/` - Constants and configuration
+- `public/` - Static assets
+
+## 🎨 Features
+
+- Google OAuth authentication
+- Responsive design optimized for iPad
+- Real-time action tracking
+- User emoji identification
+- Calendar and day list views
+- Reports with incomplete action tracking
+- Enhanced feeding tracking with end time and ml amounts
