@@ -4,7 +4,9 @@
   margin: 0 auto;
   padding: 1rem;
   box-sizing: border-box;
-  height: calc(100vh - 2rem);
+  height: calc(100vh - 2rem); /* Fallback */
+  height: calc(var(--vh, 1vh) * 100 - 2rem); /* Use actual viewport height */
+  height: calc(100dvh - 2rem); /* Modern browsers: dynamic viewport height */
   display: flex;
   flex-direction: column;
   overflow: hidden;

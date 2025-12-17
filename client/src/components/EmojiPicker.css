@@ -62,7 +62,9 @@
   z-index: 1001;
   max-width: 100%;
   width: 100%;
-  max-height: 90vh;
+  max-height: 90vh; /* Fallback */
+  max-height: calc(var(--vh, 1vh) * 90); /* Use actual viewport height */
+  max-height: 90dvh; /* Modern browsers: dynamic viewport height */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -112,7 +114,9 @@
   padding: 0.75rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  max-height: calc(90vh - 80px);
+  max-height: calc(90vh - 80px); /* Fallback */
+  max-height: calc(var(--vh, 1vh) * 90 - 80px); /* Use actual viewport height */
+  max-height: calc(90dvh - 80px); /* Modern browsers: dynamic viewport height */
   flex: 1;
   min-height: 0;
 }

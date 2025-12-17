@@ -57,7 +57,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
+  min-height: 50vh; /* Fallback */
+  min-height: calc(var(--vh, 1vh) * 50); /* Use actual viewport height */
+  min-height: 50dvh; /* Modern browsers: dynamic viewport height */
   color: var(--color-text-secondary);
 }
 

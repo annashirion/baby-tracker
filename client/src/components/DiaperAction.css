@@ -19,7 +19,9 @@
   max-width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
-  max-height: 90vh;
+  max-height: 90vh; /* Fallback */
+  max-height: calc(var(--vh, 1vh) * 90); /* Use actual viewport height */
+  max-height: 90dvh; /* Modern browsers: dynamic viewport height */
   display: flex;
   flex-direction: column;
   overflow: hidden;

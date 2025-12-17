@@ -19,7 +19,9 @@
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease-out;
   position: relative;
-  max-height: 80vh;
+  max-height: 80vh; /* Fallback */
+  max-height: calc(var(--vh, 1vh) * 80); /* Use actual viewport height */
+  max-height: 80dvh; /* Modern browsers: dynamic viewport height */
   display: flex;
   flex-direction: column;
 }
