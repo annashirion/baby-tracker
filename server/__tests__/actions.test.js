@@ -323,17 +323,19 @@ describe('Actions Routes', () => {
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if babyProfileId is missing', async () => {
+    it('should allow update without babyProfileId in body (gets it from action)', async () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .put(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          details: { type: 'poo' },
+          details: { type: 'poo', comments: 'Updated without babyProfileId' },
         });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('babyProfileId is required');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.action.details.type).toBe('poo');
+      expect(response.body.action.details.comments).toBe('Updated without babyProfileId');
     });
 
     it('should return 403 if viewer tries to update', async () => {
@@ -417,7 +419,7 @@ describe('Actions Routes', () => {
       expect(response.body.error).toBe('Action not found');
     });
 
-    it('should return 403 if babyProfileId does not match', async () => {
+    it('should return 403 if user has no access to action\'s baby profile', async () => {
       const otherProfile = await BabyProfile.create({ name: 'Other Baby' });
       const otherAction = await Action.create({
         babyProfileId: otherProfile._id,
@@ -426,17 +428,16 @@ describe('Actions Routes', () => {
         details: { type: 'pee' },
       });
 
-      const token = generateAuthToken(adminUser._id);
+      const token = generateAuthToken(editorUser._id);
       const response = await request(app)
         .put(`/actions/${otherAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           details: { type: 'poo' },
         });
 
       expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Action does not belong to this baby profile');
+      expect(response.body.error).toBe('You do not have access to this baby profile');
     });
   });
 
@@ -455,23 +456,26 @@ describe('Actions Routes', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
         .delete(`/actions/${testAction._id.toString()}`)
-        .send({
-          babyProfileId: testBabyProfile._id.toString(),
-        });
+        .send({});
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if babyProfileId is missing', async () => {
+    it('should allow delete without babyProfileId in body (gets it from action)', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
         .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
         .send({});
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('babyProfileId is required');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('Action deleted successfully');
+
+      // Verify action was deleted
+      const deletedAction = await Action.findById(testAction._id);
+      expect(deletedAction).toBeNull();
     });
 
     it('should return 403 if viewer tries to delete', async () => {
@@ -479,9 +483,7 @@ describe('Actions Routes', () => {
       const response = await request(app)
         .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: testBabyProfile._id.toString(),
-        });
+        .send({});
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('Only admins can delete actions');
@@ -492,9 +494,7 @@ describe('Actions Routes', () => {
       const response = await request(app)
         .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: testBabyProfile._id.toString(),
-        });
+        .send({});
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('Only admins can delete actions');
@@ -505,9 +505,7 @@ describe('Actions Routes', () => {
       const response = await request(app)
         .delete(`/actions/${testAction._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: testBabyProfile._id.toString(),
-        });
+        .send({});
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -524,12 +522,29 @@ describe('Actions Routes', () => {
       const response = await request(app)
         .delete(`/actions/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: testBabyProfile._id.toString(),
-        });
+        .send({});
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('Action not found');
+    });
+
+    it('should return 403 if user has no access to action\'s baby profile', async () => {
+      const otherProfile = await BabyProfile.create({ name: 'Other Baby' });
+      const otherAction = await Action.create({
+        babyProfileId: otherProfile._id,
+        userId: adminUser._id,
+        actionType: 'diaper',
+        details: { type: 'pee' },
+      });
+
+      const token = generateAuthToken(editorUser._id);
+      const response = await request(app)
+        .delete(`/actions/${otherAction._id.toString()}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
+
+      expect(response.status).toBe(403);
+      expect(response.body.error).toBe('You do not have access to this baby profile');
     });
   });
 });

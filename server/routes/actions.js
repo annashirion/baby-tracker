@@ -93,22 +93,16 @@ router.get('/', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer
 router.put('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { details, babyProfileId } = req.body;
+    const { details } = req.body;
 
-    if (!babyProfileId) {
-      return res.status(400).json({ error: 'babyProfileId is required' });
-    }
-
-    // Get the action first to check ownership
+    // Get the action first to check ownership and get babyProfileId
     const action = await Action.findById(id);
     if (!action) {
       return res.status(404).json({ error: 'Action not found' });
     }
 
-    // Verify babyProfileId matches
-    if (action.babyProfileId.toString() !== babyProfileId) {
-      return res.status(403).json({ error: 'Action does not belong to this baby profile' });
-    }
+    // Get babyProfileId from the action (more secure than requiring it in body)
+    const babyProfileId = action.babyProfileId.toString();
 
     // Check user's role for this baby profile
     const userIdObj = new mongoose.Types.ObjectId(req.user.id);
@@ -164,22 +158,15 @@ router.put('/:id', authenticate, async (req, res) => {
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-    const { babyProfileId } = req.body;
 
-    if (!babyProfileId) {
-      return res.status(400).json({ error: 'babyProfileId is required' });
-    }
-
-    // Get the action first
+    // Get the action first to get babyProfileId
     const action = await Action.findById(id);
     if (!action) {
       return res.status(404).json({ error: 'Action not found' });
     }
 
-    // Verify babyProfileId matches
-    if (action.babyProfileId.toString() !== babyProfileId) {
-      return res.status(403).json({ error: 'Action does not belong to this baby profile' });
-    }
+    // Get babyProfileId from the action (more secure than requiring it in body)
+    const babyProfileId = action.babyProfileId.toString();
 
     // Check if user is admin for this baby profile
     const userIdObj = new mongoose.Types.ObjectId(req.user.id);
