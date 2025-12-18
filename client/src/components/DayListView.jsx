@@ -136,8 +136,7 @@ function DayListView({
                   {selectedDay.toLocaleDateString('en-US', { 
                     weekday: 'short',
                     month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
+                    day: 'numeric'
                   })} (06:00 - 23:59)
                 </div>
                 {selectedDayActions.map((action) => (
@@ -156,8 +155,7 @@ function DayListView({
                   {nextDay.toLocaleDateString('en-US', { 
                     weekday: 'short',
                     month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
+                    day: 'numeric',
                   })} (00:00 - 05:59)
                 </div>
                 {nextDayActions.map((action) => (
