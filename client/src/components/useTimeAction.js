@@ -5,7 +5,7 @@ import { apiFetch } from '../utils/api';
 export function useTimeAction({ actionType, lastAction, profile, userId, userEmoji, onSuccess, onClose }) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [savingAction, setSavingAction] = useState(null); // 'start', 'end', 'cancel', or null
   const [error, setError] = useState(null);
   const [isStarting, setIsStarting] = useState(false);
 
@@ -52,7 +52,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
     }
 
     try {
-      setSaving(true);
+      setSavingAction('start');
       setError(null);
 
       const response = await apiFetch(`${API_URL}/actions`, {
@@ -79,7 +79,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       console.error(`Error saving ${actionType} action:`, err);
       setError(err.message || `Failed to save ${actionType} action`);
     } finally {
-      setSaving(false);
+      setSavingAction(null);
     }
   };
 
@@ -98,7 +98,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
     }
 
     try {
-      setSaving(true);
+      setSavingAction('end');
       setError(null);
 
       const details = {
@@ -145,7 +145,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       console.error(`Error saving ${actionType} action:`, err);
       setError(err.message || `Failed to save ${actionType} action`);
     } finally {
-      setSaving(false);
+      setSavingAction(null);
     }
   };
 
@@ -156,7 +156,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
     }
 
     try {
-      setSaving(true);
+      setSavingAction('cancel');
       setError(null);
 
       const response = await apiFetch(`${API_URL}/actions/${lastAction.id}`, {
@@ -173,7 +173,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       console.error(`Error canceling ${actionType} action:`, err);
       setError(err.message || `Failed to cancel ${actionType} action`);
     } finally {
-      setSaving(false);
+      setSavingAction(null);
     }
   };
 
@@ -182,7 +182,7 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
     setStartTime,
     endTime,
     setEndTime,
-    saving,
+    savingAction,
     error,
     isStarting,
     handleStart,

@@ -157,9 +157,13 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
     try {
       setDeleting(true);
       setError(null);
-      setShowDeleteConfirm(false);
       await onDelete(action.id);
+      // Success - close both popups (confirmation popup and main edit popup)
+      setShowDeleteConfirm(false);
+      onClose();
     } catch (err) {
+      // On error, close confirmation popup and show error in main popup
+      setShowDeleteConfirm(false);
       setError(err.message || 'Failed to delete action');
     } finally {
       setDeleting(false);

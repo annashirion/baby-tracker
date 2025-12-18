@@ -146,6 +146,9 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .day-column:hover {
@@ -186,6 +189,9 @@
   flex: 1;
   position: relative;
   min-height: 500px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .action-bar {
@@ -196,7 +202,7 @@
   border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s;
-  z-index: 2;
+  /* z-index is set dynamically based on bar height - smaller bars get higher z-index */
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -207,7 +213,7 @@
   outline: 2px solid #fff;
   outline-offset: -2px; 
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-  z-index: 4;
+  z-index: 200 !important; /* Always on top when selected */
 }
 
 .action-bar.sleep {

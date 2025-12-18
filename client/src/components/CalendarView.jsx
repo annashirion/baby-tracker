@@ -143,6 +143,7 @@ function CalendarView({
   }, []);
 
   // Get actions for a specific day (6 AM to 5:59 AM next day)
+  // Only show actions that STARTED in this time period
   const getActionsForDay = (day) => {
     // Selected day: from 6:00 AM to 11:59:59 PM
     const dayStart = new Date(day);
@@ -159,18 +160,17 @@ function CalendarView({
     nextDayEnd.setHours(5, 59, 59, 999);
 
     return actions.filter(action => {
-      // For sleep/feed, check if they start or end in the time range, or span the range
+      // For sleep/feed, check if start time falls in the time range
       if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
         const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
-        const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
         
-        // Check if action overlaps with selected day (6am-11:59pm) or next day (midnight-5:59am)
-        const overlapsSelectedDay = (startTime <= dayEnd && endTime >= dayStart);
-        const overlapsNextDay = (startTime <= nextDayEnd && endTime >= nextDayStart);
-        return overlapsSelectedDay || overlapsNextDay;
+        // Check if action started in selected day (6am-11:59pm) or next day (midnight-5:59am)
+        const startedInSelectedDay = startTime >= dayStart && startTime <= dayEnd;
+        const startedInNextDay = startTime >= nextDayStart && startTime <= nextDayEnd;
+        return startedInSelectedDay || startedInNextDay;
       }
       // For other actions (diaper, other), check if they fall in either time range
-      const actionDate = new Date(action.createdAt);
+      const actionDate = action.details?.timestamp ? new Date(action.details.timestamp) : new Date(action.createdAt);
       const inSelectedDay = actionDate >= dayStart && actionDate <= dayEnd;
       const inNextDay = actionDate >= nextDayStart && actionDate <= nextDayEnd;
       return inSelectedDay || inNextDay;
@@ -267,10 +267,16 @@ function CalendarView({
     
     // Minimum height equivalent to 15 minutes (15/1440 = ~1.04%)
     const minHeightPercent = (15 / totalMinutes) * 100;
+    const finalHeightPercent = Math.max(heightPercent, minHeightPercent);
+    
+    // Calculate z-index: smaller bars should be on top (higher z-index)
+    // Map height (0-100%) to z-index (100-1), so smaller heights get higher z-index
+    const zIndex = Math.round(100 - finalHeightPercent) + 2;
 
     return {
       top: `${topPercent}%`,
-      height: `${Math.max(heightPercent, minHeightPercent)}%`, // Minimum 15 minutes
+      height: `${finalHeightPercent}%`, // Minimum 15 minutes
+      zIndex,
     };
   };
 

@@ -12,7 +12,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
     setStartTime,
     endTime,
     setEndTime,
-    saving,
+    savingAction,
     error,
     isStarting,
     handleStart,
@@ -72,9 +72,9 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
               <button
                 className="action-modal__button action-modal__button-start sleep-action__button-start"
                 onClick={() => handleStart()}
-                disabled={saving || !startTime}
+                disabled={savingAction || !startTime}
               >
-                {saving ? <LoadingDots size="small" /> : 'Start Sleep'}
+                {savingAction === 'start' ? <LoadingDots size="small" /> : 'Start Sleep'}
               </button>
             ) : (
               <>
@@ -82,17 +82,17 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                   <button
                     className="action-modal__button action-modal__button-cancel sleep-action__button-cancel"
                     onClick={() => handleCancel()}
-                    disabled={saving}
+                    disabled={savingAction}
                   >
-                    {saving ? <LoadingDots size="small" /> : 'Reset'}
+                    {savingAction === 'cancel' ? <LoadingDots size="small" /> : 'Reset'}
                   </button>
                 )}
                 <button
                   className="action-modal__button action-modal__button-end sleep-action__button-end"
                   onClick={() => handleEnd()}
-                  disabled={saving || !startTime || !endTime}
+                  disabled={savingAction || !startTime || !endTime}
                 >
-                  {saving ? <LoadingDots size="small" /> : 'End Sleep'}
+                  {savingAction === 'end' ? <LoadingDots size="small" /> : 'End Sleep'}
                 </button>
               </>
             )}

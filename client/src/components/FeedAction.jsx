@@ -16,7 +16,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
     setStartTime,
     endTime,
     setEndTime,
-    saving,
+    savingAction,
     error,
     isStarting,
     handleStart,
@@ -121,9 +121,9 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
               <button
                 className="action-modal__button action-modal__button-start feed-action__button-start"
                 onClick={() => handleStart()}
-                disabled={saving || !startTime}
+                disabled={savingAction || !startTime}
               >
-                {saving ? <LoadingDots size="small" /> : 'Start Feed'}
+                {savingAction === 'start' ? <LoadingDots size="small" /> : 'Start Feed'}
               </button>
             ) : (
               <>
@@ -131,17 +131,17 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
                   <button
                     className="action-modal__button action-modal__button-cancel feed-action__button-cancel"
                     onClick={() => handleCancel()}
-                    disabled={saving}
+                    disabled={savingAction}
                   >
-                    {saving ? <LoadingDots size="small" /> : 'Reset'}
+                    {savingAction === 'cancel' ? <LoadingDots size="small" /> : 'Reset'}
                   </button>
                 )}
                 <button
                   className="action-modal__button action-modal__button-end feed-action__button-end"
                   onClick={handleEndWithMl}
-                  disabled={saving || !startTime || !endTime || !!mlError}
+                  disabled={savingAction || !startTime || !endTime || !!mlError}
                 >
-                  {saving ? <LoadingDots size="small" /> : 'End Feed'}
+                  {savingAction === 'end' ? <LoadingDots size="small" /> : 'End Feed'}
                 </button>
               </>
             )}

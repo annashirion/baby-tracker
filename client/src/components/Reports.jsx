@@ -7,10 +7,11 @@ import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
 import Spinner from './Spinner';
 
-function Reports({ profile, onClose, openToToday = false }) {
-  const [loading, setLoading] = useState(true);
+function Reports({ profile, onClose, openToToday = false, initialActions = [] }) {
+  // Only show loading if we don't have initial data
+  const [loading, setLoading] = useState(initialActions.length === 0);
   const [error, setError] = useState(null);
-  const [actions, setActions] = useState([]);
+  const [actions, setActions] = useState(initialActions);
   const [selectedDay, setSelectedDay] = useState(() => {
     // If openToToday is true, set selectedDay to today
     if (openToToday) {
@@ -32,12 +33,20 @@ function Reports({ profile, onClose, openToToday = false }) {
   });
 
   useEffect(() => {
-    fetchActions();
+    // If we have initial data, refresh in background; otherwise fetch with loading
+    if (initialActions.length > 0) {
+      refreshActions();
+    } else {
+      fetchActions();
+    }
   }, [profile.id]);
 
-  const fetchActions = async () => {
+  const fetchActions = async (showLoading = true) => {
     try {
-      setLoading(true);
+      // Only show loading spinner on initial load, not on background refresh
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       const response = await apiFetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
       
@@ -54,9 +63,14 @@ function Reports({ profile, onClose, openToToday = false }) {
       setError(err.message || 'Failed to load reports');
       return [];
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
+
+  // Refresh actions in the background without showing loader
+  const refreshActions = () => fetchActions(false);
 
   const handleActionClick = (action) => {
     setActionToEdit(action);
@@ -76,8 +90,8 @@ function Reports({ profile, onClose, openToToday = false }) {
         throw new Error('Failed to delete action');
       }
 
-      // Refresh actions list
-      await fetchActions();
+      // Refresh actions list in background (no loading spinner)
+      await refreshActions();
       setActionToEdit(null);
       setError(null);
     } catch (err) {
@@ -90,8 +104,8 @@ function Reports({ profile, onClose, openToToday = false }) {
     const actionId = actionToEdit?.id;
     if (!actionId) return;
     
-    // Refresh actions list
-    await fetchActions();
+    // Refresh actions list in background (no loading spinner)
+    await refreshActions();
     setActionToEdit(null);
   };
 
@@ -150,7 +164,7 @@ function Reports({ profile, onClose, openToToday = false }) {
         onActionItemClick={handleActionClick}
         onCloseEditPopup={handleCloseEditPopup}
         onDeleteAction={handleDeleteAction}
-        onUpdateAction={fetchActions}
+        onUpdateAction={refreshActions}
       />
     );
   }

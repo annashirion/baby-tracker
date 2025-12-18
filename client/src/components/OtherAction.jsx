@@ -4,6 +4,7 @@ import LoadingDots from './LoadingDots';
 import './OtherAction.css';
 import './TimeInput.css';
 import { API_URL, ACTION_TYPES } from '../constants/constants';
+import { apiFetch } from '../utils/api';
 
 function OtherAction({ profile, userId, userEmoji, onClose, onSuccess }) {
   const [title, setTitle] = useState('');

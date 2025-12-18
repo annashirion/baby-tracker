@@ -5,7 +5,7 @@
  * @returns {string} Formatted duration string
  */
 export const formatDuration = (startTime, endTime) => {
-  if (!endTime) return 'In progress';
+  if (!endTime) return 'In\u00A0progress';
   const start = new Date(startTime);
   const end = new Date(endTime);
   const diffMs = end - start;
@@ -13,8 +13,9 @@ export const formatDuration = (startTime, endTime) => {
   const hours = Math.floor(diffMins / 60);
   const minutes = diffMins % 60;
   
+  // Use non-breaking space (\u00A0) to prevent wrapping within duration
   if (hours > 0) {
-    return `${hours}h ${minutes}m`;
+    return `${hours}h\u00A0${minutes}m`;
   }
   return `${minutes}m`;
 };
@@ -42,13 +43,14 @@ export const getActionDetails = (action) => {
       if (action.details?.endTime) {
         return `${formatDuration(action.details.startTime, action.details.endTime)}`;
       }
-      return 'Feeding in progress';
+      return 'In\u00A0progress';
     case ACTION_TYPES.SLEEP:
       return action.details?.endTime 
         ? formatDuration(action.details.startTime, action.details.endTime)
-        : 'In progress';
+        : 'In\u00A0progress';
     case ACTION_TYPES.OTHER:
-      return action.details?.title || '';
+      const title = action.details?.title || '';
+      return title.length > 10 ? title.slice(0, 10) + '…' : title;
     default:
       return '';
   }
