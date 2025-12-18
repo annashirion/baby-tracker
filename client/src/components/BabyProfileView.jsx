@@ -21,7 +21,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [lastSleepAction, setLastSleepAction] = useState(null);
   const [lastFeedAction, setLastFeedAction] = useState(null);
   const [allActions, setAllActions] = useState([]); // Store all fetched actions to pass to Reports
-  const [isInitialLoad, setIsInitialLoad] = useState(true); // Track if this is the first load
+  const [loadingActionType, setLoadingActionType] = useState(null); // Track which action type is loading
   const [timeKey, setTimeKey] = useState(0); // Force re-render for time updates
   const [timerKey, setTimerKey] = useState(0); // Force re-render for timer updates
 
@@ -52,9 +52,32 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     }
   }, [lastSleepAction, lastFeedAction]);
 
-  const fetchLastActions = async () => {
+  // Get date range for the calendar view (4 days: 3 days ago to today)
+  const getCalendarDateRange = () => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 3);
+    startDate.setHours(6, 0, 0, 0); // 6am, 3 days ago
+    
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 1);
+    endDate.setHours(5, 59, 59, 999); // 5:59am tomorrow (covers today's calendar)
+    
+    return { startDate, endDate };
+  };
+
+  const fetchLastActions = async (actionType = null) => {
+    if (actionType) {
+      setLoadingActionType(actionType);
+    }
     try {
-      const response = await apiFetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
+      // Only fetch last 4 days of actions for the calendar
+      const { startDate, endDate } = getCalendarDateRange();
+      const params = new URLSearchParams({
+        babyProfileId: profile.id,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      });
+      const response = await apiFetch(`${API_URL}/actions?${params}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -76,7 +99,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     } catch (err) {
       console.error('Error fetching last actions:', err);
     } finally {
-      setIsInitialLoad(false);
+      setLoadingActionType(null);
     }
   };
 
@@ -164,6 +187,20 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
 
   const isViewer = profile.role === 'viewer';
 
+  // Handle action changes from Reports (delete/update)
+  const handleActionsChange = (updatedActions) => {
+    setAllActions(updatedActions);
+    // Update last actions based on the new data
+    const diaperActions = updatedActions.filter(a => a.actionType === ACTION_TYPES.DIAPER);
+    setLastDiaperAction(diaperActions.length > 0 ? diaperActions[0] : null);
+    const otherActions = updatedActions.filter(a => a.actionType === ACTION_TYPES.OTHER);
+    setLastOtherAction(otherActions.length > 0 ? otherActions[0] : null);
+    const sleepActions = updatedActions.filter(a => a.actionType === ACTION_TYPES.SLEEP);
+    setLastSleepAction(sleepActions.length > 0 ? sleepActions[0] : null);
+    const feedActions = updatedActions.filter(a => a.actionType === ACTION_TYPES.FEED);
+    setLastFeedAction(feedActions.length > 0 ? feedActions[0] : null);
+  };
+
   // Show reports view if showReports is true
   if (showReports) {
     return (
@@ -175,6 +212,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
         }}
         openToToday={openReportsToToday}
         initialActions={allActions}
+        onActionsChange={handleActionsChange}
       />
     );
   }
@@ -190,7 +228,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           onSuccess={(action) => {
             setShowDiaperAction(false);
             // Refresh the last actions in background
-            fetchLastActions();
+            fetchLastActions(ACTION_TYPES.DIAPER);
           }}
         />
       )}
@@ -203,7 +241,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           onSuccess={(action) => {
             setShowOtherAction(false);
             // Refresh the last actions in background
-            fetchLastActions();
+            fetchLastActions(ACTION_TYPES.OTHER);
           }}
         />
       )}
@@ -217,7 +255,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           onSuccess={(action) => {
             setShowSleepAction(false);
             // Refresh the last actions in background
-            fetchLastActions();
+            fetchLastActions(ACTION_TYPES.SLEEP);
           }}
         />
       )}
@@ -231,7 +269,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           onSuccess={(action) => {
             setShowFeedAction(false);
             // Refresh the last actions in background
-            fetchLastActions();
+            fetchLastActions(ACTION_TYPES.FEED);
           }}
         />
       )}
@@ -252,14 +290,14 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>💩</span> <span>Diaper</span>
-              {isInitialLoad && !lastDiaperAction ? (
+              {loadingActionType === ACTION_TYPES.DIAPER ? (
                 <div className="last-action-info">
                   <LoadingDots size="small" />
                 </div>
               ) : lastDiaperAction && (
               <div className="last-action-info">
                 <span className="action-data">{getDiaperTypeLabel(lastDiaperAction.details?.type)}&nbsp;•&nbsp;<span className="nowrap">{formatTimeAgo(lastDiaperAction.details?.timestamp || lastDiaperAction.createdAt)}</span></span>
-                {lastDiaperAction.userEmoji && <span className="action-emoji">{lastDiaperAction.userEmoji}</span>}
+                {(lastDiaperAction.userEmoji || lastDiaperAction.userId?.emoji) && <span className="action-emoji">{lastDiaperAction.userEmoji || lastDiaperAction.userId?.emoji}</span>}
               </div>
             )}
             </div>
@@ -271,7 +309,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>😴</span> <span>Sleep</span>
-            {isInitialLoad && !lastSleepAction ? (
+            {loadingActionType === ACTION_TYPES.SLEEP ? (
               <div className="last-action-info">
                 <LoadingDots size="small" />
               </div>
@@ -283,7 +321,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                         <span className="nowrap">{formatActionDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)}</span>
                         <span className="nowrap">{formatTimeAgo(lastSleepAction.details.endTime)}</span>
                       </span>
-                      {lastSleepAction.details?.endUserEmoji && <span className="action-emoji">{lastSleepAction.details.endUserEmoji}</span>}
+                      {(lastSleepAction.details?.endUserEmoji || lastSleepAction.userId?.emoji) && <span className="action-emoji">{lastSleepAction.details?.endUserEmoji || lastSleepAction.userId?.emoji}</span>}
                     </>
                 ) : (
                   // Sleep is in progress - show "fall asleep" and time
@@ -297,7 +335,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                           }
                         </span>
                       </span>
-                      {lastSleepAction.userEmoji && <span className="action-emoji">{lastSleepAction.userEmoji}</span>}
+                      {(lastSleepAction.userEmoji || lastSleepAction.userId?.emoji) && <span className="action-emoji">{lastSleepAction.userEmoji || lastSleepAction.userId?.emoji}</span>}
                     </>
                 )}
               </div>
@@ -311,7 +349,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>🍼</span> <span>Feed</span>
-              {isInitialLoad && !lastFeedAction ? (
+              {loadingActionType === ACTION_TYPES.FEED ? (
                 <div className="last-action-info">
                   <LoadingDots size="small" />
                 </div>
@@ -322,13 +360,13 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                       <span className="action-data">
                         <span className="nowrap">
                           {lastFeedAction.details?.ml 
-                            ? `${lastFeedAction.details.ml}\u00A0ml\u00A0•\u00A0${formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
+                            ? `${lastFeedAction.details.ml}ml\u00A0•\u00A0${formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
                             : formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
                           }
                         </span>
                         <span className="nowrap">{formatTimeAgo(lastFeedAction.details.endTime)}</span>
                       </span>
-                      {lastFeedAction.details?.endUserEmoji && <span className="action-emoji">{lastFeedAction.details.endUserEmoji}</span>}
+                      {(lastFeedAction.details?.endUserEmoji || lastFeedAction.userId?.emoji) && <span className="action-emoji">{lastFeedAction.details?.endUserEmoji || lastFeedAction.userId?.emoji}</span>}
                     </>
                   ) : (
                     // Feed is in progress - show "feeding" and time
@@ -342,7 +380,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                           }
                         </span>
                       </span>
-                      {lastFeedAction.userEmoji && <span className="action-emoji">{lastFeedAction.userEmoji}</span>}
+                      {(lastFeedAction.userEmoji || lastFeedAction.userId?.emoji) && <span className="action-emoji">{lastFeedAction.userEmoji || lastFeedAction.userId?.emoji}</span>}
                     </>
                   )}
                 </div>
@@ -356,14 +394,14 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>📝</span> <span>Other</span>
-              {isInitialLoad && !lastOtherAction ? (
+              {loadingActionType === ACTION_TYPES.OTHER ? (
                 <div className="last-action-info">
                   <LoadingDots size="small" />
                 </div>
               ) : lastOtherAction && (
                 <div className="last-action-info">
                   <span className="action-data">{lastOtherAction.details?.title?.length > 10 ? lastOtherAction.details.title.slice(0, 10) + '…' : lastOtherAction.details?.title}&nbsp;•&nbsp;<span className="nowrap">{formatTimeAgo(lastOtherAction.details?.timestamp || lastOtherAction.createdAt)}</span></span>
-                  {lastOtherAction.userEmoji && <span className="action-emoji">&nbsp;•&nbsp;{lastOtherAction.userEmoji}</span>}
+                  {(lastOtherAction.userEmoji || lastOtherAction.userId?.emoji) && <span className="action-emoji">{lastOtherAction.userEmoji || lastOtherAction.userId?.emoji}</span>}
                 </div>
               )}
             </div>

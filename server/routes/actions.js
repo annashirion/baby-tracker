@@ -61,11 +61,25 @@ router.post('/', authenticate, checkBabyProfileAccess(['admin', 'editor'], 'body
 });
 
 // Get all actions for a baby profile (all roles can read)
+// Optional query params: startDate, endDate (ISO strings) to filter by date range
 router.get('/', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer'], 'query'), async (req, res) => {
   try {
     const { babyProfileId } = req.userRole;
+    const { startDate, endDate } = req.query;
 
-    const actions = await Action.find({ babyProfileId })
+    // Build query with optional date filtering
+    const query = { babyProfileId };
+    if (startDate || endDate) {
+      query.createdAt = {};
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+      }
+    }
+
+    const actions = await Action.find(query)
       .sort({ createdAt: -1 }) // Most recent first
       .populate('userId', 'name email emoji')
       .lean();

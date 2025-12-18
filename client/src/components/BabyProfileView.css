@@ -110,6 +110,7 @@
   margin-left: auto;
   min-width: 0;
   text-align: right;
+  align-items: inherit;
 }
 
 .action-data {
@@ -131,7 +132,7 @@
 
 .sleep-duration {
   font-weight: 600;
-  width: 55px;
+  font-variant-numeric: tabular-nums;
 }
 
 .action-button:hover {

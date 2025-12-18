@@ -7,11 +7,13 @@ import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
 import Spinner from './Spinner';
 
-function Reports({ profile, onClose, openToToday = false, initialActions = [] }) {
+function Reports({ profile, onClose, openToToday = false, initialActions = [], onActionsChange }) {
   // Only show loading if we don't have initial data
   const [loading, setLoading] = useState(initialActions.length === 0);
   const [error, setError] = useState(null);
   const [actions, setActions] = useState(initialActions);
+  // Track which date ranges we've already fetched to avoid duplicate requests
+  const [fetchedRanges, setFetchedRanges] = useState([]);
   const [selectedDay, setSelectedDay] = useState(() => {
     // If openToToday is true, set selectedDay to today
     if (openToToday) {
@@ -25,30 +27,49 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
   const [hasShownCalendar, setHasShownCalendar] = useState(!openToToday);
   const [actionToEdit, setActionToEdit] = useState(null);
   const [currentPeriodStart, setCurrentPeriodStart] = useState(() => {
-    // Start with today minus 1 day (show yesterday, today, and 2 days ahead)
+    // Start with today minus 3 days (show 3 days ago, 2 days ago, yesterday, today)
+    // Today will be on the rightmost (4th) position
     const today = new Date();
-    today.setDate(today.getDate() - 1);
+    today.setDate(today.getDate() - 3);
     today.setHours(0, 0, 0, 0);
     return today;
   });
 
   useEffect(() => {
-    // If we have initial data, refresh in background; otherwise fetch with loading
-    if (initialActions.length > 0) {
-      refreshActions();
-    } else {
-      fetchActions();
-    }
+    // Always fetch current period on mount
+    // Show loader only if we don't have initial data
+    fetchActionsForPeriod(currentPeriodStart, initialActions.length === 0);
   }, [profile.id]);
 
-  const fetchActions = async (showLoading = true) => {
+  // Fetch actions for a specific 4-day period
+  const fetchActionsForPeriod = async (periodStart, showLoading = false) => {
+    const rangeKey = periodStart.toDateString();
+    
+    // Skip if we've already fetched this range
+    if (fetchedRanges.includes(rangeKey)) {
+      return;
+    }
+
     try {
-      // Only show loading spinner on initial load, not on background refresh
       if (showLoading) {
         setLoading(true);
       }
       setError(null);
-      const response = await apiFetch(`${API_URL}/actions?babyProfileId=${profile.id}`);
+
+      // Calculate date range for the 4-day period (including next day for 6am-5:59am coverage)
+      const startDate = new Date(periodStart);
+      startDate.setHours(6, 0, 0, 0);
+      
+      const endDate = new Date(periodStart);
+      endDate.setDate(endDate.getDate() + 4); // +3 days + 1 for next day early morning
+      endDate.setHours(5, 59, 59, 999);
+
+      const params = new URLSearchParams({
+        babyProfileId: profile.id,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      });
+      const response = await apiFetch(`${API_URL}/actions?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch actions');
@@ -56,7 +77,20 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
 
       const data = await response.json();
       const fetchedActions = data.actions || [];
-      setActions(fetchedActions);
+      
+      // Merge new actions with existing ones, avoiding duplicates
+      setActions(prev => {
+        const existingIds = new Set(prev.map(a => a.id));
+        const newActions = fetchedActions.filter(a => !existingIds.has(a.id));
+        // Sort by createdAt descending after merging
+        return [...prev, ...newActions].sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+      });
+      
+      // Mark this range as fetched
+      setFetchedRanges(prev => [...prev, rangeKey]);
+      
       return fetchedActions;
     } catch (err) {
       console.error('Error fetching actions:', err);
@@ -69,8 +103,14 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
     }
   };
 
-  // Refresh actions in the background without showing loader
-  const refreshActions = () => fetchActions(false);
+  // Refresh current period by re-fetching it
+  const refreshActions = async () => {
+    const rangeKey = currentPeriodStart.toDateString();
+    // Remove from fetched ranges to allow re-fetching
+    setFetchedRanges(prev => prev.filter(r => r !== rangeKey));
+    // Small delay to ensure state is updated
+    setTimeout(() => fetchActionsForPeriod(currentPeriodStart, false), 0);
+  };
 
   const handleActionClick = (action) => {
     setActionToEdit(action);
@@ -90,8 +130,15 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
         throw new Error('Failed to delete action');
       }
 
-      // Refresh actions list in background (no loading spinner)
-      await refreshActions();
+      // Remove action from local state immediately (no refetch needed)
+      setActions(prev => {
+        const updated = prev.filter(a => a.id !== actionId);
+        // Notify parent of the change
+        if (onActionsChange) {
+          onActionsChange(updated);
+        }
+        return updated;
+      });
       setActionToEdit(null);
       setError(null);
     } catch (err) {
@@ -100,12 +147,18 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
     }
   };
 
-  const handleUpdateAction = async () => {
-    const actionId = actionToEdit?.id;
-    if (!actionId) return;
-    
-    // Refresh actions list in background (no loading spinner)
-    await refreshActions();
+  const handleUpdateAction = async (updatedAction) => {
+    // Update action in local state immediately
+    if (updatedAction) {
+      setActions(prev => {
+        const updated = prev.map(a => a.id === updatedAction.id ? updatedAction : a);
+        // Notify parent of the change
+        if (onActionsChange) {
+          onActionsChange(updated);
+        }
+        return updated;
+      });
+    }
     setActionToEdit(null);
   };
 
@@ -139,11 +192,15 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
     setCurrentPeriodStart(newPeriodStart);
     setSelectedDay(null);
     setShowDayList(false);
+    
+    // Fetch data for the new period in background (no loader)
+    fetchActionsForPeriod(newPeriodStart, false);
   };
 
   const goToToday = () => {
+    // Today on the rightmost (4th) position means starting 3 days ago
     const today = new Date();
-    today.setDate(today.getDate() - 1);
+    today.setDate(today.getDate() - 3);
     today.setHours(0, 0, 0, 0);
     setCurrentPeriodStart(today);
     setSelectedDay(null);
@@ -164,7 +221,7 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [] })
         onActionItemClick={handleActionClick}
         onCloseEditPopup={handleCloseEditPopup}
         onDeleteAction={handleDeleteAction}
-        onUpdateAction={refreshActions}
+        onUpdateAction={handleUpdateAction}
       />
     );
   }

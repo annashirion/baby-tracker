@@ -62,8 +62,8 @@ function ReportsActionItem({ action, onClick }) {
       </div>
       <div className="reports-action-time">
         {getTimeRange()}
-        {action.userEmoji && (
-          <span className="reports-action-emoji"> • {action.userEmoji}</span>
+        {(action.userEmoji || action.userId?.emoji) && (
+          <span className="reports-action-emoji"> • {action.userEmoji || action.userId?.emoji}</span>
         )}
       </div>
     </div>

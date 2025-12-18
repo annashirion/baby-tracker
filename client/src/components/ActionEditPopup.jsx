@@ -133,7 +133,7 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
       const data = await response.json();
       
       if (onUpdate) {
-        onUpdate();
+        onUpdate(data.action);
       }
       
       onClose();
