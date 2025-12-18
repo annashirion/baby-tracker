@@ -310,10 +310,10 @@ function CalendarView({
               {dateRange}
             </span>
           </div>
-          <button className="today-btn btn-secondary" onClick={handleTodayClick} title="Go to today">
-            Today
-          </button>
         </div>
+        <button className="today-btn btn-secondary" onClick={handleTodayClick} title="Go to today">
+          Today
+        </button>
       </div>
 
       {loading ? (

@@ -1,24 +1,18 @@
 .reports-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
   align-items: center;
-  justify-content: center;
   gap: 1rem;
-  padding: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--color-background);
-}
-
-.reports-header .back-button {
-  position: absolute;
-  left: 1rem;
 }
 
 .reports-header-center {
   display: flex;
   align-items: center;
+  justify-content: center;
+  grid-column: 2;
 }
 
 .reports-header .nav-btn {
@@ -67,7 +61,4 @@
   border-bottom: 2px solid rgba(0, 0, 0, 0.2);
 }
 
-.reports-header {
-  padding: 0.75rem;
-}
 

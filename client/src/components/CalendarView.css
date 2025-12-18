@@ -7,32 +7,21 @@
 }
 
 .calendar-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
   align-items: center;
-  justify-content: center;
   gap: 1rem;
-  padding: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--color-background);
-}
-
-.calendar-header .back-button {
-  position: absolute;
-  left: 1rem;
 }
 
 .calendar-header-center {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-}
-
-.calendar-header .today-btn {
-  position: absolute;
-  right: 1rem;
+  grid-column: 2;
 }
 
 .calendar-loading {
@@ -40,7 +29,7 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  padding: 2rem;
+  padding: 2rem 0;
   color: var(--color-text-secondary);
 }
 
@@ -68,7 +57,8 @@
   padding: 0.375rem 0.75rem;
   border-radius: 4px;
   transition: background-color 0.2s;
-  margin-left: 0.5rem;
+  grid-column: 3;
+  justify-self: end;
 }
 
 .today-btn:hover {
@@ -93,6 +83,7 @@
   display: flex;
   gap: 0.5rem;
   min-height: 500px;
+  padding-bottom: 1rem;
 }
 
 .time-column {

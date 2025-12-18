@@ -1,14 +1,19 @@
 .reports-view {
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0;
+  padding: 1rem;
+  box-sizing: border-box;
   background-color: transparent;
   color: var(--color-text-primary);
-  align-self: flex-start;
 }
 
 .reports-calendar-view {
   background-color: transparent;
+}
+
+.reports-calendar-view .reports-content {
+  padding: 0;
 }
 
 .reports-content {
@@ -39,8 +44,8 @@
   height: 2.5rem;
   padding: 0;
   background-color: transparent;
-  color: var(--color-text-primary);
-  border: 2px solid rgba(0, 0, 0, 0.2);
+  color: var(--color-primary);
+  border: 2px solid #ddd;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s;
@@ -48,8 +53,15 @@
 }
 
 .btn.back-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.3);
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-text-on-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn.back-button:active {
+  transform: translateY(0);
 }
 
 .btn.back-button svg {

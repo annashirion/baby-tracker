@@ -21,6 +21,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [lastSleepAction, setLastSleepAction] = useState(null);
   const [lastFeedAction, setLastFeedAction] = useState(null);
   const [allActions, setAllActions] = useState([]); // Store all fetched actions to pass to Reports
+  const [isInitialLoad, setIsInitialLoad] = useState(true); // Track if this is the first load
   const [loadingActionType, setLoadingActionType] = useState(null); // Track which action type is loading
   const [timeKey, setTimeKey] = useState(0); // Force re-render for time updates
   const [timerKey, setTimerKey] = useState(0); // Force re-render for timer updates
@@ -99,6 +100,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     } catch (err) {
       console.error('Error fetching last actions:', err);
     } finally {
+      setIsInitialLoad(false);
       setLoadingActionType(null);
     }
   };
@@ -290,7 +292,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>💩</span> <span>Diaper</span>
-              {loadingActionType === ACTION_TYPES.DIAPER ? (
+              {(isInitialLoad || loadingActionType === ACTION_TYPES.DIAPER) ? (
                 <div className="last-action-info">
                   <LoadingDots size="small" />
                 </div>
@@ -309,7 +311,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>😴</span> <span>Sleep</span>
-            {loadingActionType === ACTION_TYPES.SLEEP ? (
+            {(isInitialLoad || loadingActionType === ACTION_TYPES.SLEEP) ? (
               <div className="last-action-info">
                 <LoadingDots size="small" />
               </div>
@@ -349,7 +351,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>🍼</span> <span>Feed</span>
-              {loadingActionType === ACTION_TYPES.FEED ? (
+              {(isInitialLoad || loadingActionType === ACTION_TYPES.FEED) ? (
                 <div className="last-action-info">
                   <LoadingDots size="small" />
                 </div>
@@ -394,7 +396,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             <div className="action-button-main">
               <span>📝</span> <span>Other</span>
-              {loadingActionType === ACTION_TYPES.OTHER ? (
+              {(isInitialLoad || loadingActionType === ACTION_TYPES.OTHER) ? (
                 <div className="last-action-info">
                   <LoadingDots size="small" />
                 </div>
