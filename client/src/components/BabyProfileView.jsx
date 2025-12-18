@@ -426,7 +426,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               setShowReports(true);
             }}
           >
-            Reports
+            Calendar
           </button>
         </div>
       </div>
