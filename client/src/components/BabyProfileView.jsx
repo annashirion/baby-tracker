@@ -116,7 +116,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     if (diffMins < 60) return `${diffMins}m\u00A0ago`;
     
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h\u00A0ago`;
+    const remainingMins = diffMins % 60;
+    if (diffHours < 24) return `${diffHours}h ${remainingMins}m\u00A0ago`;
     
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays}d\u00A0ago`;
