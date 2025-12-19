@@ -77,7 +77,8 @@
 .action-button {
   width: 100%;
   max-width: 100%;
-  padding: 1.25rem 1.5rem;
+  min-height: 5rem;
+  padding: 1rem 1.5rem;
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -86,7 +87,7 @@
   transition: all 0.2s;
   text-align: left;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
@@ -102,15 +103,26 @@
 
 .last-action-info {
   display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.9rem;
   font-weight: 400;
   opacity: 0.9;
   margin-left: auto;
   min-width: 0;
   text-align: right;
-  align-items: inherit;
+}
+
+.action-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.time-ago {
+  white-space: nowrap;
 }
 
 .action-data {
@@ -127,7 +139,8 @@
   font-size: 1rem;
   white-space: nowrap;
   flex-shrink: 0;
-  margin-left: 1rem;
+  margin-left: 0.5rem;
+  align-self: center;
 }
 
 .sleep-duration {

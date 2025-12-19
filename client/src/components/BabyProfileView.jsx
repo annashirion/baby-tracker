@@ -167,8 +167,8 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     const minutes = diffMins % 60;
     // Use non-breaking space (\u00A0) to prevent wrapping within duration
     return hours > 0 
-      ? `${hours}h\u00A0${minutes}m\u00A0•\u00A0`
-      : `${minutes}m\u00A0•\u00A0`;
+      ? `${hours}h\u00A0${minutes}m`
+      : `${minutes}m`;
   };
 
   const handleAction = (actionType) => {
@@ -299,7 +299,10 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                 </div>
               ) : lastDiaperAction && (
               <div className="last-action-info">
-                <span className="action-data">{getDiaperTypeLabel(lastDiaperAction.details?.type)}&nbsp;•&nbsp;<span className="nowrap">{formatTimeAgo(lastDiaperAction.details?.timestamp || lastDiaperAction.createdAt)}</span></span>
+                <div className="action-lines">
+                  <span className="action-data">{getDiaperTypeLabel(lastDiaperAction.details?.type)}</span>
+                  <span className="time-ago">{formatTimeAgo(lastDiaperAction.details?.timestamp || lastDiaperAction.createdAt)}</span>
+                </div>
                 {(lastDiaperAction.userEmoji || lastDiaperAction.userId?.emoji) && <span className="action-emoji">{lastDiaperAction.userEmoji || lastDiaperAction.userId?.emoji}</span>}
               </div>
             )}
@@ -320,24 +323,21 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               <div className="last-action-info">
                 {lastSleepAction.details?.endTime ? (
                     <>
-                      <span className="action-data">
-                        <span className="nowrap">{formatActionDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)}</span>
-                        <span className="nowrap">{formatTimeAgo(lastSleepAction.details.endTime)}</span>
-                      </span>
+                      <div className="action-lines">
+                        <span className="action-data">{formatActionDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)}</span>
+                        <span className="time-ago">{formatTimeAgo(lastSleepAction.details.endTime)}</span>
+                      </div>
                       {(lastSleepAction.details?.endUserEmoji || lastSleepAction.userId?.emoji) && <span className="action-emoji">{lastSleepAction.details?.endUserEmoji || lastSleepAction.userId?.emoji}</span>}
                     </>
                 ) : (
-                  // Sleep is in progress - show "fall asleep" and time
+                  // Sleep is in progress - show "sleeping" and duration
                     <>
-                      <span className="action-data">
-                        Sleeping&nbsp;•&nbsp;
+                      <div className="action-lines">
+                        <span className="action-data">Sleeping</span>
                         <span className="sleep-duration">
-                          {lastSleepAction.details?.endTime 
-                            ? formatDuration(lastSleepAction.details.startTime, lastSleepAction.details.endTime)
-                            : formatDuration(lastSleepAction.details?.startTime, null, true)
-                          }
+                          {formatDuration(lastSleepAction.details?.startTime, null, true)}
                         </span>
-                      </span>
+                      </div>
                       {(lastSleepAction.userEmoji || lastSleepAction.userId?.emoji) && <span className="action-emoji">{lastSleepAction.userEmoji || lastSleepAction.userId?.emoji}</span>}
                     </>
                 )}
@@ -360,29 +360,26 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                 <div className="last-action-info">
                   {lastFeedAction.details?.endTime ? (
                     <>
-                      <span className="action-data">
-                        <span className="nowrap">
+                      <div className="action-lines">
+                        <span className="action-data">
                           {lastFeedAction.details?.ml 
-                            ? `${lastFeedAction.details.ml}ml\u00A0•\u00A0${formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
+                            ? `${lastFeedAction.details.ml}ml • ${formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)}`
                             : formatActionDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
                           }
                         </span>
-                        <span className="nowrap">{formatTimeAgo(lastFeedAction.details.endTime)}</span>
-                      </span>
+                        <span className="time-ago">{formatTimeAgo(lastFeedAction.details.endTime)}</span>
+                      </div>
                       {(lastFeedAction.details?.endUserEmoji || lastFeedAction.userId?.emoji) && <span className="action-emoji">{lastFeedAction.details?.endUserEmoji || lastFeedAction.userId?.emoji}</span>}
                     </>
                   ) : (
-                    // Feed is in progress - show "feeding" and time
+                    // Feed is in progress - show "feeding" and duration
                     <>
-                      <span className="action-data">
-                        Feeding&nbsp;•&nbsp;
+                      <div className="action-lines">
+                        <span className="action-data">Feeding</span>
                         <span className="sleep-duration">
-                          {lastFeedAction.details?.endTime 
-                            ? formatDuration(lastFeedAction.details.startTime, lastFeedAction.details.endTime)
-                            : formatDuration(lastFeedAction.details?.startTime, null, true)
-                          }
+                          {formatDuration(lastFeedAction.details?.startTime, null, true)}
                         </span>
-                      </span>
+                      </div>
                       {(lastFeedAction.userEmoji || lastFeedAction.userId?.emoji) && <span className="action-emoji">{lastFeedAction.userEmoji || lastFeedAction.userId?.emoji}</span>}
                     </>
                   )}
@@ -403,7 +400,10 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                 </div>
               ) : lastOtherAction && (
                 <div className="last-action-info">
-                  <span className="action-data">{lastOtherAction.details?.title?.length > 10 ? lastOtherAction.details.title.slice(0, 10) + '…' : lastOtherAction.details?.title}&nbsp;•&nbsp;<span className="nowrap">{formatTimeAgo(lastOtherAction.details?.timestamp || lastOtherAction.createdAt)}</span></span>
+                  <div className="action-lines">
+                    <span className="action-data">{lastOtherAction.details?.title?.length > 10 ? lastOtherAction.details.title.slice(0, 10) + '…' : lastOtherAction.details?.title}</span>
+                    <span className="time-ago">{formatTimeAgo(lastOtherAction.details?.timestamp || lastOtherAction.createdAt)}</span>
+                  </div>
                   {(lastOtherAction.userEmoji || lastOtherAction.userId?.emoji) && <span className="action-emoji">{lastOtherAction.userEmoji || lastOtherAction.userId?.emoji}</span>}
                 </div>
               )}

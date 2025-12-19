@@ -6,6 +6,12 @@
   box-sizing: border-box;
   background-color: transparent;
   color: var(--color-text-primary);
+  height: calc(100vh - 2rem); /* Fallback */
+  height: calc(var(--vh, 1vh) * 100 - 2rem); /* Use actual viewport height */
+  height: calc(100dvh - 2rem); /* Modern browsers: dynamic viewport height */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .reports-calendar-view {
@@ -18,6 +24,10 @@
 
 .reports-content {
   padding: 1rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .reports-loading {
