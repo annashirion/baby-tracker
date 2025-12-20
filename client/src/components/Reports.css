@@ -20,6 +20,9 @@
 
 .reports-calendar-view .reports-content {
   padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .reports-content {
@@ -77,3 +80,5 @@
 .btn.back-button svg {
   display: block;
 }
+
+/* Refresh button styles are in RefreshButton.css */

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './BabyProfiles.css';
 import Spinner from './Spinner';
+import RefreshButton from './RefreshButton';
 import { ALLOWED_JOIN_CODE_CHARS, API_URL } from '../constants/constants';
 import { apiFetch } from '../utils/api';
 
@@ -77,9 +78,11 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
     });
   };
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async (isInitialLoad = true) => {
     try {
-      setLoading(true);
+      if (isInitialLoad) {
+        setLoading(true);
+      }
       setError(null);
       const response = await apiFetch(`${API_URL}/baby-profiles`);
       
@@ -101,7 +104,9 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       console.error('Error fetching profiles:', err);
       setError(err.message || 'Failed to fetch baby profiles. Make sure the server is running.');
     } finally {
-      setLoading(false);
+      if (isInitialLoad) {
+        setLoading(false);
+      }
     }
   };
 
@@ -452,7 +457,8 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
 
   return (
     <div className="baby-profiles-container">
-      <div className="baby-profiles-header">
+      <div className="baby-profiles-content">
+        <div className="baby-profiles-header">
         <div className="baby-profiles-actions">
           <button 
             onClick={() => {
@@ -780,6 +786,11 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
           ))}
         </div>
       )}
+      </div>
+      <RefreshButton 
+        onRefresh={() => fetchProfiles(false)}
+        containerClassName="baby-profiles-refresh-container"
+      />
     </div>
   );
 }

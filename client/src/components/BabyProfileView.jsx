@@ -6,6 +6,7 @@ import SleepAction from './SleepAction';
 import FeedAction from './FeedAction';
 import Reports from './Reports';
 import LoadingDots from './LoadingDots';
+import RefreshButton from './RefreshButton';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 import { apiFetch } from '../utils/api';
 
@@ -429,6 +430,10 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           >
             Calendar
           </button>
+          <RefreshButton 
+            onRefresh={() => fetchLastActions()}
+            containerClassName="today-button-container"
+          />
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { API_URL } from '../constants/constants';
 import Spinner from './Spinner';
+import RefreshButton from './RefreshButton';
 import { apiFetch } from '../utils/api';
 import './AdminPanel.css';
 
@@ -14,15 +15,19 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
   const [blockingUsers, setBlockingUsers] = useState({}); // Track which user is being blocked/unblocked
   const [showBlockedUsers, setShowBlockedUsers] = useState(false); // Track whether to show blocked users list
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (isInitialLoad = true) => {
     if (!userId || !babyProfileId) {
       setError('User ID and Baby Profile ID are required');
-      setLoading(false);
+      if (isInitialLoad) {
+        setLoading(false);
+      }
       return;
     }
 
     try {
-      setLoading(true);
+      if (isInitialLoad) {
+        setLoading(true);
+      }
       setError(null);
       const response = await apiFetch(`${API_URL}/users?babyProfileId=${babyProfileId}`);
       if (!response.ok) {
@@ -35,7 +40,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
       setError(err.message);
       console.error('Error fetching users:', err);
     } finally {
-      setLoading(false);
+      if (isInitialLoad) {
+        setLoading(false);
+      }
     }
   };
 
@@ -391,37 +398,43 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
   return (
     <div className="admin-panel">
-      {showBlockedUsers ? (
-        <>
-          {blockedUsers.length === 0 ? (
-            <p>No blocked users.</p>
-          ) : (
-            <div className="users-list">
-              {blockedUsers.map((user) => renderBlockedUserCard(user))}
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          {activeUsers.length === 0 ? (
-            <p>No users have joined this baby profile yet.</p>
-          ) : (
-            <div className="users-list">
-              {activeUsers.map((user) => renderUserCard(user))}
-            </div>
-          )}
-        </>
-      )}
-      <div className="admin-panel-actions">
-        {blockedUsers.length > 0 && (
-          <button 
-            onClick={() => setShowBlockedUsers(!showBlockedUsers)}
-            className="btn btn-secondary blocked-users-btn"
-          >
-            {showBlockedUsers ? '← Back to Active Users' : `Blocked Users (${blockedUsers.length})`}
-          </button>
+      <div className="admin-panel-content">
+        {showBlockedUsers ? (
+          <>
+            {blockedUsers.length === 0 ? (
+              <p>No blocked users.</p>
+            ) : (
+              <div className="users-list">
+                {blockedUsers.map((user) => renderBlockedUserCard(user))}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {activeUsers.length === 0 ? (
+              <p>No users have joined this baby profile yet.</p>
+            ) : (
+              <div className="users-list">
+                {activeUsers.map((user) => renderUserCard(user))}
+              </div>
+            )}
+          </>
         )}
+        <div className="admin-panel-actions">
+          {blockedUsers.length > 0 && (
+            <button 
+              onClick={() => setShowBlockedUsers(!showBlockedUsers)}
+              className="btn btn-secondary blocked-users-btn"
+            >
+              {showBlockedUsers ? '← Back to Active Users' : `Blocked Users (${blockedUsers.length})`}
+            </button>
+          )}
+        </div>
       </div>
+      <RefreshButton 
+        onRefresh={() => fetchUsers(false)}
+        containerClassName="admin-panel-refresh-container"
+      />
     </div>
   );
 }

@@ -1,0 +1,95 @@
+.refresh-button-container {
+  padding: 1rem;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+
+.refresh-button {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px; /* Prevent size changes */
+}
+
+.refresh-button:hover:not(:disabled) {
+  background-color: transparent;
+  transform: none;
+}
+
+.refresh-button:active:not(:disabled) {
+  transform: none;
+  background-color: transparent;
+}
+
+.refresh-button svg {
+  display: block;
+  flex-shrink: 0;
+  width: 28px;
+  min-width: 28px;
+}
+
+.refresh-button .loading-dots {
+  display: inline-flex;
+  width: 28px;
+  min-width: 28px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Special container styles for different views */
+.today-button-container .refresh-button-container {
+  padding: 0;
+  border-top: none;
+  margin-top: 0;
+}
+
+.today-button-container .refresh-button-container .refresh-button {
+  width: 100%;
+  max-width: 100%;
+}
+
+.reports-refresh-container {
+  margin-top: auto;
+  padding: 1rem 0 0 0;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.baby-profiles-refresh-container {
+  margin-top: auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-panel-refresh-container {
+  margin-top: auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+

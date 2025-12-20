@@ -3,6 +3,12 @@
   margin: 0 auto;
   padding: 1rem;
   color: var(--color-text-primary);
+  height: calc(100vh - 2rem); /* Fallback */
+  height: calc(var(--vh, 1vh) * 100 - 2rem); /* Use actual viewport height */
+  height: calc(100dvh - 2rem); /* Modern browsers: dynamic viewport height */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .baby-profiles-container--loading {
@@ -14,6 +20,13 @@
   min-height: 50dvh; /* Modern browsers: dynamic viewport height */
 }
 
+.baby-profiles-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .baby-profiles-header {
   display: flex;
   flex-direction: column;
@@ -21,6 +34,7 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 .baby-profiles-header h2 {
@@ -437,5 +451,7 @@
 .profile-card-actions button {
   width: 100%;
 }
+
+/* Refresh button styles are in RefreshButton.css */
 
 

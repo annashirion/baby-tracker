@@ -6,6 +6,7 @@ import CalendarView from './CalendarView';
 import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
 import Spinner from './Spinner';
+import RefreshButton from './RefreshButton';
 
 function Reports({ profile, onClose, openToToday = false, initialActions = [], onActionsChange }) {
   // Only show loading if we don't have initial data
@@ -109,7 +110,8 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
     // Remove from fetched ranges to allow re-fetching
     setFetchedRanges(prev => prev.filter(r => r !== rangeKey));
     // Small delay to ensure state is updated
-    setTimeout(() => fetchActionsForPeriod(currentPeriodStart, false), 0);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await fetchActionsForPeriod(currentPeriodStart, false);
   };
 
   const handleActionClick = (action) => {
@@ -222,6 +224,7 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
         onCloseEditPopup={handleCloseEditPopup}
         onDeleteAction={handleDeleteAction}
         onUpdateAction={handleUpdateAction}
+        onRefresh={refreshActions}
       />
     );
   }
@@ -255,6 +258,10 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
           />
         )}
       </div>
+      <RefreshButton 
+        onRefresh={refreshActions}
+        containerClassName="reports-refresh-container"
+      />
     </div>
   );
 }

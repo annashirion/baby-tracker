@@ -3,6 +3,7 @@ import './DayListView.css';
 import ReportsActionItem from './ReportsActionItem';
 import ActionEditPopup from './ActionEditPopup';
 import Spinner from './Spinner';
+import RefreshButton from './RefreshButton';
 import { ACTION_TYPES } from '../constants/constants';
 
 function DayListView({ 
@@ -16,7 +17,8 @@ function DayListView({
   onActionItemClick, 
   onCloseEditPopup,
   onDeleteAction,
-  onUpdateAction
+  onUpdateAction,
+  onRefresh
 }) {
   // Get actions for selected day (6 AM to 5:59 AM next day), split into two groups
   const { selectedDayActions, nextDayActions, nextDay } = selectedDay ? (() => {
@@ -179,6 +181,12 @@ function DayListView({
           />
         )}
       </div>
+      {onRefresh && (
+        <RefreshButton 
+          onRefresh={onRefresh}
+          containerClassName="reports-refresh-container"
+        />
+      )}
     </div>
   );
 }
