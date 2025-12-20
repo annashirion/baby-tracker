@@ -32,7 +32,7 @@ function RefreshButton({ onRefresh, className = '', containerClassName = '' }) {
   return (
     <div className={`refresh-button-container ${containerClassName}`}>
       <button 
-        className={`btn btn-secondary refresh-button ${className}`}
+        className={`refresh-button ${className}`}
         onClick={handleClick}
         title="Refresh data"
         disabled={refreshing}
