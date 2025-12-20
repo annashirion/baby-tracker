@@ -143,7 +143,7 @@ function CalendarView({
   }, []);
 
   // Get actions for a specific day (6 AM to 5:59 AM next day)
-  // Only show actions that STARTED in this time period
+  // Show actions that OVERLAP with this time period (for calendar view, we want to see all overlapping actions)
   const getActionsForDay = (day) => {
     // Selected day: from 6:00 AM to 11:59:59 PM
     const dayStart = new Date(day);
@@ -159,15 +159,20 @@ function CalendarView({
     const nextDayEnd = new Date(nextDay);
     nextDayEnd.setHours(5, 59, 59, 999);
 
+    // Combined time range for the day (6am to 5:59am next day)
+    const periodStart = dayStart;
+    const periodEnd = nextDayEnd;
+
     return actions.filter(action => {
-      // For sleep/feed, check if start time falls in the time range
+      // For sleep/feed, check if the action OVERLAPS with the time period
+      // (not just if it started in the period - we want to see actions that span midnight)
       if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
         const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
+        const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
         
-        // Check if action started in selected day (6am-11:59pm) or next day (midnight-5:59am)
-        const startedInSelectedDay = startTime >= dayStart && startTime <= dayEnd;
-        const startedInNextDay = startTime >= nextDayStart && startTime <= nextDayEnd;
-        return startedInSelectedDay || startedInNextDay;
+        // Check if action overlaps with the period (6am to 5:59am next day)
+        // An action overlaps if: startTime < periodEnd && endTime > periodStart
+        return startTime < periodEnd && endTime > periodStart;
       }
       // For other actions (diaper, other), check if they fall in either time range
       const actionDate = action.details?.timestamp ? new Date(action.details.timestamp) : new Date(action.createdAt);
@@ -199,30 +204,25 @@ function CalendarView({
       startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
       endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
       
-      // Clamp to the appropriate boundaries (selected day 6am-11:59pm or next day midnight-5:59am)
-      // Check which range the action overlaps with
-      const overlapsSelectedDay = (startTime <= selectedDayEnd && endTime >= selectedDayStart);
-      const overlapsNextDay = (startTime <= nextDayEnd && endTime >= nextDayStart);
+      // For calendar view, we want to show the full action spanning the day's period (6am to 5:59am next day)
+      // Clamp to the combined period boundaries (6am selected day to 5:59am next day)
+      const periodStart = selectedDayStart; // 6am selected day
+      const periodEnd = nextDayEnd; // 5:59am next day
       
-      if (overlapsSelectedDay && overlapsNextDay) {
-        // Action spans both ranges - clamp to the range where it starts
-        if (startTime < selectedDayStart) {
-          // Starts before selected day, clamp to next day range
-          startTime = startTime < nextDayStart ? nextDayStart : startTime;
-          endTime = endTime > nextDayEnd ? nextDayEnd : endTime;
-        } else {
-          // Starts in selected day, clamp to selected day range
-          startTime = startTime < selectedDayStart ? selectedDayStart : startTime;
-          endTime = endTime > selectedDayEnd ? selectedDayEnd : endTime;
-        }
-      } else if (overlapsSelectedDay) {
-        // Only overlaps selected day
-        startTime = startTime < selectedDayStart ? selectedDayStart : startTime;
-        endTime = endTime > selectedDayEnd ? selectedDayEnd : endTime;
-      } else if (overlapsNextDay) {
-        // Only overlaps next day
-        startTime = startTime < nextDayStart ? nextDayStart : startTime;
-        endTime = endTime > nextDayEnd ? nextDayEnd : endTime;
+      // Clamp startTime and endTime to the period boundaries
+      if (startTime < periodStart) {
+        startTime = periodStart;
+      }
+      if (endTime > periodEnd) {
+        endTime = periodEnd;
+      }
+      
+      // If the action doesn't overlap the period at all, it shouldn't be shown (but this is handled by getActionsForDay)
+      // Ensure we have valid times
+      if (startTime > periodEnd || endTime < periodStart) {
+        // Action doesn't overlap period - shouldn't happen due to filtering, but handle gracefully
+        startTime = periodStart;
+        endTime = periodStart;
       }
     } else {
       // For instant actions (diaper, other), use details.timestamp if available, otherwise createdAt
