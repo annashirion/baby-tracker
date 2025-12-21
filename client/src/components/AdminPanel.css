@@ -7,17 +7,27 @@
   overflow: hidden;
 }
 
+.admin-panel-loading {
+  justify-content: center;
+  align-items: center;
+}
+
 .admin-panel-content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .users-list {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
   margin-top: 1rem;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .user-card {
@@ -35,6 +45,7 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  height: fit-content;
 }
 
 .user-info {

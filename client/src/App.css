@@ -127,12 +127,12 @@
 .users-view-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 2rem 0 2rem;
   width: 100%;
   box-sizing: border-box;
-  height: calc(100vh - 2rem); /* Fallback */
-  height: calc(var(--vh, 1vh) * 100 - 2rem); /* Use actual viewport height */
-  height: calc(100dvh - 2rem); /* Modern browsers: dynamic viewport height */
+  height: calc(100vh); /* Fallback */
+  height: calc(var(--vh, 1vh) * 100); /* Use actual viewport height */
+  height: calc(100dvh); /* Modern browsers: dynamic viewport height */
   display: flex;
   flex-direction: column;
   overflow: hidden;

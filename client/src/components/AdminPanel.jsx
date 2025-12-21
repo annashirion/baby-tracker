@@ -197,7 +197,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
   if (loading) {
     return (
-      <div className="admin-panel">
+      <div className="admin-panel admin-panel-loading">
         <Spinner size="medium" />
       </div>
     );
@@ -430,11 +430,11 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
             </button>
           )}
         </div>
+        <RefreshButton 
+          onRefresh={() => fetchUsers(false)}
+          containerClassName="admin-panel-refresh-container"
+        />
       </div>
-      <RefreshButton 
-        onRefresh={() => fetchUsers(false)}
-        containerClassName="admin-panel-refresh-container"
-      />
     </div>
   );
 }
