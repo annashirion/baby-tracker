@@ -237,6 +237,16 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.diaper-action-buttons .btn-save {
+  width: 90px;
 }
 
 .diaper-action-buttons .btn:disabled {
@@ -260,6 +270,12 @@
 
 .diaper-action-buttons .btn-save:hover:not(:disabled) {
   background-color: var(--color-action-diaper-active);
+}
+
+.diaper-action-buttons .btn .loading-dots {
+  display: inline-flex;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 @keyframes slideUp {

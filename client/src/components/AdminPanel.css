@@ -50,6 +50,10 @@
 
 .user-info {
   flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 
@@ -102,7 +106,10 @@
   margin-bottom: 10px;
   flex-wrap: wrap;
   justify-content: space-between;
-  width: 95%;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .user-info-header h3 {
@@ -111,7 +118,21 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
+  flex: 1;
+  white-space: normal;
+}
+
+.user-info-header h3 .user-emoji-small {
+  flex-shrink: 0;
+}
+
+.user-info-header h3 .user-name-text {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: normal;
+  min-width: 0;
 }
 
 .user-emoji-small {

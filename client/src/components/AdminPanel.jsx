@@ -273,7 +273,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         )}
         <div className="user-info">
           <div className="user-info-header">
-            <h3>{user.emoji && <span className="user-emoji-small">{user.emoji}</span>} {user.name}</h3>
+            <h3>{user.emoji && <span className="user-emoji-small">{user.emoji}</span>} <span className="user-name-text">{user.name}</span></h3>
           </div>
           <p><strong>Email:</strong> {user.email}</p>
         </div>
@@ -371,7 +371,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         )}
         <div className="user-info">
           <div className="user-info-header">
-            <h3>{user.emoji && <span className="user-emoji-small">{user.emoji}</span>} {user.name} {user.blocked && <span className="blocked-badge">(Blocked)</span>}</h3>
+            <h3>{user.emoji && <span className="user-emoji-small">{user.emoji}</span>} <span className="user-name-text">{user.name}</span> {user.blocked && <span className="blocked-badge">(Blocked)</span>}</h3>
           </div>
           {user.id === userId ? (
             <span className={`role-badge role-badge-${user.role || 'default'}`}>

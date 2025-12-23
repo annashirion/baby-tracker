@@ -199,6 +199,16 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.other-action-buttons .btn-save {
+  width: 90px;
 }
 
 .other-action-buttons .btn:disabled {
@@ -222,6 +232,12 @@
 
 .btn-save:hover:not(:disabled) {
   background-color: var(--color-action-other-hover);
+}
+
+.other-action-buttons .btn .loading-dots {
+  display: inline-flex;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 @keyframes slideUp {

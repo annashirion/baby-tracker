@@ -114,6 +114,13 @@
   text-align: right;
 }
 
+.last-action-info .loading-dots {
+  display: inline-flex;
+  min-width: 60px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .action-lines {
   display: flex;
   flex-direction: column;

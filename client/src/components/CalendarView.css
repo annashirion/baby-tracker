@@ -212,7 +212,6 @@
   width: 100%;
   border-radius: 2px;
   cursor: pointer;
-  transition: all 0.2s;
   /* z-index is set dynamically based on bar height - smaller bars get higher z-index */
   user-select: none;
   -webkit-user-select: none;

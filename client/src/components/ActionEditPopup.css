@@ -190,6 +190,10 @@
   background-color: var(--color-success-light);
   color: var(--color-text-primary);
   font-weight: 600;
+  width: 90px;
+  min-height: 44px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .action-edit-popup__button-save:hover:not(:disabled) {
@@ -199,10 +203,21 @@
 .action-edit-popup__button-delete {
   background-color: var(--color-red-variant);
   color: var(--color-text-on-dark);
+  width: 90px;
+  min-height: 44px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .action-edit-popup__button-delete:hover:not(:disabled) {
   background-color: var(--color-error-dark);
+}
+
+.action-edit-popup__button-save .loading-dots,
+.action-edit-popup__button-delete .loading-dots {
+  display: inline-flex;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* Delete confirmation overlay with higher z-index */

@@ -111,15 +111,34 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+/* Set fixed widths for buttons to prevent size changes */
+.action-modal__button-start,
+.action-modal__button-end {
+  width: 120px;
+}
+
+.action-modal__button-cancel {
+  width: 90px;
 }
 
 .action-modal__button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.action-modal__button .loading-dots {
+  display: inline-flex;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .action-modal__button-cancel {
