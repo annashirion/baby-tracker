@@ -6,6 +6,7 @@ import Spinner from './Spinner';
 import RefreshButton from './RefreshButton';
 import DaySummary from './DaySummary';
 import { ACTION_TYPES } from '../constants/constants';
+import { useSwipeBack } from '../utils/useSwipeBack';
 
 function DayListView({ 
   selectedDay, 
@@ -21,6 +22,8 @@ function DayListView({
   onUpdateAction,
   onRefresh
 }) {
+  const containerRef = useSwipeBack(onBack);
+
   // Get actions for selected day (6 AM to 5:59 AM next day), split into two groups
   const { selectedDayActions, nextDayActions, nextDay } = selectedDay ? (() => {
     // Selected day: from 6:00 AM to 11:59:59 PM
@@ -75,7 +78,7 @@ function DayListView({
   })() : { selectedDayActions: [], nextDayActions: [], nextDay: null };
 
   return (
-    <div className="reports-view">
+    <div className="reports-view" ref={containerRef}>
       <div className="reports-header">
         <button onClick={onBack} className="btn back-button" title="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
