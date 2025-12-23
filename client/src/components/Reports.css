@@ -26,7 +26,6 @@
 }
 
 .reports-content {
-  padding: 1rem;
   flex: 1;
   min-height: 0;
   overflow-y: auto;

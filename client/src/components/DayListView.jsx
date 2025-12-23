@@ -4,6 +4,7 @@ import ReportsActionItem from './ReportsActionItem';
 import ActionEditPopup from './ActionEditPopup';
 import Spinner from './Spinner';
 import RefreshButton from './RefreshButton';
+import DaySummary from './DaySummary';
 import { ACTION_TYPES } from '../constants/constants';
 
 function DayListView({ 
@@ -124,15 +125,17 @@ function DayListView({
           </div>
         )}
 
-        {!loading && !error && selectedDayActions.length === 0 && nextDayActions.length === 0 && (
-          <div className="reports-empty">
-            No actions recorded for this day.
-          </div>
-        )}
-
-        {!loading && !error && (selectedDayActions.length > 0 || nextDayActions.length > 0) && (
-          <div className="reports-list">
-            {selectedDayActions.length > 0 && (
+        {!loading && !error && (
+          <>
+            <DaySummary actions={[...selectedDayActions, ...nextDayActions]} />
+            {selectedDayActions.length === 0 && nextDayActions.length === 0 && (
+              <div className="reports-empty">
+                No actions recorded for this day.
+              </div>
+            )}
+            {(selectedDayActions.length > 0 || nextDayActions.length > 0) && (
+              <div className="reports-list">
+              {selectedDayActions.length > 0 && (
               <div className="reports-date-group">
                 <div className="reports-date-header">
                   {selectedDay.toLocaleDateString('en-US', { 
@@ -169,7 +172,9 @@ function DayListView({
                 ))}
               </div>
             )}
-          </div>
+              </div>
+            )}
+          </>
         )}
 
         {actionToEdit && (

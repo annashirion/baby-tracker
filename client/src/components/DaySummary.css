@@ -1,0 +1,60 @@
+.day-summary {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.day-summary-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+}
+
+.day-summary-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.day-summary-values {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.day-summary-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.day-summary-value-label {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+
+.day-summary-value-number {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.day-summary-value-empty {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
