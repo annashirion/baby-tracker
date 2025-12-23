@@ -206,6 +206,9 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     setLastFeedAction(feedActions.length > 0 ? feedActions[0] : null);
   };
 
+  // Call ALL hooks before any conditional returns to follow Rules of Hooks
+  const containerRef = useSwipeBack(onClose);
+
   // Show reports view if showReports is true
   if (showReports) {
     return (
@@ -221,8 +224,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       />
     );
   }
-
-  const containerRef = useSwipeBack(onClose);
 
   return (
     <>

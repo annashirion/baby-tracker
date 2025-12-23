@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Login from './components/Login'
 import AdminPanel from './components/AdminPanel'
 import BabyProfiles from './components/BabyProfiles'
@@ -19,6 +19,36 @@ function App() {
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [openProfile, setOpenProfile] = useState(null)
   const adminPanelRefreshRef = useRef(null)
+
+  // Define all handlers with useCallback to ensure stable references
+  const handleCloseUsers = useCallback(() => {
+    setSelectedProfile(null)
+  }, [])
+
+  const handleViewUsers = useCallback((babyProfileId, profileName) => {
+    setSelectedProfile({ id: babyProfileId, name: profileName })
+  }, [])
+
+  const handleOpenProfile = useCallback((profile) => {
+    setOpenProfile(profile)
+    localStorage.setItem(OPEN_PROFILE_STORAGE_KEY, profile.id)
+  }, [])
+
+  const handleCloseProfile = useCallback(() => {
+    setOpenProfile(null)
+    localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
+  }, [])
+
+  const handleEmojiChange = useCallback((newEmoji) => {
+    setUser(prevUser => {
+      const updatedUser = { ...prevUser, emoji: newEmoji }
+      return updatedUser
+    })
+  }, [])
+
+  // Call ALL hooks before any conditional returns to follow Rules of Hooks
+  // Always pass a function (use no-op when selectedProfile is null)
+  const containerRef = useSwipeBack(selectedProfile ? handleCloseUsers : () => {});
 
   // Load user from backend and restore profile from localStorage on mount
   useEffect(() => {
@@ -158,33 +188,6 @@ function App() {
   if (!user) {
     return <Login onSuccess={handleLoginSuccess} onError={handleLoginError} />
   }
-
-  const handleViewUsers = (babyProfileId, profileName) => {
-    setSelectedProfile({ id: babyProfileId, name: profileName })
-  }
-
-  const handleCloseUsers = () => {
-    setSelectedProfile(null)
-  }
-
-  const handleOpenProfile = (profile) => {
-    setOpenProfile(profile)
-    localStorage.setItem(OPEN_PROFILE_STORAGE_KEY, profile.id)
-  }
-
-  const handleCloseProfile = () => {
-    setOpenProfile(null)
-    localStorage.removeItem(OPEN_PROFILE_STORAGE_KEY)
-  }
-
-  const handleEmojiChange = (newEmoji) => {
-    setUser(prevUser => {
-      const updatedUser = { ...prevUser, emoji: newEmoji }
-      return updatedUser
-    })
-  }
-
-  const containerRef = useSwipeBack(handleCloseUsers);
 
   if (openProfile) {
     return (
