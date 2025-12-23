@@ -6,6 +6,8 @@ A web application for tracking baby activities including feeding, sleeping, diap
 
 **Live Application:** [https://baby-tracker.up.railway.app/](https://baby-tracker.up.railway.app/)
 
+![Baby Tracker App Screenshots](./assets/baby-tracker-preview.png)
+
 ## 🎯 Project Description
 
 Baby Tracker is a full-stack application that helps caregivers monitor and log baby activities throughout the day. The application supports multiple users, allowing family members and caregivers to collaborate in tracking a baby's daily routine.
