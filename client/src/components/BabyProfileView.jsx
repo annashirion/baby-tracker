@@ -9,7 +9,6 @@ import LoadingDots from './LoadingDots';
 import RefreshButton from './RefreshButton';
 import { API_URL, ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 import { apiFetch } from '../utils/api';
-import { useSwipeBack } from '../utils/useSwipeBack';
 
 function BabyProfileView({ profile, onClose, userId, userEmoji }) {
   const [showDiaperAction, setShowDiaperAction] = useState(false);
@@ -222,8 +221,6 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
     );
   }
 
-  const containerRef = useSwipeBack(onClose);
-
   return (
     <>
       {showDiaperAction && (
@@ -280,7 +277,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
           }}
         />
       )}
-      <div className="baby-profile-view" ref={containerRef}>
+      <div className="baby-profile-view">
         <div className="baby-profile-view-header">
           <button onClick={onClose} className="btn back-button" title="Back">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

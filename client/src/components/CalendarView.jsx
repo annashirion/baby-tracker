@@ -3,7 +3,6 @@ import './CalendarView.css';
 import { getActionDetails } from '../utils/actionHelpers';
 import { ACTION_TYPES } from '../constants/constants';
 import Spinner from './Spinner';
-import { useSwipeBack } from '../utils/useSwipeBack';
 
 function CalendarView({ 
   actions, 
@@ -296,10 +295,9 @@ function CalendarView({
     }
   };
 
-  const containerRef = useSwipeBack(onClose);
 
   return (
-    <div className="calendar-container" ref={containerRef}>
+    <div className="calendar-container">
       <div className="calendar-header">
         <button onClick={onClose} className="btn back-button" title="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

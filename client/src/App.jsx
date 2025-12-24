@@ -8,8 +8,6 @@ import Spinner from './components/Spinner'
 import { API_URL } from './constants/constants'
 import { getAuthToken, setAuthToken, removeAuthToken, apiFetch } from './utils/api'
 import './App.css'
-import { useSwipeBack } from './utils/useSwipeBack';
-
 const OPEN_PROFILE_STORAGE_KEY = 'babyTracker_openProfile'
 
 function App() {
@@ -184,8 +182,6 @@ function App() {
     })
   }
 
-  const containerRef = useSwipeBack(handleCloseUsers);
-
   if (openProfile) {
     return (
       <div className="app-container">
@@ -201,7 +197,7 @@ function App() {
 
   if (selectedProfile) {
     return (
-      <div className="users-view-container" ref={containerRef}>
+      <div className="users-view-container">
         <div className="users-view-header">
           <button onClick={handleCloseUsers} className="btn back-button" title="Back">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
