@@ -180,12 +180,46 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
     }
   };
 
+  // Check if a day is within any fetched range
+  const isDayInFetchedRange = (day) => {
+    const dayTime = day.getTime();
+    return fetchedRanges.some(rangeKey => {
+      const periodStart = new Date(rangeKey);
+      periodStart.setHours(0, 0, 0, 0);
+      const periodEnd = new Date(periodStart);
+      periodEnd.setDate(periodEnd.getDate() + 4);
+      periodEnd.setHours(0, 0, 0, 0);
+      return dayTime >= periodStart.getTime() && dayTime < periodEnd.getTime();
+    });
+  };
+
   const handleNavigateDay = (direction) => {
     if (!selectedDay) return;
     const newDay = new Date(selectedDay);
     newDay.setDate(newDay.getDate() + direction);
     newDay.setHours(0, 0, 0, 0);
     setSelectedDay(newDay);
+    
+    // Check if we need to fetch data for the new day
+    if (!isDayInFetchedRange(newDay)) {
+      // Calculate which 4-day period should include this day
+      // We want the day to be one of the 4 days in the period
+      // For forward navigation (direction > 0), make it the first day
+      // For backward navigation (direction < 0), make it the last day
+      let periodStart;
+      if (direction > 0) {
+        // Forward: make newDay the first day of the period
+        periodStart = new Date(newDay);
+      } else {
+        // Backward: make newDay the last (4th) day of the period
+        periodStart = new Date(newDay);
+        periodStart.setDate(periodStart.getDate() - 3);
+      }
+      periodStart.setHours(0, 0, 0, 0);
+      
+      // Fetch data for the new period with loader
+      fetchActionsForPeriod(periodStart, true);
+    }
   };
 
   const navigatePeriod = (direction) => {
