@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTimeAction } from './useTimeAction';
 import TimeInputPicker from './TimeInputPicker';
 import LoadingDots from './LoadingDots';
@@ -7,6 +8,7 @@ import './SleepAction.css';
 import { ACTION_TYPES } from '../constants/constants';
 
 function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleepAction }) {
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const {
     startTime,
     setStartTime,
@@ -28,9 +30,52 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
     onClose,
       });
 
+  const handleResetCancel = () => {
+    setShowResetConfirm(false);
+  };
+
+  const handleResetConfirm = async () => {
+    setShowResetConfirm(false);
+    await handleCancel();
+  };
+
   return (
-    <div className="action-modal__overlay" onClick={onClose}>
-      <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
+    <>
+      {showResetConfirm && (
+        <div className="action-modal__overlay action-modal__overlay--delete-confirm" onClick={handleResetCancel}>
+          <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="action-modal__header">
+              <h3>Reset Sleep?</h3>
+              <button className="action-modal__close-button" onClick={handleResetCancel}>×</button>
+            </div>
+            
+            <div className="action-modal__content">
+              <p className="action-modal__delete-message">
+                Are you sure you want to reset this sleep? This will delete the ongoing sleep action.
+              </p>
+
+              <div className="action-modal__buttons">
+                <button
+                  className="action-modal__button action-modal__button-cancel"
+                  onClick={handleResetCancel}
+                  disabled={savingAction === 'cancel'}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="action-modal__button action-modal__button-cancel"
+                  onClick={handleResetConfirm}
+                  disabled={savingAction === 'cancel'}
+                >
+                  {savingAction === 'cancel' ? <LoadingDots size="small" /> : 'Reset'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="action-modal__overlay" onClick={onClose}>
+        <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
         <div className="action-modal__header">
           <h3>{isStarting ? 'Start Sleep' : 'End Sleep'}</h3>
           <button className="action-modal__close-button" onClick={onClose}>×</button>
@@ -81,10 +126,10 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
                 {lastSleepAction && !lastSleepAction.details?.endTime && (
                   <button
                     className="action-modal__button action-modal__button-cancel sleep-action__button-cancel"
-                    onClick={() => handleCancel()}
+                    onClick={() => setShowResetConfirm(true)}
                     disabled={savingAction}
                   >
-                    {savingAction === 'cancel' ? <LoadingDots size="small" /> : 'Reset'}
+                    Reset
                   </button>
                 )}
                 <button
@@ -100,6 +145,7 @@ function SleepAction({ profile, userId, userEmoji, onClose, onSuccess, lastSleep
         </div>
       </div>
     </div>
+    </>
   );
 }
 

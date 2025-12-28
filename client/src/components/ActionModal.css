@@ -179,3 +179,14 @@
     transform: translateY(0);
   }
 }
+
+/* Reset confirmation overlay with higher z-index */
+.action-modal__overlay--delete-confirm {
+  z-index: 2000;
+}
+
+/* Reset confirmation message styling */
+.action-modal__delete-message {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}

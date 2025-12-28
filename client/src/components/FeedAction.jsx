@@ -10,6 +10,7 @@ import { ACTION_TYPES } from '../constants/constants';
 function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAction }) {
   const [ml, setMl] = useState('');
   const [mlError, setMlError] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const {
     startTime,
@@ -54,9 +55,52 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
     handleEnd(additionalDetails);
   };
 
+  const handleResetCancel = () => {
+    setShowResetConfirm(false);
+  };
+
+  const handleResetConfirm = async () => {
+    setShowResetConfirm(false);
+    await handleCancel();
+  };
+
   return (
-    <div className="action-modal__overlay" onClick={onClose}>
-      <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
+    <>
+      {showResetConfirm && (
+        <div className="action-modal__overlay action-modal__overlay--delete-confirm" onClick={handleResetCancel}>
+          <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="action-modal__header">
+              <h3>Reset Feed?</h3>
+              <button className="action-modal__close-button" onClick={handleResetCancel}>×</button>
+            </div>
+            
+            <div className="action-modal__content">
+              <p className="action-modal__delete-message">
+                Are you sure you want to reset this feed? This will delete the ongoing feed action.
+              </p>
+
+              <div className="action-modal__buttons">
+                <button
+                  className="action-modal__button action-modal__button-cancel"
+                  onClick={handleResetCancel}
+                  disabled={savingAction === 'cancel'}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="action-modal__button action-modal__button-cancel"
+                  onClick={handleResetConfirm}
+                  disabled={savingAction === 'cancel'}
+                >
+                  {savingAction === 'cancel' ? <LoadingDots size="small" /> : 'Reset'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="action-modal__overlay" onClick={onClose}>
+        <div className="action-modal__modal" onClick={(e) => e.stopPropagation()}>
         <div className="action-modal__header">
           <h3>{isStarting ? 'Start Feed' : 'End Feed'}</h3>
           <button className="action-modal__close-button" onClick={onClose}>×</button>
@@ -130,10 +174,10 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
                 {lastFeedAction && !lastFeedAction.details?.endTime && (
                   <button
                     className="action-modal__button action-modal__button-cancel feed-action__button-cancel"
-                    onClick={() => handleCancel()}
+                    onClick={() => setShowResetConfirm(true)}
                     disabled={savingAction}
                   >
-                    {savingAction === 'cancel' ? <LoadingDots size="small" /> : 'Reset'}
+                    Reset
                   </button>
                 )}
                 <button
@@ -149,6 +193,7 @@ function FeedAction({ profile, userId, userEmoji, onClose, onSuccess, lastFeedAc
         </div>
       </div>
     </div>
+    </>
   );
 }
 
