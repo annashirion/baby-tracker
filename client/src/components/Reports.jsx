@@ -106,12 +106,25 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
 
   // Refresh current period by re-fetching it
   const refreshActions = async () => {
-    const rangeKey = currentPeriodStart.toDateString();
+    // Determine which period to refresh based on current view
+    let periodToRefresh;
+    if (showDayList && selectedDay) {
+      // In day list view - refresh the period containing the selected day
+      // Calculate which 4-day period contains this day
+      // Make the selected day the first day of its period
+      periodToRefresh = new Date(selectedDay);
+      periodToRefresh.setHours(0, 0, 0, 0);
+    } else {
+      // In calendar view - refresh the current period
+      periodToRefresh = new Date(currentPeriodStart);
+    }
+    
+    const rangeKey = periodToRefresh.toDateString();
     // Remove from fetched ranges to allow re-fetching
     setFetchedRanges(prev => prev.filter(r => r !== rangeKey));
     // Small delay to ensure state is updated
     await new Promise(resolve => setTimeout(resolve, 0));
-    await fetchActionsForPeriod(currentPeriodStart, false);
+    await fetchActionsForPeriod(periodToRefresh, false);
   };
 
   const handleActionClick = (action) => {
@@ -222,6 +235,23 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
     }
   };
 
+  // Check if we need to fetch more data when navigating the period
+  // Only fetch when we reach the edge of already-fetched data
+  const shouldFetchForPeriod = (periodStart, direction) => {
+    if (direction > 0) {
+      // Scrolling forward - only fetch if the last day (day +3) of the new period is not fetched
+      const lastDay = new Date(periodStart);
+      lastDay.setDate(periodStart.getDate() + 3);
+      lastDay.setHours(0, 0, 0, 0);
+      return !isDayInFetchedRange(lastDay);
+    } else {
+      // Scrolling backward - only fetch if the first day (day 0) of the new period is not fetched
+      const firstDay = new Date(periodStart);
+      firstDay.setHours(0, 0, 0, 0);
+      return !isDayInFetchedRange(firstDay);
+    }
+  };
+
   const navigatePeriod = (direction) => {
     const newPeriodStart = new Date(currentPeriodStart);
     newPeriodStart.setDate(newPeriodStart.getDate() + direction);
@@ -229,8 +259,24 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
     setSelectedDay(null);
     setShowDayList(false);
     
-    // Fetch data for the new period in background (no loader)
-    fetchActionsForPeriod(newPeriodStart, false);
+    // Only fetch if we're at the edge of already-fetched data
+    if (shouldFetchForPeriod(newPeriodStart, direction)) {
+      // Fetch 4 more days in the direction we're scrolling
+      let fetchPeriodStart;
+      if (direction > 0) {
+        // Scrolling forward - fetch starting from the last day of the new period
+        fetchPeriodStart = new Date(newPeriodStart);
+        fetchPeriodStart.setDate(newPeriodStart.getDate() + 3);
+      } else {
+        // Scrolling backward - fetch starting 3 days before the first day of the new period
+        fetchPeriodStart = new Date(newPeriodStart);
+        fetchPeriodStart.setDate(newPeriodStart.getDate() - 3);
+      }
+      fetchPeriodStart.setHours(0, 0, 0, 0);
+      
+      // Fetch data for the new period in background (no loader)
+      fetchActionsForPeriod(fetchPeriodStart, false);
+    }
   };
 
   const goToToday = () => {
@@ -241,6 +287,9 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
     setCurrentPeriodStart(today);
     setSelectedDay(null);
     setShowDayList(false);
+    
+    // Ensure data is fetched (fetchActionsForPeriod will skip if already fetched)
+    fetchActionsForPeriod(today, false);
   };
 
   // Show day list view when a day is selected
