@@ -29,6 +29,9 @@ const actionSchema = new mongoose.Schema({
   timestamps: true, // Adds createdAt and updatedAt fields
 });
 
+// Index for listing actions by baby profile (main query in getActions)
+actionSchema.index({ babyProfileId: 1 });
+
 const Action = mongoose.model('Action', actionSchema);
 
 export default Action;

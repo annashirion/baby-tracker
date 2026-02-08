@@ -27,6 +27,8 @@ const userBabyRoleSchema = new mongoose.Schema({
 
 // Ensure one role per user per baby profile
 userBabyRoleSchema.index({ userId: 1, babyProfileId: 1 }, { unique: true });
+// Index for listing roles by baby profile (e.g. GET /baby-profiles/:id/users)
+userBabyRoleSchema.index({ babyProfileId: 1 });
 
 const UserBabyRole = mongoose.model('UserBabyRole', userBabyRoleSchema);
 
