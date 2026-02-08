@@ -41,6 +41,12 @@ npm test
   - `users.js` - User management routes
   - `baby-profiles.js` - Baby profile routes
   - `actions.js` - Action tracking routes
+- `services/` - Business logic (used by routes)
+  - `auth.js` - Google token verification, user create/update, JWT
+  - `users.js` - User listing, role/block/emoji updates
+  - `baby-profiles.js` - Profiles CRUD, join by code, toggle join code, leave
+  - `actions.js` - Actions CRUD and permission checks
+- `errors.js` - HTTP error types (`AppError`, `BadRequestError`, `NotFoundError`, etc.) thrown by services
 - `models/` - Mongoose data models
   - `User.js` - User model
   - `BabyProfile.js` - Baby profile model
