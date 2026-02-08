@@ -15,11 +15,6 @@ export const authenticate = async (req, res, next) => {
       token = authHeader.substring(7); // Remove 'Bearer ' prefix
     }
 
-    // Fallback to cookie for backward compatibility (can be removed later)
-    if (!token) {
-      token = req.cookies?.token;
-    }
-
     if (!token) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -61,7 +56,7 @@ export const checkBabyProfileAccess = (allowedRoles = ['admin', 'editor', 'viewe
       // Get babyProfileId from the specified source
       let babyProfileId;
       if (babyProfileIdSource === 'params') {
-        babyProfileId = req.params.id || req.params.babyProfileId;
+        babyProfileId = req.params.babyProfileId;
       } else if (babyProfileIdSource === 'query') {
         babyProfileId = req.query.babyProfileId;
       } else {
