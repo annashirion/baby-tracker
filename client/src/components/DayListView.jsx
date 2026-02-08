@@ -6,6 +6,7 @@ import Spinner from './Spinner';
 import RefreshButton from './RefreshButton';
 import DaySummary from './DaySummary';
 import { ACTION_TYPES } from '../constants/constants';
+import { getEventTime } from '../utils/actionHelpers';
 
 function DayListView({ 
   selectedDay, 
@@ -39,16 +40,10 @@ function DayListView({
 
     const filterActions = (dayStart, dayEnd) => {
       return actions.filter(action => {
-        // For sleep/feed, check if start time falls in this time range
-        if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
-          const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
-          
-          // Check if action started in this time range
-          return startTime >= dayStart && startTime <= dayEnd;
-        }
-        // For other actions (diaper, other), check timestamp or createdAt
-        const actionDate = action.details?.timestamp ? new Date(action.details.timestamp) : new Date(action.createdAt);
-        return actionDate >= dayStart && actionDate <= dayEnd;
+        const et = getEventTime(action);
+        if (!et) return false;
+        const t = new Date(et);
+        return t >= dayStart && t <= dayEnd;
       });
     };
 
@@ -57,12 +52,10 @@ function DayListView({
 
     const sortActions = (actionList) => {
       return actionList.sort((a, b) => {
-        const timeA = a.actionType === ACTION_TYPES.SLEEP || a.actionType === ACTION_TYPES.FEED
-          ? (a.details?.startTime ? new Date(a.details.startTime) : new Date(a.createdAt))
-          : (a.details?.timestamp ? new Date(a.details.timestamp) : new Date(a.createdAt));
-        const timeB = b.actionType === ACTION_TYPES.SLEEP || b.actionType === ACTION_TYPES.FEED
-          ? (b.details?.startTime ? new Date(b.details.startTime) : new Date(b.createdAt))
-          : (b.details?.timestamp ? new Date(b.details.timestamp) : new Date(b.createdAt));
+        const ta = getEventTime(a);
+        const tb = getEventTime(b);
+        const timeA = ta ? new Date(ta).getTime() : 0;
+        const timeB = tb ? new Date(tb).getTime() : 0;
         return timeA - timeB; // Oldest first (chronological order, matching calendar view)
       });
     };

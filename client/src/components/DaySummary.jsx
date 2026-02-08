@@ -16,11 +16,10 @@ function DaySummary({ actions }) {
         break;
       
       case ACTION_TYPES.SLEEP:
-        const sleepStart = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
+        const sleepStart = action.details?.startTime ? new Date(action.details.startTime) : null;
         const sleepEnd = action.details?.endTime ? new Date(action.details.endTime) : null;
-        if (sleepEnd) {
-          const durationMs = sleepEnd - sleepStart;
-          acc.sleep.totalMs += durationMs;
+        if (sleepStart && sleepEnd) {
+          acc.sleep.totalMs += sleepEnd - sleepStart;
         }
         break;
       
@@ -30,11 +29,10 @@ function DaySummary({ actions }) {
         if (feedMl) {
           acc.feed.totalMl += feedMl;
         }
-        const feedStart = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
+        const feedStart = action.details?.startTime ? new Date(action.details.startTime) : null;
         const feedEnd = action.details?.endTime ? new Date(action.details.endTime) : null;
-        if (feedEnd) {
-          const durationMs = feedEnd - feedStart;
-          acc.feed.totalDurationMs += durationMs;
+        if (feedStart && feedEnd) {
+          acc.feed.totalDurationMs += feedEnd - feedStart;
         }
         break;
     }

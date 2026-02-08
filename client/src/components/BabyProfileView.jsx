@@ -302,7 +302,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
               <div className="last-action-info">
                 <div className="action-lines">
                   <span className="action-data">{getDiaperTypeLabel(lastDiaperAction.details?.type)}</span>
-                  <span className="time-ago">{formatTimeAgo(lastDiaperAction.details?.timestamp || lastDiaperAction.createdAt)}</span>
+                  <span className="time-ago">{lastDiaperAction.details?.timestamp ? formatTimeAgo(lastDiaperAction.details.timestamp) : '—'}</span>
                 </div>
                 {(lastDiaperAction.userEmoji || lastDiaperAction.userId?.emoji) && <span className="action-emoji">{lastDiaperAction.userEmoji || lastDiaperAction.userId?.emoji}</span>}
               </div>
@@ -403,7 +403,7 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
                 <div className="last-action-info">
                   <div className="action-lines">
                     <span className="action-data">{lastOtherAction.details?.title?.length > 10 ? lastOtherAction.details.title.slice(0, 10) + '…' : lastOtherAction.details?.title}</span>
-                    <span className="time-ago">{formatTimeAgo(lastOtherAction.details?.timestamp || lastOtherAction.createdAt)}</span>
+                    <span className="time-ago">{lastOtherAction.details?.timestamp ? formatTimeAgo(lastOtherAction.details.timestamp) : '—'}</span>
                   </div>
                   {(lastOtherAction.userEmoji || lastOtherAction.userId?.emoji) && <span className="action-emoji">{lastOtherAction.userEmoji || lastOtherAction.userId?.emoji}</span>}
                 </div>

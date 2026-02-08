@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './Reports.css';
 import { API_URL } from '../constants/constants';
 import { apiFetch } from '../utils/api';
+import { getEventTime } from '../utils/actionHelpers';
 import CalendarView from './CalendarView';
 import DayListView from './DayListView';
 import ActionEditPopup from './ActionEditPopup';
@@ -83,10 +84,14 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
       setActions(prev => {
         const existingIds = new Set(prev.map(a => a.id));
         const newActions = fetchedActions.filter(a => !existingIds.has(a.id));
-        // Sort by createdAt descending after merging
-        return [...prev, ...newActions].sort((a, b) => 
-          new Date(b.createdAt) - new Date(a.createdAt)
-        );
+        // Sort by event time (timestamp/details) descending after merging
+        return [...prev, ...newActions].sort((a, b) => {
+          const ta = getEventTime(a);
+          const tb = getEventTime(b);
+          const timeA = ta ? new Date(ta).getTime() : 0;
+          const timeB = tb ? new Date(tb).getTime() : 0;
+          return timeB - timeA;
+        });
       });
       
       // Mark this range as fetched

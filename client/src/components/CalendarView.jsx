@@ -164,18 +164,16 @@ function CalendarView({
     const periodEnd = nextDayEnd;
 
     return actions.filter(action => {
-      // For sleep/feed, check if the action OVERLAPS with the time period
-      // (not just if it started in the period - we want to see actions that span midnight)
+      // For sleep/feed, check if the action OVERLAPS with the time period (use only details)
       if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
-        const startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
+        const startTime = action.details?.startTime ? new Date(action.details.startTime) : null;
+        if (!startTime) return false;
         const endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
-        
-        // Check if action overlaps with the period (6am to 5:59am next day)
-        // An action overlaps if: startTime < periodEnd && endTime > periodStart
         return startTime < periodEnd && endTime > periodStart;
       }
-      // For other actions (diaper, other), check if they fall in either time range
-      const actionDate = action.details?.timestamp ? new Date(action.details.timestamp) : new Date(action.createdAt);
+      const ts = action.details?.timestamp;
+      if (!ts) return false;
+      const actionDate = new Date(ts);
       const inSelectedDay = actionDate >= dayStart && actionDate <= dayEnd;
       const inNextDay = actionDate >= nextDayStart && actionDate <= nextDayEnd;
       return inSelectedDay || inNextDay;
@@ -201,8 +199,9 @@ function CalendarView({
     let startTime, endTime;
     
     if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
-      startTime = action.details?.startTime ? new Date(action.details.startTime) : new Date(action.createdAt);
+      startTime = action.details?.startTime ? new Date(action.details.startTime) : null;
       endTime = action.details?.endTime ? new Date(action.details.endTime) : new Date();
+      if (!startTime) startTime = endTime;
       
       // For calendar view, we want to show the full action spanning the day's period (6am to 5:59am next day)
       // Clamp to the combined period boundaries (6am selected day to 5:59am next day)
@@ -225,8 +224,9 @@ function CalendarView({
         endTime = periodStart;
       }
     } else {
-      // For instant actions (diaper, other), use details.timestamp if available, otherwise createdAt
-      const actionTime = action.details?.timestamp ? new Date(action.details.timestamp) : new Date(action.createdAt);
+      const ts = action.details?.timestamp;
+      const actionTime = ts ? new Date(ts) : null;
+      if (!actionTime) return { display: 'none' };
       startTime = new Date(actionTime);
       endTime = new Date(actionTime);
       // Add a small duration for visibility (15 minutes)

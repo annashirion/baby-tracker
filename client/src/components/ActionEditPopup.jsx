@@ -48,19 +48,17 @@ function ActionEditPopup({ action, onClose, onDelete, onUpdate }) {
 
   useEffect(() => {
     if (action.actionType === ACTION_TYPES.DIAPER) {
-      const timestamp = action.details?.timestamp || action.createdAt;
-      setDiaperTimestamp(getLocalDateTime(timestamp));
+      setDiaperTimestamp(getLocalDateTime(action.details?.timestamp));
     } else if (action.actionType === ACTION_TYPES.FEED) {
-      setFeedStartTime(getLocalDateTime(action.details?.startTime || action.createdAt));
+      setFeedStartTime(getLocalDateTime(action.details?.startTime));
       setFeedEndTime(getLocalDateTime(action.details?.endTime || ''));
       setFeedComments(action.details?.comments || '');
     } else if (action.actionType === ACTION_TYPES.SLEEP) {
-      setSleepStartTime(getLocalDateTime(action.details?.startTime || action.createdAt));
+      setSleepStartTime(getLocalDateTime(action.details?.startTime));
       setSleepEndTime(getLocalDateTime(action.details?.endTime || ''));
       setSleepComments(action.details?.comments || '');
     } else if (action.actionType === ACTION_TYPES.OTHER) {
-      const timestamp = action.details?.timestamp || action.createdAt;
-      setOtherTimestamp(getLocalDateTime(timestamp));
+      setOtherTimestamp(getLocalDateTime(action.details?.timestamp));
     }
   }, [action]);
 

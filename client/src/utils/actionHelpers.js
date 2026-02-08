@@ -23,6 +23,16 @@ export const formatDuration = (startTime, endTime) => {
 import { ACTION_TYPES, DIAPER_TYPES } from '../constants/constants';
 
 /**
+ * Event time for logic: feed/sleep use details.startTime, diaper/other use details.timestamp.
+ * @param {Object} action - Action object
+ * @returns {string|null} ISO date string or null
+ */
+export function getEventTime(action) {
+  const d = action.details || {};
+  return d.startTime || d.timestamp || null;
+}
+
+/**
  * Get formatted details string for an action
  * @param {Object} action - Action object
  * @returns {string} Formatted details string

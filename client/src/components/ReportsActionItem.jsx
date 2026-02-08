@@ -30,21 +30,19 @@ function ReportsActionItem({ action, onClick }) {
 
   const diaperType = action.actionType === ACTION_TYPES.DIAPER ? action.details?.type : null;
   
-  // Get start and end times based on action type
+  // Get start and end times based on action type (use only details, never createdAt/updatedAt)
   const getTimeRange = () => {
     if (action.actionType === ACTION_TYPES.SLEEP || action.actionType === ACTION_TYPES.FEED) {
-      const startTime = action.details?.startTime || action.createdAt;
+      const startTime = action.details?.startTime;
       const endTime = action.details?.endTime;
-      
+      if (!startTime) return '';
       if (endTime) {
         return `${formatTime(startTime)} - ${formatTime(endTime)}`;
       }
       return formatTime(startTime);
-    } else {
-      // For diaper and other actions, just show the timestamp
-      const actionTime = action.details?.timestamp || action.createdAt;
-      return formatTime(actionTime);
     }
+    const actionTime = action.details?.timestamp;
+    return actionTime ? formatTime(actionTime) : '';
   };
 
   return (

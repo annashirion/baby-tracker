@@ -16,62 +16,72 @@ function toActionDto(action) {
   };
 }
 
+/** Event time for logic: feed/sleep use startTime, diaper/other use timestamp. Never use createdAt/updatedAt for logic. */
+function getEventTime(action) {
+  const d = action.details || {};
+  return d.startTime || d.timestamp || null;
+}
+
 export async function createAction({ babyProfileId, userId, actionType, details, userEmoji, timestamp }) {
   if (!actionType) {
     throw new BadRequestError('actionType is required');
   }
 
-  let action;
-  if (timestamp) {
-    const customTimestamp = new Date(timestamp);
-    action = new Action({
-      babyProfileId,
-      userId,
-      actionType,
-      details: details || {},
-      userEmoji: userEmoji || null,
-      createdAt: customTimestamp,
-      updatedAt: customTimestamp,
-    });
-    await action.save();
-  } else {
-    action = await Action.create({
-      babyProfileId,
-      userId,
-      actionType,
-      details: details || {},
-      userEmoji: userEmoji || null,
-    });
+  const mergedDetails = { ...(details || {}) };
+  if (timestamp != null) {
+    mergedDetails.timestamp = timestamp;
   }
+
+  const action = await Action.create({
+    babyProfileId,
+    userId,
+    actionType,
+    details: mergedDetails,
+    userEmoji: userEmoji || null,
+  });
 
   return { action: toActionDto(action) };
 }
 
 export async function getActions({ babyProfileId, startDate, endDate }) {
-  const query = { babyProfileId };
-  if (startDate || endDate) {
-    query.createdAt = {};
-    if (startDate) query.createdAt.$gte = new Date(startDate);
-    if (endDate) query.createdAt.$lte = new Date(endDate);
-  }
-
-  const actions = await Action.find(query)
-    .sort({ createdAt: -1 })
+  const actions = await Action.find({ babyProfileId })
     .populate('userId', 'name email emoji')
     .lean();
 
-  return {
-    actions: actions.map((a) => ({
-      id: a._id,
-      babyProfileId: a.babyProfileId,
-      userId: a.userId,
-      actionType: a.actionType,
-      details: a.details,
-      userEmoji: a.userEmoji,
-      createdAt: a.createdAt,
-      updatedAt: a.updatedAt,
-    })),
-  };
+  // Filter and sort by event time only (never createdAt/updatedAt)
+  let list = actions.map((a) => ({
+    id: a._id,
+    babyProfileId: a.babyProfileId,
+    userId: a.userId,
+    actionType: a.actionType,
+    details: a.details,
+    userEmoji: a.userEmoji,
+    createdAt: a.createdAt,
+    updatedAt: a.updatedAt,
+  }));
+
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+  if (start || end) {
+    list = list.filter((a) => {
+      const et = getEventTime(a);
+      if (!et) return false;
+      const t = new Date(et);
+      if (start && t < start) return false;
+      if (end && t > end) return false;
+      return true;
+    });
+  }
+
+  list.sort((a, b) => {
+    const ta = getEventTime(a);
+    const tb = getEventTime(b);
+    const timeA = ta ? new Date(ta).getTime() : 0;
+    const timeB = tb ? new Date(tb).getTime() : 0;
+    return timeB - timeA; // descending (newest first)
+  });
+
+  return { actions: list };
 }
 
 export async function updateAction({ actionId, userId, details }) {

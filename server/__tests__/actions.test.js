@@ -184,9 +184,10 @@ describe('Actions Routes', () => {
       expect(response.body.action.userId.toString()).toBe(editorUser._id.toString());
     });
 
-    it('should create action with custom timestamp', async () => {
+    it('should create action with custom timestamp (stored in details, real createdAt/updatedAt)', async () => {
       const token = generateAuthToken(adminUser._id);
       const customTimestamp = '2023-06-15T10:00:00Z';
+      const beforeCreate = Date.now();
       const response = await request(app)
         .post('/actions')
         .set('Authorization', `Bearer ${token}`)
@@ -198,10 +199,12 @@ describe('Actions Routes', () => {
         });
 
       expect(response.status).toBe(200);
-      // Compare timestamps (allowing for millisecond differences)
-      const receivedTime = new Date(response.body.action.createdAt).getTime();
-      const expectedTime = new Date(customTimestamp).getTime();
-      expect(Math.abs(receivedTime - expectedTime)).toBeLessThan(1000);
+      // Timestamp from params is stored in details only; logic uses only timestamp
+      expect(response.body.action.details.timestamp).toBe(customTimestamp);
+      // Backend saves real createdAt/updatedAt (server time)
+      const createdAtMs = new Date(response.body.action.createdAt).getTime();
+      expect(createdAtMs).toBeGreaterThanOrEqual(beforeCreate - 1000);
+      expect(createdAtMs).toBeLessThanOrEqual(Date.now() + 1000);
     });
   });
 
