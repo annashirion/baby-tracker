@@ -295,7 +295,7 @@ describe('Baby Profiles Routes', () => {
     });
   });
 
-  describe('PUT /baby-profiles/:id', () => {
+  describe('PUT /baby-profiles', () => {
     it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
@@ -318,9 +318,7 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          name: 'Updated Baby',
-        });
+        .send({ name: 'Updated Baby' });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('do not have access');
@@ -341,9 +339,7 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          name: 'Updated Baby',
-        });
+        .send({ name: 'Updated Baby' });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -364,9 +360,7 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          name: 'Updated Baby',
-        });
+        .send({ name: 'Updated Baby' });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -388,9 +382,7 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          name: 'Updated Baby',
-        });
+        .send({ name: 'Updated Baby' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -418,9 +410,7 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          birthDate: '2023-06-15',
-        });
+        .send({ birthDate: '2023-06-15' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -447,10 +437,7 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          name: 'Updated Baby',
-          birthDate: '2023-06-15',
-        });
+        .send({ name: 'Updated Baby', birthDate: '2023-06-15' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -476,24 +463,21 @@ describe('Baby Profiles Routes', () => {
       const response = await request(app)
         .put(`/baby-profiles/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          name: 'Updated Baby',
-        });
+        .send({ name: 'Updated Baby' });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('Baby profile not found');
     });
   });
 
-  describe('DELETE /baby-profiles/:id', () => {
+  describe('DELETE /baby-profiles', () => {
     it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
       const response = await request(app)
-        .delete(`/baby-profiles/${profile._id.toString()}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}`);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
@@ -507,8 +491,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/baby-profiles/${profile._id.toString()}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('do not have access');
@@ -528,8 +511,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/baby-profiles/${profile._id.toString()}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -549,8 +531,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/baby-profiles/${profile._id.toString()}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -576,8 +557,7 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/baby-profiles/${profile._id.toString()}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -604,23 +584,21 @@ describe('Baby Profiles Routes', () => {
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
         .delete(`/baby-profiles/${fakeId.toString()}`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('Baby profile not found');
     });
   });
 
-  describe('POST /baby-profiles/:id/leave', () => {
+  describe('POST /baby-profiles/leave', () => {
     it('should return 401 if not authenticated', async () => {
       const profile = await BabyProfile.create({
         name: 'Baby 1',
       });
 
       const response = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
@@ -633,9 +611,8 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('do not have access');
@@ -654,9 +631,8 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('Admins cannot leave a profile. Please delete the profile instead.');
@@ -676,9 +652,8 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -710,9 +685,8 @@ describe('Baby Profiles Routes', () => {
 
       const token = generateAuthToken(testUser1._id);
       const response = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -749,9 +723,8 @@ describe('Baby Profiles Routes', () => {
       // User leaves
       const token1 = generateAuthToken(testUser1._id);
       const leaveResponse = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token1}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token1}`);
 
       expect(leaveResponse.status).toBe(200);
       expect(leaveResponse.body.success).toBe(true);
@@ -809,9 +782,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 leaves
       const token = generateAuthToken(testUser2._id);
       const response = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -862,13 +834,9 @@ describe('Baby Profiles Routes', () => {
       // Admin blocks User 2
       const token1a = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${profile._id.toString()}/members/${testUser2._id.toString()}`)
         .set('Authorization', `Bearer ${token1a}`)
-        .send({
-          babyProfileId: profile._id.toString(),
-          targetUserId: testUser2._id.toString(),
-          blocked: true,
-        });
+        .send({ blocked: true });
 
       expect(blockResponse.status).toBe(200);
       expect(blockResponse.body.success).toBe(true);
@@ -936,13 +904,9 @@ describe('Baby Profiles Routes', () => {
       // Admin unblocks User 2
       const token1b = generateAuthToken(testUser1._id);
       const unblockResponse = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${profile._id.toString()}/members/${testUser2._id.toString()}`)
         .set('Authorization', `Bearer ${token1b}`)
-        .send({
-          babyProfileId: profile._id.toString(),
-          targetUserId: testUser2._id.toString(),
-          blocked: false,
-        });
+        .send({ blocked: false });
 
       expect(unblockResponse.status).toBe(200);
       expect(unblockResponse.body.success).toBe(true);
@@ -984,12 +948,8 @@ describe('Baby Profiles Routes', () => {
       // Admin removes User 2
       const token1c = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token1c}`)
-        .send({
-          babyProfileId: profile._id.toString(),
-          targetUserId: testUser2._id.toString(),
-        });
+        .delete(`/baby-profiles/${profile._id.toString()}/members/${testUser2._id.toString()}`)
+        .set('Authorization', `Bearer ${token1c}`);
 
       expect(deleteResponse.status).toBe(200);
       expect(deleteResponse.body.success).toBe(true);
@@ -1048,25 +1008,17 @@ describe('Baby Profiles Routes', () => {
       // Admin blocks User 2
       const token1d = generateAuthToken(testUser1._id);
       const blockResponse = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${profile._id.toString()}/members/${testUser2._id.toString()}`)
         .set('Authorization', `Bearer ${token1d}`)
-        .send({
-          babyProfileId: profile._id.toString(),
-          targetUserId: testUser2._id.toString(),
-          blocked: true,
-        });
+        .send({ blocked: true });
 
       expect(blockResponse.status).toBe(200);
 
       // Admin removes User 2
       const token1e = generateAuthToken(testUser1._id);
       const deleteResponse = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token1e}`)
-        .send({
-          babyProfileId: profile._id.toString(),
-          targetUserId: testUser2._id.toString(),
-        });
+        .delete(`/baby-profiles/${profile._id.toString()}/members/${testUser2._id.toString()}`)
+        .set('Authorization', `Bearer ${token1e}`);
 
       expect(deleteResponse.status).toBe(200);
 
@@ -1117,9 +1069,7 @@ describe('Baby Profiles Routes', () => {
       const updateResponse = await request(app)
         .put(`/baby-profiles/${profile._id.toString()}`)
         .set('Authorization', `Bearer ${token2g}`)
-        .send({
-          name: 'Updated Name',
-        });
+        .send({ name: 'Updated Name' });
 
       expect(updateResponse.status).toBe(403);
       expect(updateResponse.body.error).toBe('You have been blocked from accessing this baby profile');
@@ -1127,9 +1077,8 @@ describe('Baby Profiles Routes', () => {
       // User 2 tries to leave profile (should fail)
       const token2h = generateAuthToken(testUser2._id);
       const leaveResponse = await request(app)
-        .post(`/baby-profiles/${profile._id.toString()}/leave`)
-        .set('Authorization', `Bearer ${token2h}`)
-        .send({});
+        .delete(`/baby-profiles/${profile._id.toString()}/members/me`)
+        .set('Authorization', `Bearer ${token2h}`);
 
       expect(leaveResponse.status).toBe(403);
       expect(leaveResponse.body.error).toBe('You have been blocked from accessing this baby profile');
@@ -1253,7 +1202,7 @@ describe('Baby Profiles Routes', () => {
       });
     });
 
-    describe('PUT /baby-profiles/:id/toggle-join-code', () => {
+    describe('PATCH /baby-profiles/:id (joinCodeEnabled)', () => {
       it('should return 401 if not authenticated', async () => {
         const profile = await BabyProfile.create({
           name: 'Baby 1',
@@ -1261,8 +1210,8 @@ describe('Baby Profiles Routes', () => {
         });
 
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
-          .send({});
+          .patch(`/baby-profiles/${profile._id.toString()}`)
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(401);
         expect(response.body.error).toBe('Authentication required');
@@ -1276,9 +1225,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(403);
         expect(response.body.error).toContain('do not have access');
@@ -1298,9 +1247,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(403);
         expect(response.body.error).toContain('Access denied');
@@ -1320,9 +1269,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(403);
         expect(response.body.error).toContain('Access denied');
@@ -1343,9 +1292,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(403);
         expect(response.body.error).toBe('You have been blocked from accessing this baby profile');
@@ -1366,9 +1315,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -1394,9 +1343,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -1423,27 +1372,27 @@ describe('Baby Profiles Routes', () => {
         const token = generateAuthToken(testUser1._id);
         // Toggle to disabled
         const response1 = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: false });
 
         expect(response1.status).toBe(200);
         expect(response1.body.profile.joinCodeEnabled).toBe(false);
 
         // Toggle back to enabled
         const response2 = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: true });
 
         expect(response2.status).toBe(200);
         expect(response2.body.profile.joinCodeEnabled).toBe(true);
 
         // Toggle to disabled again
         const response3 = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: false });
 
         expect(response3.status).toBe(200);
         expect(response3.body.profile.joinCodeEnabled).toBe(false);
@@ -1465,9 +1414,9 @@ describe('Baby Profiles Routes', () => {
 
         const token = generateAuthToken(testUser1._id);
         const response = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token}`)
-          .send({});
+          .send({ joinCodeEnabled: !profile.joinCodeEnabled });
 
         expect(response.status).toBe(200);
         expect(response.body.profile).toHaveProperty('id');
@@ -1495,9 +1444,9 @@ describe('Baby Profiles Routes', () => {
         // Admin disables join code
         const token1 = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token1}`)
-          .send({});
+          .send({ joinCodeEnabled: false });
 
         expect(toggleResponse.status).toBe(200);
         expect(toggleResponse.body.profile.joinCodeEnabled).toBe(false);
@@ -1542,9 +1491,9 @@ describe('Baby Profiles Routes', () => {
         // Admin enables join code
         const token1a = generateAuthToken(testUser1._id);
         const toggleResponse = await request(app)
-          .put(`/baby-profiles/${profile._id.toString()}/toggle-join-code`)
+          .patch(`/baby-profiles/${profile._id.toString()}`)
           .set('Authorization', `Bearer ${token1a}`)
-          .send({});
+          .send({ joinCodeEnabled: true });
 
         expect(toggleResponse.status).toBe(200);
         expect(toggleResponse.body.profile.joinCodeEnabled).toBe(true);

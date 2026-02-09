@@ -75,11 +75,10 @@ function BabyProfileView({ profile, onClose, userId, userEmoji }) {
       // Only fetch last 4 days of actions for the calendar
       const { startDate, endDate } = getCalendarDateRange();
       const params = new URLSearchParams({
-        babyProfileId: profile.id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
       });
-      const response = await apiFetch(`${API_URL}/actions?${params}`);
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profile.id}/actions?${params}`);
       
       if (response.ok) {
         const data = await response.json();

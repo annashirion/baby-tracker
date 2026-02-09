@@ -1,6 +1,8 @@
 import express from 'express';
 import { authenticate, checkBabyProfileAccess } from '../middleware/auth.js';
 import * as babyProfilesService from '../services/baby-profiles.js';
+import * as actionsService from '../services/actions.js';
+import * as usersService from '../services/users.js';
 import { AppError } from '../errors.js';
 
 const router = express.Router();
@@ -52,39 +54,6 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
-// Update a baby profile (admin only)
-router.put('/:id', authenticate, checkBabyProfileAccess(['admin'], 'params'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, birthDate } = req.body;
-    const result = await babyProfilesService.updateProfile({
-      profileId: id,
-      name,
-      birthDate,
-    });
-    res.json({
-      success: true,
-      ...result,
-      profile: { ...result.profile, role: req.userRole.role },
-    });
-  } catch (error) {
-    console.error('Error updating baby profile:', error);
-    sendError(res, error);
-  }
-});
-
-// Delete a baby profile (admin only)
-router.delete('/:id', authenticate, checkBabyProfileAccess(['admin'], 'params'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await babyProfilesService.deleteProfile(id);
-    res.json({ success: true, ...result });
-  } catch (error) {
-    console.error('Error deleting baby profile:', error);
-    sendError(res, error);
-  }
-});
-
 // Join a baby profile using join code
 router.post('/join', authenticate, async (req, res) => {
   try {
@@ -103,34 +72,173 @@ router.post('/join', authenticate, async (req, res) => {
   }
 });
 
-// Toggle join code enabled/disabled (admin only)
-router.put('/:id/toggle-join-code', authenticate, checkBabyProfileAccess(['admin'], 'params'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await babyProfilesService.toggleJoinCode(id);
-    res.json({
-      success: true,
-      ...result,
-      profile: { ...result.profile, role: req.userRole.role },
-    });
-  } catch (error) {
-    console.error('Error toggling join code:', error);
-    sendError(res, error);
-  }
-});
+// --- Nested under :id (profile id in URL) ---
 
-// Leave a baby profile (remove user's access)
-router.post('/:id/leave', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer'], 'params'), async (req, res) => {
+// Leave a baby profile (remove current user's membership)
+router.delete('/:id/members/me', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer']), async (req, res) => {
   try {
-    const { id } = req.params;
+    const profileId = req.params.id;
     const result = await babyProfilesService.leaveProfile({
-      profileId: id,
+      profileId,
       userId: req.user.id,
       userRole: req.userRole.role,
     });
     res.json({ success: true, ...result });
   } catch (error) {
     console.error('Error leaving baby profile:', error);
+    sendError(res, error);
+  }
+});
+
+// List members of a baby profile (admin only)
+router.get('/:id/members', authenticate, checkBabyProfileAccess(['admin']), async (req, res) => {
+  try {
+    const babyProfileId = req.params.id;
+    const result = await usersService.getUsersForBabyProfile(babyProfileId);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    sendError(res, error);
+  }
+});
+
+// Update a member (role or blocked) - admin only
+router.patch('/:id/members/:userId', authenticate, checkBabyProfileAccess(['admin']), async (req, res) => {
+  try {
+    const babyProfileId = req.params.id;
+    const targetUserId = req.params.userId;
+    const { role, blocked } = req.body;
+    const { userId } = req.userRole;
+
+    if (role !== undefined) {
+      const result = await usersService.updateUserRole({
+        userId,
+        babyProfileId,
+        targetUserId,
+        newRole: role,
+      });
+      return res.json({ success: true, ...result });
+    }
+    if (typeof blocked === 'boolean') {
+      const result = await usersService.blockUnblockUser({
+        userId,
+        babyProfileId,
+        targetUserId,
+        blocked,
+      });
+      return res.json({ success: true, ...result });
+    }
+    return res.status(400).json({ error: 'Provide role or blocked in body' });
+  } catch (error) {
+    console.error('Error updating member:', error);
+    sendError(res, error);
+  }
+});
+
+// Remove a member from a baby profile - admin only
+router.delete('/:id/members/:userId', authenticate, checkBabyProfileAccess(['admin']), async (req, res) => {
+  try {
+    const babyProfileId = req.params.id;
+    const targetUserId = req.params.userId;
+    const { userId } = req.userRole;
+    const result = await usersService.removeUserFromBabyProfile({
+      userId,
+      babyProfileId,
+      targetUserId,
+    });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error removing user:', error);
+    sendError(res, error);
+  }
+});
+
+// List actions for a baby profile
+router.get('/:id/actions', authenticate, checkBabyProfileAccess(['admin', 'editor', 'viewer']), async (req, res) => {
+  try {
+    const babyProfileId = req.params.id;
+    const { startDate, endDate } = req.query;
+    const result = await actionsService.getActions({
+      babyProfileId,
+      startDate,
+      endDate,
+    });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error fetching actions:', error);
+    sendError(res, error);
+  }
+});
+
+// Create an action for a baby profile (editors and admins only)
+router.post('/:id/actions', authenticate, checkBabyProfileAccess(['admin', 'editor']), async (req, res) => {
+  try {
+    const babyProfileId = req.params.id;
+    const { actionType, details, userEmoji, timestamp } = req.body;
+    const result = await actionsService.createAction({
+      babyProfileId,
+      userId: req.user.id,
+      actionType,
+      details,
+      userEmoji,
+      timestamp,
+    });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error creating action:', error);
+    sendError(res, error);
+  }
+});
+
+// Update a baby profile (admin only) - full update
+router.put('/:id', authenticate, checkBabyProfileAccess(['admin']), async (req, res) => {
+  try {
+    const profileId = req.params.id;
+    const { name, birthDate } = req.body;
+    const result = await babyProfilesService.updateProfile({
+      profileId,
+      name,
+      birthDate,
+    });
+    res.json({
+      success: true,
+      ...result,
+      profile: { ...result.profile, role: req.userRole.role },
+    });
+  } catch (error) {
+    console.error('Error updating baby profile:', error);
+    sendError(res, error);
+  }
+});
+
+// Partial update (e.g. joinCodeEnabled) - admin only
+router.patch('/:id', authenticate, checkBabyProfileAccess(['admin']), async (req, res) => {
+  try {
+    const profileId = req.params.id;
+    const { joinCodeEnabled } = req.body;
+    const result = await babyProfilesService.updateProfile({
+      profileId,
+      joinCodeEnabled,
+    });
+    res.json({
+      success: true,
+      ...result,
+      profile: { ...result.profile, role: req.userRole.role },
+    });
+  } catch (error) {
+    console.error('Error updating baby profile:', error);
+    sendError(res, error);
+  }
+});
+
+// Delete a baby profile (admin only)
+router.delete('/:id', authenticate, checkBabyProfileAccess(['admin']), async (req, res) => {
+  try {
+    const profileId = req.params.id;
+    const result = await babyProfilesService.deleteProfile(profileId);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error deleting baby profile:', error);
     sendError(res, error);
   }
 });

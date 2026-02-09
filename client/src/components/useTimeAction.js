@@ -55,10 +55,9 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
       setSavingAction('start');
       setError(null);
 
-      const response = await apiFetch(`${API_URL}/actions`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profile?.id}/actions`, {
         method: 'POST',
         body: JSON.stringify({
-          babyProfileId: profile?.id,
           actionType: actionType,
           details: {
             startTime: new Date(startTime).toISOString(),
@@ -122,10 +121,9 @@ export function useTimeAction({ actionType, lastAction, profile, userId, userEmo
         const data = await response.json();
         if (onSuccess) onSuccess(data.action);
       } else {
-        const response = await apiFetch(`${API_URL}/actions`, {
+        const response = await apiFetch(`${API_URL}/baby-profiles/${profile?.id}/actions`, {
           method: 'POST',
           body: JSON.stringify({
-            babyProfileId: profile?.id,
             actionType: actionType,
             details: details,
             userEmoji: userEmoji || null,

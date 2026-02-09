@@ -29,7 +29,7 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
         setLoading(true);
       }
       setError(null);
-      const response = await apiFetch(`${API_URL}/users?babyProfileId=${babyProfileId}`);
+      const response = await apiFetch(`${API_URL}/baby-profiles/${babyProfileId}/members`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Failed to fetch users');
@@ -68,13 +68,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
     try {
       setError(null);
-      const response = await apiFetch(`${API_URL}/users/role`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          babyProfileId,
-          targetUserId,
-          newRole,
-        }),
+      const response = await apiFetch(`${API_URL}/baby-profiles/${babyProfileId}/members/${targetUserId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role: newRole }),
       });
 
       if (!response.ok) {
@@ -118,13 +114,9 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
     try {
       setError(null);
-      const response = await apiFetch(`${API_URL}/users/block`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          babyProfileId,
-          targetUserId,
-          blocked: shouldBlock,
-        }),
+      const response = await apiFetch(`${API_URL}/baby-profiles/${babyProfileId}/members/${targetUserId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ blocked: shouldBlock }),
       });
 
       if (!response.ok) {
@@ -166,12 +158,8 @@ function AdminPanel({ userId, babyProfileId, onClose, onRefreshReady }) {
 
     try {
       setError(null);
-      const response = await apiFetch(`${API_URL}/users`, {
+      const response = await apiFetch(`${API_URL}/baby-profiles/${babyProfileId}/members/${targetUserId}`, {
         method: 'DELETE',
-        body: JSON.stringify({
-          babyProfileId,
-          targetUserId,
-        }),
       });
 
       if (!response.ok) {

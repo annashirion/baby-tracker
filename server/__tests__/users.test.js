@@ -69,43 +69,20 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('GET /users', () => {
+  describe('GET /baby-profiles/:id/members', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .get('/users')
-        .query({ babyProfileId: babyProfile._id.toString() });
+        .get(`/baby-profiles/${babyProfile._id.toString()}/members`);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if babyProfileId is missing', async () => {
-      const token = generateAuthToken(adminUser._id);
-      const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('babyProfileId is required');
-    });
-
-    it('should return 400 if babyProfileId format is invalid', async () => {
-      const token = generateAuthToken(adminUser._id);
-      const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: 'invalid' });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Invalid babyProfileId format');
-    });
-
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: babyProfile._id.toString() });
+        .get(`/baby-profiles/${babyProfile._id.toString()}/members`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -114,9 +91,8 @@ describe('Users Routes', () => {
     it('should return 403 if user has no access', async () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: babyProfile._id.toString() });
+        .get(`/baby-profiles/${babyProfile._id.toString()}/members`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('You do not have access to this baby profile');
@@ -125,9 +101,8 @@ describe('Users Routes', () => {
     it('should return all users for a baby profile if user is admin', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: babyProfile._id.toString() });
+        .get(`/baby-profiles/${babyProfile._id.toString()}/members`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -147,9 +122,8 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: babyProfile._id.toString() });
+        .get(`/baby-profiles/${babyProfile._id.toString()}/members`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.count).toBe(2);
@@ -177,43 +151,33 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('PUT /users/role', () => {
+  describe('PATCH /baby-profiles/:id/members/:userId (role)', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .put('/users/role')
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          newRole: 'editor',
-        });
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
+        .send({ role: 'editor' });
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 400 if neither role nor blocked provided', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/role')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-        });
+        .send({});
 
       expect(response.status).toBe(400);
-      expect(response.body.error).toBe('targetUserId and newRole are required');
+      expect(response.body.error).toBe('Provide role or blocked in body');
     });
 
     it('should return 400 if role is invalid', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/role')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          newRole: 'invalid_role',
-        });
+        .send({ role: 'invalid_role' });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Invalid role. Must be admin, editor, or viewer');
@@ -222,13 +186,9 @@ describe('Users Routes', () => {
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put('/users/role')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${editorUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: editorUser._id.toString(),
-          newRole: 'viewer',
-        });
+        .send({ role: 'viewer' });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -237,13 +197,9 @@ describe('Users Routes', () => {
     it('should return 400 if admin tries to change their own role', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/role')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${adminUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: adminUser._id.toString(),
-          newRole: 'viewer',
-        });
+        .send({ role: 'viewer' });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('You cannot change your own role');
@@ -252,13 +208,9 @@ describe('Users Routes', () => {
     it('should return 404 if target user is not part of baby profile', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/role')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${otherUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: otherUser._id.toString(),
-          newRole: 'viewer',
-        });
+        .send({ role: 'viewer' });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('User is not part of this baby profile');
@@ -267,13 +219,9 @@ describe('Users Routes', () => {
     it('should update user role successfully', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/role')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          newRole: 'editor',
-        });
+        .send({ role: 'editor' });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -288,41 +236,20 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('DELETE /users', () => {
+  describe('DELETE /baby-profiles/:id/members/:userId', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .delete('/users')
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-        });
+        .delete(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if required fields are missing', async () => {
-      const token = generateAuthToken(adminUser._id);
-      const response = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('targetUserId is required');
-    });
-
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: editorUser._id.toString(),
-        });
+        .delete(`/baby-profiles/${babyProfile._id.toString()}/members/${editorUser._id.toString()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -331,12 +258,8 @@ describe('Users Routes', () => {
     it('should return 400 if admin tries to remove themselves', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: adminUser._id.toString(),
-        });
+        .delete(`/baby-profiles/${babyProfile._id.toString()}/members/${adminUser._id.toString()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('You cannot remove yourself from the baby profile');
@@ -345,12 +268,8 @@ describe('Users Routes', () => {
     it('should return 404 if target user is not part of baby profile', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: otherUser._id.toString(),
-        });
+        .delete(`/baby-profiles/${babyProfile._id.toString()}/members/${otherUser._id.toString()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('User is not part of this baby profile');
@@ -359,12 +278,8 @@ describe('Users Routes', () => {
     it('should remove user from baby profile successfully', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .delete('/users')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-        });
+        .delete(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -379,59 +294,22 @@ describe('Users Routes', () => {
     });
   });
 
-  describe('PUT /users/block', () => {
+  describe('PATCH /baby-profiles/:id/members/:userId (blocked)', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .put('/users/block')
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          blocked: true,
-        });
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
+        .send({ blocked: true });
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if required fields are missing', async () => {
-      const token = generateAuthToken(adminUser._id);
-      const response = await request(app)
-        .put('/users/block')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('targetUserId and blocked (boolean) are required');
-    });
-
-    it('should return 400 if blocked is not a boolean', async () => {
-      const token = generateAuthToken(adminUser._id);
-      const response = await request(app)
-        .put('/users/block')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          blocked: 'true',
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('targetUserId and blocked (boolean) are required');
-    });
-
     it('should return 403 if user is not an admin', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${editorUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: editorUser._id.toString(),
-          blocked: true,
-        });
+        .send({ blocked: true });
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Access denied');
@@ -440,13 +318,9 @@ describe('Users Routes', () => {
     it('should return 400 if admin tries to block themselves', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${adminUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: adminUser._id.toString(),
-          blocked: true,
-        });
+        .send({ blocked: true });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('You cannot block yourself');
@@ -455,13 +329,9 @@ describe('Users Routes', () => {
     it('should block a user successfully', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          blocked: true,
-        });
+        .send({ blocked: true });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -488,13 +358,9 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          blocked: false,
-        });
+        .send({ blocked: false });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -518,13 +384,9 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${otherUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: otherUser._id.toString(),
-          blocked: true,
-        });
+        .send({ blocked: true });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -547,13 +409,9 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${otherUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: otherUser._id.toString(),
-          blocked: false,
-        });
+        .send({ blocked: false });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBe('User is not blocked for this baby profile');
@@ -571,13 +429,9 @@ describe('Users Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .put('/users/block')
+        .patch(`/baby-profiles/${babyProfile._id.toString()}/members/${viewerUser._id.toString()}`)
         .set('Authorization', `Bearer ${token}`)
-        .send({
-          babyProfileId: babyProfile._id.toString(),
-          targetUserId: viewerUser._id.toString(),
-          blocked: false,
-        });
+        .send({ blocked: false });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('User is not blocked');

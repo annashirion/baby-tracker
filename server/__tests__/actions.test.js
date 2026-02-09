@@ -70,12 +70,11 @@ describe('Actions Routes', () => {
     });
   });
 
-  describe('POST /actions', () => {
+  describe('POST /baby-profiles/:id/actions', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
           details: { type: 'pee' },
         });
@@ -84,28 +83,13 @@ describe('Actions Routes', () => {
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if babyProfileId is missing', async () => {
-      const token = generateAuthToken(adminUser._id);
-      const response = await request(app)
-        .post('/actions')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          actionType: 'diaper',
-          details: { type: 'pee' },
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('babyProfileId is required');
-    });
-
     it('should return 403 if user has no access to baby profile', async () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
-        actionType: 'diaper',
+          actionType: 'diaper',
           details: { type: 'pee' },
         });
 
@@ -122,10 +106,9 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
           details: { type: 'pee' },
         });
@@ -137,10 +120,9 @@ describe('Actions Routes', () => {
     it('should return 403 if viewer tries to create action', async () => {
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
           details: { type: 'pee' },
         });
@@ -152,10 +134,9 @@ describe('Actions Routes', () => {
     it('should successfully create action as admin', async () => {
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           actionType: 'diaper',
           details: { type: 'pee', comments: 'Wet diaper' },
         });
@@ -170,10 +151,9 @@ describe('Actions Routes', () => {
     it('should successfully create action as editor', async () => {
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           actionType: 'feed',
           details: { amount: 100, unit: 'ml' },
         });
@@ -189,10 +169,9 @@ describe('Actions Routes', () => {
       const customTimestamp = '2023-06-15T10:00:00Z';
       const beforeCreate = Date.now();
       const response = await request(app)
-        .post('/actions')
+        .post(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-          babyProfileId: testBabyProfile._id.toString(),
           actionType: 'sleep',
           details: { duration: 120 },
           timestamp: customTimestamp,
@@ -208,32 +187,20 @@ describe('Actions Routes', () => {
     });
   });
 
-  describe('GET /actions', () => {
+  describe('GET /baby-profiles/:id/actions', () => {
     it('should return 401 if not authenticated', async () => {
       const response = await request(app)
-        .get('/actions')
-        .query({ babyProfileId: testBabyProfile._id.toString() });
+        .get(`/baby-profiles/${testBabyProfile._id.toString()}/actions`);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Authentication required');
     });
 
-    it('should return 400 if babyProfileId is missing', async () => {
-      const token = generateAuthToken(viewerUser._id);
-      const response = await request(app)
-        .get('/actions')
-        .set('Authorization', `Bearer ${token}`);
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('babyProfileId is required');
-    });
-
     it('should return 403 if user has no access', async () => {
       const token = generateAuthToken(otherUser._id);
       const response = await request(app)
-        .get('/actions')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: testBabyProfile._id.toString() });
+        .get(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toBe('You do not have access to this baby profile');
@@ -256,9 +223,8 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(viewerUser._id);
       const response = await request(app)
-        .get('/actions')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: testBabyProfile._id.toString() });
+        .get(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -275,9 +241,8 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(editorUser._id);
       const response = await request(app)
-        .get('/actions')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: testBabyProfile._id.toString() });
+        .get(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -293,9 +258,8 @@ describe('Actions Routes', () => {
 
       const token = generateAuthToken(adminUser._id);
       const response = await request(app)
-        .get('/actions')
-        .set('Authorization', `Bearer ${token}`)
-        .query({ babyProfileId: testBabyProfile._id.toString() });
+        .get(`/baby-profiles/${testBabyProfile._id.toString()}/actions`)
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);

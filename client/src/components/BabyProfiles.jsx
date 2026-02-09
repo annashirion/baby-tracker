@@ -274,12 +274,15 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
 
   const handleToggleJoinCode = async (profileId, e) => {
     e.stopPropagation();
+    const profile = profiles.find(p => p.id === profileId);
+    if (!profile) return;
     try {
       setTogglingJoinCode(prev => ({ ...prev, [profileId]: true }));
       setError(null);
 
-      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}/toggle-join-code`, {
-        method: 'PUT',
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ joinCodeEnabled: !profile.joinCodeEnabled }),
       });
 
       if (!response.ok) {
@@ -418,8 +421,8 @@ function BabyProfiles({ userId, onViewUsers, onOpenProfile }) {
       setLeaving(prev => ({ ...prev, [profileId]: true }));
       setError(null);
 
-      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}/leave`, {
-        method: 'POST',
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profileId}/members/me`, {
+        method: 'DELETE',
       });
 
       if (!response.ok) {

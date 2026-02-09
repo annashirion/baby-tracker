@@ -56,10 +56,15 @@ export async function createProfile({ userId, name, birthDate }) {
   };
 }
 
-export async function updateProfile({ profileId, name, birthDate }) {
+export async function updateProfile({ profileId, name, birthDate, joinCodeEnabled }) {
+  const update = {};
+  if (name !== undefined) update.name = name;
+  if (birthDate !== undefined) update.birthDate = birthDate ? new Date(birthDate) : null;
+  if (joinCodeEnabled !== undefined) update.joinCodeEnabled = joinCodeEnabled;
+
   const babyProfile = await BabyProfile.findByIdAndUpdate(
     profileId,
-    { name, birthDate: birthDate ? new Date(birthDate) : null },
+    update,
     { new: true, runValidators: true }
   );
 

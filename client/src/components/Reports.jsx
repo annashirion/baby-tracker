@@ -67,11 +67,10 @@ function Reports({ profile, onClose, openToToday = false, initialActions = [], o
       endDate.setHours(5, 59, 59, 999);
 
       const params = new URLSearchParams({
-        babyProfileId: profile.id,
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
       });
-      const response = await apiFetch(`${API_URL}/actions?${params}`);
+      const response = await apiFetch(`${API_URL}/baby-profiles/${profile.id}/actions?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch actions');

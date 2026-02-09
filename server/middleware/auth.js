@@ -47,21 +47,17 @@ export const authenticate = async (req, res, next) => {
 /**
  * Middleware to check if user has access to a baby profile
  * Requires authenticate middleware to be called first
+ * Resolves babyProfileId from params (id or babyProfileId), query, or body.
  * @param {string[]} allowedRoles - Array of roles that are allowed (e.g., ['admin', 'editor'])
- * @param {string} babyProfileIdSource - Where to get babyProfileId from: 'params', 'query', or 'body'
  */
-export const checkBabyProfileAccess = (allowedRoles = ['admin', 'editor', 'viewer'], babyProfileIdSource = 'body') => {
+export const checkBabyProfileAccess = (allowedRoles = ['admin', 'editor', 'viewer']) => {
   return async (req, res, next) => {
     try {
-      // Get babyProfileId from the specified source
-      let babyProfileId;
-      if (babyProfileIdSource === 'params') {
-        babyProfileId = req.params.babyProfileId;
-      } else if (babyProfileIdSource === 'query') {
-        babyProfileId = req.query.babyProfileId;
-      } else {
-        babyProfileId = req.body.babyProfileId;
-      }
+      const babyProfileId =
+        req.params.id ??
+        req.params.babyProfileId ??
+        req.query.babyProfileId ??
+        req.body?.babyProfileId;
 
       if (!babyProfileId) {
         return res.status(400).json({ error: 'babyProfileId is required' });
