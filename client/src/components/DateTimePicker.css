@@ -66,11 +66,10 @@
 .datetime-picker-wheel {
   height: 100%;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
+  /* No padding here: padding + offsetTop breaks scroll math in Chrome; use spacers only */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 100px 0;
 }
 
 .datetime-picker-wheel::-webkit-scrollbar {
@@ -78,7 +77,8 @@
 }
 
 .datetime-picker-spacer {
-  height: 100px;
+  /* Was 100px + 100px wheel padding-top — single inset avoids double-counting in JS */
+  height: 200px;
   flex-shrink: 0;
 }
 
@@ -88,8 +88,7 @@
   align-items: center;
   font-size: 1.1rem;
   color: var(--color-text-secondary, #666666);
-  scroll-snap-align: center;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, font-weight 0.2s ease, font-size 0.2s ease;
   padding: 0 0.5rem;
   flex-shrink: 0;
 }
@@ -119,7 +118,7 @@
   pointer-events: none;
   border-top: 1px solid var(--color-border, #e0e0e0);
   border-bottom: 1px solid var(--color-border, #e0e0e0);
-  z-index: 1;
+  z-index: 3;
 }
 
 .datetime-picker-buttons {

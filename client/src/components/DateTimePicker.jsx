@@ -15,8 +15,6 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   const hasScrolled = useRef(false);
   const prevValueRef = useRef(value);
   const scrollPositionsSet = useRef(false);
-  const scrollCheckInterval = useRef(null);
-
   // Generate date options (7 days before today, today, 7 days after)
   const generateDateOptions = () => {
     const dates = [];
@@ -34,6 +32,38 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   const dateOptions = generateDateOptions();
   const hourOptions = Array.from({ length: 24 }, (_, i) => i);
   const minuteOptions = Array.from({ length: 60 }, (_, i) => i);
+
+  const wheelItemNodes = (el) => el?.querySelectorAll('.datetime-picker-item') ?? [];
+
+  /** Scroll so item `index` is vertically centered (uses layout offsets — no padding on wheel) */
+  const scrollWheelToItemIndex = (el, index) => {
+    const items = wheelItemNodes(el);
+    const item = items[index];
+    if (!item) return;
+    const centerY = item.offsetTop + item.offsetHeight / 2;
+    el.scrollTop = Math.max(0, centerY - el.clientHeight / 2);
+  };
+
+  /** Index of the item whose center is closest to the viewport center (maxIndex inclusive) */
+  const nearestItemIndex = (el, maxIndex) => {
+    const items = wheelItemNodes(el);
+    if (!items.length || maxIndex < 0) return -1;
+    const limit = Math.min(maxIndex, items.length - 1);
+    const visibleCenter = el.scrollTop + el.clientHeight / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i <= limit; i++) {
+      const c = items[i].offsetTop + items[i].offsetHeight / 2;
+      const d = Math.abs(visibleCenter - c);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
+      }
+    }
+    return best;
+  };
+
+  const wheelReady = (el, minCount) => wheelItemNodes(el).length >= minCount;
 
   // Initialize from value prop
   useEffect(() => {
@@ -137,44 +167,27 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
     return index;
   };
 
-  // Calculate which item is centered based on scroll position
-  const getCenteredIndex = (element) => {
-    if (!element) return -1;
-    const itemHeight = 50;
-    const topPadding = 100;
-    const spacerHeight = 100;
-    const containerCenter = 125;
-    const scrollTop = element.scrollTop;
-    
-    // When scrollTop is set to center an item at index N:
-    // scrollTop = (topPadding + spacerHeight + N*itemHeight + itemHeight/2) - containerCenter
-    // visibleCenter = scrollTop + containerCenter = topPadding + spacerHeight + N*itemHeight + itemHeight/2
-    // rawIndex = (visibleCenter - topPadding - spacerHeight) / itemHeight = N + 0.5
-    // So we need to use Math.floor, not Math.round, to get N
-    const visibleCenter = scrollTop + containerCenter;
-    const rawIndex = (visibleCenter - topPadding - spacerHeight) / itemHeight;
-    return Math.max(0, Math.floor(rawIndex));
-  };
-
   // Continuously check scroll position and update centered values using requestAnimationFrame
   useEffect(() => {
     let animationFrameId;
     
     const checkScrollPositions = () => {
+      if (!scrollPositionsSet.current) {
+        animationFrameId = requestAnimationFrame(checkScrollPositions);
+        return;
+      }
       if (hourRef.current) {
-        const hourIndex = getCenteredIndex(hourRef.current);
+        const hourIndex = nearestItemIndex(hourRef.current, 23);
         if (hourIndex >= 0 && hourIndex < 24) {
           setCenteredHour(hourIndex);
         }
       }
       if (minuteRef.current) {
-        const minuteIndex = getCenteredIndex(minuteRef.current);
+        const minuteIndex = nearestItemIndex(minuteRef.current, 59);
         if (minuteIndex >= 0 && minuteIndex < 60) {
           setCenteredMinute(minuteIndex);
         }
       }
-      
-      // Continue checking
       animationFrameId = requestAnimationFrame(checkScrollPositions);
     };
 
@@ -207,50 +220,36 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
     
     // Helper function to set scroll positions instantly
     const setScrollPositions = () => {
-      const itemHeight = 50;
-      const topPadding = 100; // CSS padding-top
-      const spacerHeight = 100; // Height of top spacer div
-      const containerCenter = 125; // Half of 250px container height
-      
-      // Check if all refs are ready
       if (!dateRef.current || !hourRef.current || !minuteRef.current) {
-        return false; // Not ready yet
+        return false;
       }
-      
-      // Disable smooth scrolling temporarily
+      if (
+        !wheelReady(dateRef.current, dateOptions.length) ||
+        !wheelReady(hourRef.current, 24) ||
+        !wheelReady(minuteRef.current, 60)
+      ) {
+        return false;
+      }
+
       dateRef.current.style.scrollBehavior = 'auto';
       hourRef.current.style.scrollBehavior = 'auto';
       minuteRef.current.style.scrollBehavior = 'auto';
-      
-      // Set date scroll position
+
       if (selectedDate) {
         const index = findDateIndex(selectedDate);
         if (index >= 0 && index < dateOptions.length) {
-          const itemTop = topPadding + spacerHeight + (index * itemHeight);
-          const itemCenter = itemTop + (itemHeight / 2);
-          const targetScroll = itemCenter - containerCenter;
-          dateRef.current.scrollTop = Math.max(0, targetScroll);
+          scrollWheelToItemIndex(dateRef.current, index);
         }
       }
-      
-      // Set hour scroll position
+
       if (selectedHour >= 0 && selectedHour < 24) {
-        const itemTop = topPadding + spacerHeight + (selectedHour * itemHeight);
-        const itemCenter = itemTop + (itemHeight / 2);
-        const targetScroll = itemCenter - containerCenter;
-        hourRef.current.scrollTop = Math.max(0, targetScroll);
-        // Force a reflow to ensure scroll position is applied
+        scrollWheelToItemIndex(hourRef.current, selectedHour);
         void hourRef.current.offsetHeight;
         setCenteredHour(selectedHour);
       }
-      
-      // Set minute scroll position
+
       if (selectedMinute >= 0 && selectedMinute < 60) {
-        const itemTop = topPadding + spacerHeight + (selectedMinute * itemHeight);
-        const itemCenter = itemTop + (itemHeight / 2);
-        const targetScroll = itemCenter - containerCenter;
-        minuteRef.current.scrollTop = Math.max(0, targetScroll);
-        // Force a reflow to ensure scroll position is applied
+        scrollWheelToItemIndex(minuteRef.current, selectedMinute);
         void minuteRef.current.offsetHeight;
         setCenteredMinute(selectedMinute);
       }
@@ -273,19 +272,19 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
       
       // Sync centered values with actual scroll positions
       if (hourRef.current) {
-        const hourIndex = getCenteredIndex(hourRef.current);
+        const hourIndex = nearestItemIndex(hourRef.current, 23);
         if (hourIndex >= 0 && hourIndex < 24) {
           setCenteredHour(hourIndex);
         }
       }
       if (minuteRef.current) {
-        const minuteIndex = getCenteredIndex(minuteRef.current);
+        const minuteIndex = nearestItemIndex(minuteRef.current, 59);
         if (minuteIndex >= 0 && minuteIndex < 60) {
           setCenteredMinute(minuteIndex);
         }
       }
-      
-      return true; // Successfully set all positions
+
+      return true;
     };
     
     // Try to set positions with a small delay to ensure DOM is ready
@@ -307,33 +306,16 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
     return () => clearTimeout(timeoutId);
   }, [selectedDate, selectedHour, selectedMinute, dateOptions]); // Run when selected values are set
 
-  // Handle scroll events with debouncing and snap-to-center
-  const snapToCenter = (element, itemHeight, maxIndex = Infinity) => {
-    if (!element) return -1;
-    const topPadding = 100;
-    const spacerHeight = 100;
-    const containerCenter = 125;
-    const scrollTop = element.scrollTop;
-    
-    // Calculate which item should be centered based on current scroll position
-    // Current visible center position in scrollable content = scrollTop + containerCenter
-    // Item index = (visibleCenter - topPadding - spacerHeight) / itemHeight
-    // Note: Use Math.floor because when centered, rawIndex = N + 0.5
-    const visibleCenter = scrollTop + containerCenter;
-    const rawIndex = (visibleCenter - topPadding - spacerHeight) / itemHeight;
-    const itemIndex = Math.max(0, Math.min(maxIndex, Math.floor(rawIndex)));
-    
-    // Calculate target scroll position to center this item
-    const itemTop = topPadding + spacerHeight + (itemIndex * itemHeight);
-    const itemCenter = itemTop + (itemHeight / 2);
-    const targetScroll = Math.max(0, itemCenter - containerCenter);
-    
-    // Smooth scroll to center
-    element.scrollTo({
-      top: targetScroll,
-      behavior: 'smooth'
-    });
-    
+  const snapToCenter = (element, maxIndex) => {
+    if (!element || maxIndex < 0) return -1;
+    const itemIndex = nearestItemIndex(element, maxIndex);
+    if (itemIndex < 0) return -1;
+    const items = wheelItemNodes(element);
+    const item = items[itemIndex];
+    if (!item) return -1;
+    const centerY = item.offsetTop + item.offsetHeight / 2;
+    const targetScroll = Math.max(0, centerY - element.clientHeight / 2);
+    element.scrollTo({ top: targetScroll, behavior: 'smooth' });
     return itemIndex;
   };
 
@@ -345,16 +327,8 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
     }
     
     hasScrolled.current = true;
-    const itemHeight = 50;
-    const topPadding = 100;
-    const spacerHeight = 100;
-    const containerCenter = 125;
-    const scrollTop = e.target.scrollTop;
-    
-    // Calculate which item is currently centered
-    const visibleCenter = scrollTop + containerCenter;
-    const rawIndex = (visibleCenter - topPadding - spacerHeight) / itemHeight;
-    const index = Math.max(0, Math.min(dateOptions.length - 1, Math.floor(rawIndex)));
+    const index = nearestItemIndex(e.target, dateOptions.length - 1);
+    if (index < 0) return;
     
     if (index >= 0 && index < dateOptions.length) {
       const currentIndex = findDateIndex(selectedDate);
@@ -372,8 +346,7 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
       return;
     }
     
-    const itemHeight = 50;
-    const index = snapToCenter(e.target, itemHeight, dateOptions.length - 1);
+    const index = snapToCenter(e.target, dateOptions.length - 1);
     if (index >= 0 && index < dateOptions.length) {
       const newDate = new Date(dateOptions[index]);
       newDate.setHours(selectedHour, selectedMinute, 0, 0);
@@ -382,17 +355,12 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   };
 
   const handleHourScroll = (e) => {
+    if (!scrollPositionsSet.current) {
+      return;
+    }
     hasScrolled.current = true;
-    const itemHeight = 50;
-    const topPadding = 100;
-    const spacerHeight = 100;
-    const containerCenter = 125;
-    const scrollTop = e.target.scrollTop;
-    
-    // Calculate which item is currently centered
-    const visibleCenter = scrollTop + containerCenter;
-    const rawIndex = (visibleCenter - topPadding - spacerHeight) / itemHeight;
-    const index = Math.max(0, Math.min(23, Math.floor(rawIndex)));
+    const index = nearestItemIndex(e.target, 23);
+    if (index < 0) return;
     
     // Always update centered hour for bold styling
     setCenteredHour(index);
@@ -408,12 +376,14 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   };
 
   const handleHourScrollEnd = (e) => {
-    const itemHeight = 50;
-    const index = snapToCenter(e.target, itemHeight, 23);
+    if (!scrollPositionsSet.current) {
+      return;
+    }
+    const index = snapToCenter(e.target, 23);
     if (index >= 0 && index < hourOptions.length) {
       // Wait for scroll animation to complete, then update
       setTimeout(() => {
-        const finalIndex = getCenteredIndex(e.target);
+        const finalIndex = nearestItemIndex(e.target, 23);
         if (finalIndex >= 0 && finalIndex < 24) {
           setCenteredHour(finalIndex);
           setSelectedHour(finalIndex);
@@ -428,17 +398,12 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   };
 
   const handleMinuteScroll = (e) => {
+    if (!scrollPositionsSet.current) {
+      return;
+    }
     hasScrolled.current = true;
-    const itemHeight = 50;
-    const topPadding = 100;
-    const spacerHeight = 100;
-    const containerCenter = 125;
-    const scrollTop = e.target.scrollTop;
-    
-    // Calculate which item is currently centered
-    const visibleCenter = scrollTop + containerCenter;
-    const rawIndex = (visibleCenter - topPadding - spacerHeight) / itemHeight;
-    const index = Math.max(0, Math.min(59, Math.floor(rawIndex)));
+    const index = nearestItemIndex(e.target, 59);
+    if (index < 0) return;
     
     // Always update centered minute for bold styling
     setCenteredMinute(index);
@@ -454,12 +419,14 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
   };
 
   const handleMinuteScrollEnd = (e) => {
-    const itemHeight = 50;
-    const index = snapToCenter(e.target, itemHeight, 59);
+    if (!scrollPositionsSet.current) {
+      return;
+    }
+    const index = snapToCenter(e.target, 59);
     if (index >= 0 && index < minuteOptions.length) {
       // Wait for scroll animation to complete, then update
       setTimeout(() => {
-        const finalIndex = getCenteredIndex(e.target);
+        const finalIndex = nearestItemIndex(e.target, 59);
         if (finalIndex >= 0 && finalIndex < 60) {
           setCenteredMinute(finalIndex);
           setSelectedMinute(finalIndex);
@@ -502,6 +469,7 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
         <div className="datetime-picker-separator"></div>
         
         <div className="datetime-picker-wheels">
+          <div className="datetime-picker-selection-indicator" aria-hidden />
           <div className="datetime-picker-wheel-container">
             <div 
               className="datetime-picker-wheel datetime-picker-wheel-date" 
@@ -565,9 +533,7 @@ function DateTimePicker({ value, onChange, onClose, title = 'Select time' }) {
             </div>
           </div>
         </div>
-        
-        <div className="datetime-picker-selection-indicator"></div>
-        
+
         <div className="datetime-picker-buttons">
           <button className="datetime-picker-button datetime-picker-button-cancel" onClick={handleCancel}>
             Cancel
